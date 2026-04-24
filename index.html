@@ -102,6 +102,18 @@
     .fsection select:focus { border-color: var(--primary); }
     .fsection select option { background: var(--surface2); }
 
+    /* search row */
+    .search-row { display: flex; gap: 6px; align-items: center; }
+    .search-row input { flex: 1; }
+    #btn-search {
+      background: var(--primary); border: none;
+      color: #fff; padding: 7px 11px;
+      border-radius: var(--radius); font-size: 13px;
+      flex-shrink: 0; transition: background .18s;
+    }
+    #btn-search:hover { background: var(--primarydk); }
+    .search-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
     .range-labels { display: flex; justify-content: space-between;
                     font-size: 11px; color: var(--muted); margin-bottom: 4px; }
     .range-labels b { color: var(--accent); }
@@ -177,7 +189,7 @@
 
     /* ── SCROLLABLE INNER ───────────────────────── */
     .vscroll {
-      flex: 1; overflow: auto; padding: 0 22px 22px;
+      flex: 1; min-height: 0; overflow: auto; padding: 0 22px 22px;
     }
     .vscroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .vscroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -367,7 +379,11 @@
   <aside id="sidebar">
     <div class="fsection">
       <div class="flabel">🔍 Search crop</div>
-      <input type="text" id="s-search" placeholder="e.g. Wheat, Maize, Rice…" />
+      <div class="search-row">
+        <input type="text" id="s-search" placeholder="e.g. Wheat, Maize, Rice…" />
+        <button id="btn-search">Go</button>
+      </div>
+      <div class="search-hint">Press Enter or click Go to search</div>
     </div>
 
     <hr class="sdiv" />
@@ -658,8 +674,14 @@ function refreshView() {
 /* ================================================================
    FILTER EVENTS
 ================================================================ */
-['s-search','s-family','s-use','s-realm','s-gf'].forEach(id =>
-  document.getElementById(id).addEventListener('input', applyFilters)
+// Search only fires on Enter or the Go button
+const searchInput = document.getElementById('s-search');
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
+document.getElementById('btn-search').addEventListener('click', applyFilters);
+
+// Dropdowns apply instantly
+['s-family','s-use','s-realm','s-gf'].forEach(id =>
+  document.getElementById(id).addEventListener('change', applyFilters)
 );
 ['r-min','r-max'].forEach(id => {
   document.getElementById(id).addEventListener('input', () => {
@@ -693,8 +715,8 @@ document.querySelectorAll('.nbtn').forEach(btn => {
     document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + v).classList.add('active');
     _curView = v;
-    // small delay so the view has painted before D3 measures widths
-    setTimeout(refreshView, 30);
+    // Wait for the browser to paint the newly-visible view before D3 measures widths
+    setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(refreshView)), 80);
   });
 });
 
@@ -723,9 +745,11 @@ function initMap() {
   }).addTo(_leafMap);
 
   _mLayer = L.markerClusterGroup({
-    maxClusterRadius: 50,
+    maxClusterRadius: 60,
     showCoverageOnHover: false,
-    spiderfyOnMaxZoom: true,
+    spiderfyOnMaxZoom: false,   // disabling spiderify removes the "confusion" at max zoom
+    zoomToBoundsOnClick: true,
+    disableClusteringAtZoom: 7, // show individual dots at close zoom
   });
   _leafMap.addLayer(_mLayer);
   updateMap();
@@ -734,15 +758,21 @@ function initMap() {
 function updateMap() {
   if (!_leafMap) return;
   _mLayer.clearLayers();
-  DATA.filter(d => d.lat != null && d.lon != null).forEach(crop => {
+  const mapped = DATA.filter(d => d.lat != null && d.lon != null);
+
+  mapped.forEach(crop => {
     const col = rc(crop.realm);
+    // Tiny deterministic offset so stacked same-centroid crops don't sit on top of each other
+    const keyN = crop._key.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+    const jLat = crop.lat + ((keyN % 20) - 10) * 0.008;
+    const jLon = crop.lon + ((keyN % 17) - 8)  * 0.009;
+
     const icon = L.divIcon({
       className: '',
       html: `<div style="width:11px;height:11px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,.55);box-shadow:0 0 5px ${col}99"></div>`,
       iconSize: [11,11], iconAnchor: [5.5,5.5],
     });
-    const marker = L.marker([crop.lat, crop.lon], { icon });
-    // ── Popup: uses data-key attribute, no JSON in onclick ──
+    const marker = L.marker([jLat, jLon], { icon });
     marker.bindPopup(`
       <div class="cpop">
         <h3>${esc(crop.name)}</h3>
@@ -759,6 +789,12 @@ function updateMap() {
     `, { maxWidth: 240 });
     _mLayer.addLayer(marker);
   });
+
+  // Auto-zoom to filtered results (only when the user has actually filtered something)
+  if (mapped.length > 0 && mapped.length < ALL.length * 0.85) {
+    const bounds = L.latLngBounds(mapped.map(d => [d.lat, d.lon]));
+    _leafMap.fitBounds(bounds.pad(0.15), { maxZoom: 7, animate: true });
+  }
 }
 
 // Event delegation: popup button clicks
@@ -812,84 +848,98 @@ function closeModal() {
 function drawTimeline() {
   const wrap = document.getElementById('tl-wrap');
   wrap.innerHTML = '';
+
   const pts = DATA.filter(d => d.tDom != null && d.tDom > 0);
   if (!pts.length) {
-    wrap.innerHTML = '<p style="color:var(--muted);padding:20px">No crops with age data match your filters.</p>';
+    wrap.innerHTML = '<p style="color:var(--muted);padding:20px">No crops with domestication age data match your filters.</p>';
     return;
   }
-  const realms = [...new Set(pts.map(d => d.realm || 'Unknown'))].sort();
-  const rowH   = 28;
-  const W      = Math.max(wrap.clientWidth - 8, 640);
-  const H      = realms.length * rowH + 72;
-  const mg     = { t: 20, r: 20, b: 42, l: 126 };
-  const iW     = W - mg.l - mg.r;
-  const iH     = realms.length * rowH;
 
-  const svg = d3.select(wrap).append('svg').attr('width', W).attr('height', H);
-  const g   = svg.append('g').attr('transform', `translate(${mg.l},${mg.t})`);
+  const realms = [...new Set(pts.map(d => d.realm || 'Unknown'))].sort();
+  // Larger row height so many dots don't all stack on one line
+  const rowH = 54;
+  // Use getBoundingClientRect for reliable width after layout
+  const rect = wrap.getBoundingClientRect();
+  const W    = Math.max(rect.width - 44, 580);  // subtract padding
+  const mg   = { t: 24, r: 24, b: 46, l: 130 };
+  const iW   = W - mg.l - mg.r;
+  const iH   = realms.length * rowH;
+  const H    = iH + mg.t + mg.b;
+
+  const svg = d3.select(wrap).append('svg')
+    .attr('width', W).attr('height', H)
+    .style('overflow', 'visible')   // prevent label clipping
+    .style('display', 'block');     // remove inline-block bottom gap
+
+  const g = svg.append('g').attr('transform', `translate(${mg.l},${mg.t})`);
 
   const maxAge = d3.max(pts, d => d.tDom);
   const xSc    = d3.scaleLinear().domain([0, maxAge * 1.04]).range([iW, 0]);
 
-  // Row backgrounds
+  // Alternating row backgrounds
   realms.forEach((r, i) => {
-    if (i % 2 === 0)
-      g.append('rect').attr('x', 0).attr('y', i * rowH)
-       .attr('width', iW).attr('height', rowH).attr('fill', 'rgba(255,255,255,.018)');
+    g.append('rect')
+      .attr('x', 0).attr('y', i * rowH)
+      .attr('width', iW).attr('height', rowH)
+      .attr('fill', i % 2 === 0 ? 'rgba(255,255,255,.025)' : 'rgba(0,0,0,.1)');
   });
 
-  // Grid lines
+  // Vertical grid lines
   const gridG = g.append('g').attr('transform', `translate(0,${iH})`);
   gridG.call(d3.axisBottom(xSc).ticks(8).tickSize(-iH).tickFormat(''));
-  gridG.selectAll('line').attr('stroke','#2b3b2a').attr('stroke-dasharray','3,4');
+  gridG.selectAll('line').attr('stroke','#2b3b2a').attr('stroke-dasharray','3,5');
   gridG.select('.domain').remove();
 
-  // X axis
+  // X axis with labels
   const xAxis = g.append('g').attr('transform', `translate(0,${iH})`)
     .call(d3.axisBottom(xSc).ticks(8)
       .tickFormat(d => d === 0 ? 'Today' : d.toLocaleString() + ' yr'));
-  xAxis.selectAll('text').attr('fill','#7a9a76').attr('font-size','10px');
+  xAxis.selectAll('text').attr('fill','#7a9a76').attr('font-size','11px');
   xAxis.selectAll('line,path').attr('stroke','#2b3b2a');
-  g.append('text').attr('x', iW/2).attr('y', iH + 36)
-   .attr('text-anchor','middle').attr('fill','#7a9a76').attr('font-size','11px')
-   .text('← Years before present');
+  g.append('text')
+    .attr('x', iW / 2).attr('y', iH + 40)
+    .attr('text-anchor','middle').attr('fill','#7a9a76').attr('font-size','11px')
+    .text('← Years before present');
 
-  // Realm labels (y)
+  // Realm row labels (left side)
   realms.forEach((r, i) => {
     g.append('text')
-     .attr('x', -8).attr('y', i * rowH + rowH/2 + 4)
-     .attr('text-anchor','end').attr('fill', rc(r)).attr('font-size','11px').attr('font-weight','600')
-     .text(rl(r));
+      .attr('x', -10).attr('y', i * rowH + rowH / 2 + 4)
+      .attr('text-anchor','end')
+      .attr('fill', rc(r)).attr('font-size','11px').attr('font-weight','700')
+      .text(rl(r));
   });
 
-  // Dots — deterministic y-jitter using crop name hash
+  // Crop dots with deterministic y-jitter (so dots spread within the row instead of all on one line)
   const tt = d3.select('#tt');
   g.selectAll('.tdot')
-   .data(pts)
-   .join('circle')
-   .attr('class','tdot')
-   .attr('cx', d => xSc(d.tDom))
-   .attr('cy', d => {
-     const ri  = realms.indexOf(d.realm || 'Unknown');
-     const mid = ri * rowH + rowH / 2;
-     // deterministic jitter from name charcode
-     const hash = Array.from(d.name).reduce((a,c) => a + c.charCodeAt(0), 0);
-     return mid + ((hash % 10) - 5) * (rowH * 0.06);
-   })
-   .attr('r', 5)
-   .attr('fill', d => rc(d.realm))
-   .attr('fill-opacity', .85)
-   .style('cursor','pointer')
-   .on('mousemove', function(ev, d) {
-     tt.classed('show', true)
-       .html(`<b>${esc(d.name)}</b><em style="color:var(--muted);font-size:11px">${esc(d.sci)}</em><br/>
-              <span style="color:var(--accent)">~${d.tDom.toLocaleString()} yrs ago</span><br/>
-              ${esc(d.family)} · ${rl(d.realm)}`)
-       .style('left', (ev.clientX + 14) + 'px')
-       .style('top',  (ev.clientY - 30) + 'px');
-   })
-   .on('mouseleave', () => tt.classed('show', false))
-   .on('click', (_, d) => { tt.classed('show', false); openModal(d); });
+    .data(pts)
+    .join('circle')
+    .attr('class','tdot')
+    .attr('cx', d => xSc(d.tDom))
+    .attr('cy', d => {
+      const ri   = realms.indexOf(d.realm || 'Unknown');
+      const mid  = ri * rowH + rowH / 2;
+      // Deterministic jitter: spread dots across 80% of the row height
+      const hash = Array.from(d.name).reduce((a, c) => a + c.charCodeAt(0), 0);
+      const spread = rowH * 0.38;
+      return mid + (((hash * 7) % 100) / 100 - 0.5) * 2 * spread;
+    })
+    .attr('r', 4.5)
+    .attr('fill', d => rc(d.realm))
+    .attr('fill-opacity', 0.82)
+    .style('cursor','pointer')
+    .on('mousemove', function(ev, d) {
+      tt.classed('show', true)
+        .html(`<b>${esc(d.name)}</b>
+               <em style="color:var(--muted);font-size:11px;display:block">${esc(d.sci)}</em>
+               <span style="color:var(--accent)">~${d.tDom.toLocaleString()} yrs ago</span><br/>
+               ${esc(d.family)} · ${rl(d.realm)}`)
+        .style('left', (ev.clientX + 14) + 'px')
+        .style('top',  (ev.clientY - 30) + 'px');
+    })
+    .on('mouseleave', () => tt.classed('show', false))
+    .on('click', (_, d) => { tt.classed('show', false); openModal(d); });
 }
 
 /* ================================================================
@@ -940,63 +990,67 @@ function drawTree() {
      );
 
     // Nodes
-    const isLeaf     = d => !d.children && !d._children;
-    const isCollapsed= d => !!d._children;
+    const isLeaf      = d => !d.children && !d._children;
+    const isCollapsed = d => !!d._children;
 
     const nodeGrp = g.selectAll('.tnode')
       .data(nodes, d => d.data.name + '-' + d.depth)
       .join(
-        e => {
-          const ng = e.append('g')
-            .attr('class', d => 'tnode'+(isLeaf(d)?' leaf':'')+(isCollapsed(d)?' coll':''))
-            .attr('transform', d => `translate(${d.y},${d.x})`);
+        enter => {
+          const ng = enter.append('g');
           ng.append('circle').attr('r', 6);
           ng.append('text')
             .attr('dy','0.32em')
-            .attr('x', d => isLeaf(d) ? 10 : -10)
-            .attr('text-anchor', d => isLeaf(d) ? 'start' : 'end')
-            .attr('font-size', d => d.depth<=1 ? '12px' : '11px')
-            .attr('font-weight', d => d.depth<=1 ? '600':'400')
+            .attr('font-size', d => d.depth <= 1 ? '12px' : '11px')
+            .attr('font-weight', d => d.depth <= 1 ? '600' : '400')
             .attr('fill', d => {
-              if (d.depth===0) return '#5caa38';
-              if (d.depth===1) return '#e8a030';
-              if (d.depth===2) return '#4fc3a1';
+              if (d.depth === 0) return '#5caa38';
+              if (d.depth === 1) return '#e8a030';
+              if (d.depth === 2) return '#4fc3a1';
               return '#d6e8d2';
             });
           return ng;
         },
-        u => u
+        update => update,
+        exit   => exit.remove()
       );
 
-    // Update all nodes
+    // Update class, position, and text on ALL nodes (enter + update merged)
     nodeGrp
-      .attr('class', d => 'tnode'+(isLeaf(d)?' leaf':'')+(isCollapsed(d)?' coll':''))
-      .transition().duration(250)
+      .attr('class', d => 'tnode' + (isLeaf(d) ? ' leaf' : '') + (isCollapsed(d) ? ' coll' : ''))
+      .transition().duration(220)
       .attr('transform', d => `translate(${d.y},${d.x})`);
 
-    nodeGrp.select('text').text(d => {
-      const n   = d.data.name;
-      const cnt = d._children ? ` (${cntLeaves(d)})` : '';
-      const lbl = n.length > 26 ? n.slice(0,24)+'…' : n;
-      return lbl + cnt;
-    });
+    nodeGrp.select('text')
+      .attr('x', d => isLeaf(d) ? 10 : -10)
+      .attr('text-anchor', d => isLeaf(d) ? 'start' : 'end')
+      .text(d => {
+        const n   = d.data.name;
+        const cnt = d._children ? ` (${cntLeaves(d)})` : '';
+        const lbl = n.length > 26 ? n.slice(0, 24) + '…' : n;
+        return lbl + cnt;
+      });
 
-    // Events (re-bind each draw)
-    nodeGrp.on('click', (_, d) => {
-      tt.classed('show', false);
-      if (d.data.crop) { openModal(d.data.crop); return; }
-      if (d._children) { d.children = d._children; d._children = null; }
-      else if (d.children) { d._children = d.children; d.children = null; }
-      draw(d);
-    })
-    .on('mousemove', (ev, d) => {
-      if (d.data.crop) {
-        tt.classed('show', true)
-          .html(`<b>${esc(d.data.name)}</b><em style="font-size:11px;color:var(--muted)">${esc(d.data.crop.sci)}</em><br/>Click for details`)
-          .style('left',(ev.clientX+14)+'px').style('top',(ev.clientY-28)+'px');
-      }
-    })
-    .on('mouseleave', () => tt.classed('show', false));
+    // Re-bind events on merged selection every draw so newly-entered nodes also get them
+    nodeGrp
+      .on('click', (_, d) => {
+        tt.classed('show', false);
+        if (d.data.crop) { openModal(d.data.crop); return; }
+        if (d._children) { d.children = d._children; d._children = null; }
+        else if (d.children) { d._children = d.children; d.children = null; }
+        draw(d);
+      })
+      .on('mousemove', (ev, d) => {
+        if (d.data.crop) {
+          tt.classed('show', true)
+            .html(`<b>${esc(d.data.name)}</b>
+                   <em style="font-size:11px;color:var(--muted);display:block">${esc(d.data.crop.sci)}</em>
+                   Click for full details`)
+            .style('left', (ev.clientX + 14) + 'px')
+            .style('top',  (ev.clientY - 28) + 'px');
+        }
+      })
+      .on('mouseleave', () => tt.classed('show', false));
   }
 
   draw(root);
