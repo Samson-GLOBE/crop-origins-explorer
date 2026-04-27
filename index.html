@@ -8,86 +8,121 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
 
   <style>
-    /* ── TOKENS ─────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       DESIGN TOKENS – Light Botanical
+    ══════════════════════════════════════════════ */
     :root {
-      --bg:        #0f1610;
-      --surface:   #182018;
-      --surface2:  #1f2a1f;
-      --border:    #2b3b2a;
-      --primary:   #5caa38;
-      --primarydk: #3e7a25;
-      --accent:    #e8a030;
-      --teal:      #4fc3a1;
-      --text:      #d6e8d2;
-      --muted:     #7a9a76;
-      --danger:    #e05b5b;
+      --bg:        #f4f8f0;
+      --surface:   #ffffff;
+      --surface2:  #edf5e7;
+      --border:    #c4dbb8;
+      --border-lt: #dcefd4;
+      --primary:   #3a7a1e;
+      --primarydk: #285514;
+      --primarylt: #e8f5e0;
+      --accent:    #bf7318;
+      --accentlt:  #fdf3e3;
+      --teal:      #1a8a6a;
+      --text:      #1a2e12;
+      --muted:     #5a7a4a;
+      --danger:    #b83030;
       --radius:    10px;
-      --hdr:       60px;
-      --sidebar:   268px;
+      --hdr:       62px;
+      --sidebar:   272px;
+      --shadow-sm: 0 1px 4px rgba(30,60,10,.08);
+      --shadow:    0 4px 20px rgba(30,60,10,.12);
+      --shadow-lg: 0 8px 40px rgba(30,60,10,.18);
+      font-family: 'Inter', system-ui, sans-serif;
     }
 
-    /* ── RESET ──────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       RESET
+    ══════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
-                 background: var(--bg); color: var(--text); overflow: hidden; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
     button { cursor: pointer; font-family: inherit; }
+    img { display: block; }
 
-    /* ── HEADER ─────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════════════ */
     #header {
       position: fixed; inset: 0 0 auto 0; z-index: 900;
       height: var(--hdr);
-      background: var(--surface);
+      background: #fff;
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center;
-      padding: 0 16px; gap: 12px;
-      box-shadow: 0 2px 12px #0008;
+      padding: 0 18px; gap: 12px;
+      box-shadow: var(--shadow-sm);
     }
-    .logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .logo .icon { font-size: 26px; }
-    .logo h1   { font-size: 16px; font-weight: 700; color: var(--primary); }
-    .logo p    { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; }
+    .logo .icon { font-size: 28px; line-height: 1; }
+    .logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--primary); letter-spacing: .2px;
+    }
+    .logo p { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
-    #nav { display: flex; gap: 6px; margin-left: auto; }
+    #nav { display: flex; gap: 5px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
     .nbtn {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 6px 15px;
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 13px; font-weight: 500;
       transition: all .18s;
+      white-space: nowrap;
     }
-    .nbtn:hover { color: var(--text); border-color: var(--primary); }
+    .nbtn:hover { color: var(--text); border-color: var(--primary); background: var(--primarylt); }
     .nbtn.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
 
-    /* ── LAYOUT ─────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       APP BODY
+    ══════════════════════════════════════════════ */
     #body {
       position: fixed;
       top: var(--hdr); left: 0; right: 0; bottom: 0;
       display: flex;
     }
 
-    /* ── SIDEBAR ────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════════ */
     #sidebar {
-      width: var(--sidebar);
-      flex-shrink: 0;
+      width: var(--sidebar); flex-shrink: 0;
       background: var(--surface);
       border-right: 1px solid var(--border);
       overflow-y: auto;
-      padding: 14px 12px 24px;
+      padding: 14px 13px 24px;
       display: flex; flex-direction: column; gap: 12px;
     }
     #sidebar::-webkit-scrollbar { width: 4px; }
     #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     .flabel {
-      font-size: 10px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .8px;
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .9px;
       color: var(--muted); margin-bottom: 5px;
     }
     .fsection { display: flex; flex-direction: column; }
+
+    .search-row { display: flex; gap: 6px; }
+    .search-row input { flex: 1; }
+    #btn-search {
+      background: var(--primary); border: none; color: #fff;
+      padding: 7px 12px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+      transition: background .18s;
+    }
+    #btn-search:hover { background: var(--primarydk); }
+    .search-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
     .fsection input[type=text],
     .fsection select {
       background: var(--surface2);
@@ -100,163 +135,298 @@
     }
     .fsection input[type=text]:focus,
     .fsection select:focus { border-color: var(--primary); }
-    .fsection select option { background: var(--surface2); }
-
-    /* search row */
-    .search-row { display: flex; gap: 6px; align-items: center; }
-    .search-row input { flex: 1; }
-    #btn-search {
-      background: var(--primary); border: none;
-      color: #fff; padding: 7px 11px;
-      border-radius: var(--radius); font-size: 13px;
-      flex-shrink: 0; transition: background .18s;
-    }
-    #btn-search:hover { background: var(--primarydk); }
-    .search-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
     .range-labels { display: flex; justify-content: space-between;
                     font-size: 11px; color: var(--muted); margin-bottom: 4px; }
     .range-labels b { color: var(--accent); }
     input[type=range] {
       -webkit-appearance: none; width: 100%; height: 4px;
-      background: var(--border); border-radius: 2px; outline: none; margin: 2px 0;
+      background: var(--border); border-radius: 2px; outline: none; margin: 3px 0;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 14px; height: 14px;
       background: var(--primary); border-radius: 50%; cursor: pointer;
     }
 
-    .sdiv { border: none; border-top: 1px solid var(--border); }
+    .sdiv { border: none; border-top: 1px solid var(--border-lt); }
 
-    #count-wrap {
-      text-align: center; padding: 6px 0;
-      font-size: 13px; color: var(--muted);
-    }
-    #count-wrap b { color: var(--primary); font-size: 20px; }
+    #count-wrap { text-align: center; padding: 4px 0; font-size: 13px; color: var(--muted); }
+    #count-wrap b { color: var(--primary); font-size: 20px; font-weight: 700; }
 
     #btn-reset {
-      background: var(--surface2); border: 1px solid var(--border);
+      background: #fff; border: 1px solid var(--border);
       color: var(--muted); padding: 7px; border-radius: var(--radius);
       font-size: 12px; width: 100%; transition: all .18s;
     }
     #btn-reset:hover { border-color: var(--danger); color: var(--danger); }
 
     .legend { display: flex; flex-direction: column; gap: 5px; }
-    .litem { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
-    .ldot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .litem  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .ldot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ── MAIN ───────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       VIEWS
+    ══════════════════════════════════════════════ */
     #main { flex: 1; position: relative; overflow: hidden; }
 
     .view {
       position: absolute; inset: 0;
-      display: none;          /* hidden by default */
-      overflow: hidden;
+      display: none; overflow: hidden;
     }
     .view.active { display: flex; flex-direction: column; }
 
-    /* ── MAP ────────────────────────────────────── */
-    #map { flex: 1; min-height: 0; }
-
-    /* leaflet cluster colours */
-    .marker-cluster-small div,
-    .marker-cluster-medium div,
-    .marker-cluster-large div {
-      background: rgba(93,170,56,.75) !important;
-      color: #fff !important; font-weight: 700;
-    }
-    .marker-cluster-small,
-    .marker-cluster-medium,
-    .marker-cluster-large {
-      background: rgba(93,170,56,.2) !important;
-    }
-    .leaflet-popup-content-wrapper { border-radius: 10px !important; }
-    .cpop h3  { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
-    .cpop .cs { font-style: italic; font-size: 11px; color: #555; margin-bottom: 8px; }
-    .cpop table { font-size: 12px; width: 100%; border-collapse: collapse; }
-    .cpop td   { padding: 2px 0; }
-    .cpop td:first-child { color: #666; padding-right: 8px; font-weight: 500; }
-    .pop-btn {
-      margin-top: 9px; width: 100%; padding: 5px 8px;
-      background: #5caa38; border: none; border-radius: 6px;
-      color: #fff; font-size: 12px; font-weight: 600;
-    }
-
-    /* ── VIEW HEADER ────────────────────────────── */
-    .vhdr { padding: 16px 22px 8px; flex-shrink: 0; }
-    .vhdr h2 { font-size: 18px; }
+    .vhdr { padding: 16px 22px 8px; flex-shrink: 0; border-bottom: 1px solid var(--border-lt); background: #fff; }
+    .vhdr h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); }
     .vhdr p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-    /* ── SCROLLABLE INNER ───────────────────────── */
     .vscroll {
-      flex: 1; min-height: 0; overflow: auto; padding: 0 22px 22px;
+      flex: 1; min-height: 0; overflow: auto;
+      padding: 0 22px 22px; background: var(--bg);
     }
     .vscroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .vscroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* ── TIMELINE ───────────────────────────────── */
-    .tdot { cursor: pointer; transition: r .1s; }
-    .tdot:hover { r: 7px; }
+    /* ══════════════════════════════════════════════
+       HOME VIEW
+    ══════════════════════════════════════════════ */
+    #view-home {
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    #view-home::-webkit-scrollbar { width: 6px; }
+    #view-home::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* ── TREE ───────────────────────────────────── */
+    /* Hero banner */
+    #hero {
+      position: relative;
+      background: linear-gradient(135deg, #1e4a0c 0%, #2d6b18 45%, #1a4a0a 100%);
+      overflow: hidden;
+      padding: 52px 48px 44px;
+      color: #fff;
+    }
+    /* Subtle botanical SVG leaf pattern overlay */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cpath d='M40 10 C30 25 10 30 20 50 C30 70 50 60 40 40 C55 55 70 40 60 20 C50 0 45 5 40 10Z' fill='none' stroke='%23ffffff' stroke-width='0.6' opacity='0.15'/%3E%3C/svg%3E");
+      background-size: 80px 80px;
+    }
+    #hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(20,50,8,.6) 0%, transparent 60%);
+    }
+    .hero-inner {
+      position: relative; z-index: 1;
+      max-width: 860px;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      padding: 3px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    #hero h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px; font-weight: 700; line-height: 1.2;
+      margin-bottom: 14px; max-width: 640px;
+    }
+    #hero p {
+      font-size: 15px; color: rgba(255,255,255,.82);
+      max-width: 540px; line-height: 1.6; margin-bottom: 28px;
+    }
+    .hero-stats {
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    .hstat {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .hstat b { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+    .hstat span { font-size: 11px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .6px; }
+
+    .hero-btns {
+      display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap;
+    }
+    .hbtn {
+      padding: 10px 22px; border-radius: 24px;
+      font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer; transition: all .2s;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .hbtn-primary { background: #fff; color: var(--primary); }
+    .hbtn-primary:hover { background: var(--primarylt); transform: translateY(-1px); }
+    .hbtn-outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
+    .hbtn-outline:hover { background: rgba(255,255,255,.1); transform: translateY(-1px); }
+
+    /* Featured gallery */
+    #feat-section {
+      padding: 40px 40px 8px;
+    }
+    .section-heading {
+      display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px;
+    }
+    .section-heading h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px; color: var(--text);
+    }
+    .section-heading span { font-size: 13px; color: var(--muted); }
+
+    #feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .feat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: var(--primary);
+    }
+    .feat-img {
+      width: 100%; height: 120px;
+      object-fit: cover;
+      background: var(--surface2);
+    }
+    .feat-img-placeholder {
+      width: 100%; height: 120px;
+      background: linear-gradient(135deg, var(--primarylt), var(--surface2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+    }
+    .feat-info { padding: 10px 12px 12px; }
+    .feat-info .fname { font-size: 13px; font-weight: 600; color: var(--text); }
+    .feat-info .ffam  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .feat-info .frealm {
+      display: inline-block; margin-top: 6px;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 7px; border-radius: 10px; color: #fff;
+    }
+
+    /* About strip */
+    #about-strip {
+      margin: 32px 40px 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media(max-width:700px){ #about-strip { grid-template-columns: 1fr; } }
+    .about-col h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px; margin-bottom: 8px; color: var(--text);
+    }
+    .about-col p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .about-col a { color: var(--primary); }
+
+    /* ══════════════════════════════════════════════
+       MAP
+    ══════════════════════════════════════════════ */
+    #map { flex: 1; min-height: 0; }
+
+    .marker-cluster-small div,
+    .marker-cluster-medium div,
+    .marker-cluster-large div {
+      background: rgba(58,122,30,.8) !important;
+      color: #fff !important; font-weight: 700;
+    }
+    .marker-cluster-small,
+    .marker-cluster-medium,
+    .marker-cluster-large { background: rgba(58,122,30,.2) !important; }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px !important;
+      box-shadow: var(--shadow) !important;
+      border: 1px solid var(--border) !important;
+    }
+    .cpop h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .cpop .cs { font-style: italic; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .cpop table { font-size: 12px; width: 100%; border-collapse: collapse; }
+    .cpop td { padding: 2px 0; color: var(--text); }
+    .cpop td:first-child { color: var(--muted); padding-right: 8px; font-weight: 500; }
+    .pop-btn {
+      margin-top: 9px; width: 100%; padding: 6px 8px;
+      background: var(--primary); border: none; border-radius: 7px;
+      color: #fff; font-size: 12px; font-weight: 600;
+    }
+    .pop-btn:hover { background: var(--primarydk); }
+
+    /* ══════════════════════════════════════════════
+       TIMELINE
+    ══════════════════════════════════════════════ */
+    /* Timeline text colours adjusted for light bg */
+    #tl-wrap svg text { font-family: 'Inter', sans-serif; }
+
+    /* ══════════════════════════════════════════════
+       TREE
+    ══════════════════════════════════════════════ */
     .tnode circle {
       fill: var(--surface2); stroke: var(--primary); stroke-width: 2;
       cursor: pointer; transition: fill .15s;
     }
-    .tnode circle:hover { fill: var(--primary); }
-    .tnode.leaf circle { fill: var(--primary); stroke: var(--primarydk); cursor: pointer; }
+    .tnode circle:hover { fill: var(--primarylt); }
+    .tnode.leaf circle { fill: var(--primary); stroke: var(--primarydk); }
     .tnode.coll circle { fill: var(--accent); stroke: var(--accent); }
     .tnode text { cursor: pointer; }
     .tlink { fill: none; stroke: var(--border); stroke-width: 1.5; }
 
-    /* ── STATS ──────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       STATS
+    ══════════════════════════════════════════════ */
     #view-stats { background: var(--bg); overflow-y: auto; }
     #view-stats::-webkit-scrollbar { width: 6px; }
     #view-stats::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    #stats-wrap { padding: 22px; }
+    #stats-wrap { padding: 24px; }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px,1fr));
-      gap: 14px; margin-bottom: 28px;
-    }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 14px; margin-bottom: 28px; }
     .card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 16px 14px;
+      box-shadow: var(--shadow-sm);
       transition: border-color .18s, transform .18s;
     }
-    .card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
     .card .ci { font-size: 24px; margin-bottom: 6px; }
     .card .cv { font-size: 26px; font-weight: 700; color: var(--primary); line-height: 1.1; }
     .card .cl { font-size: 12px; color: var(--muted); margin-top: 4px; }
     .card .cs { font-size: 11px; color: var(--accent); margin-top: 3px; }
 
-    .chart-row {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 18px; margin-bottom: 22px;
-    }
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
     @media(max-width:800px){ .chart-row { grid-template-columns: 1fr; } }
     .ccrd {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px;
+      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm);
     }
-    .ccrd h3 { font-size: 13px; color: var(--text); margin-bottom: 14px; }
+    .ccrd h3 { font-size: 13px; color: var(--text); margin-bottom: 14px; font-weight: 600; }
 
     .blist { display: flex; flex-direction: column; gap: 7px; }
     .bitem { display: flex; align-items: center; gap: 8px; font-size: 12px; }
     .bitem .rk  { width: 16px; color: var(--muted); font-size: 10px; }
     .bitem .nm  { width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
-    .bitem .bw  { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bitem .bw  { flex: 1; height: 5px; background: var(--border-lt); border-radius: 3px; overflow: hidden; }
     .bitem .bf  { height: 100%; border-radius: 3px; }
     .bitem .cnt { width: 30px; text-align: right; color: var(--muted); font-size: 11px; }
 
-    /* ── LOADING ────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       LOADING
+    ══════════════════════════════════════════════ */
     #loading {
       position: fixed; inset: 0; z-index: 9999;
-      background: var(--bg);
+      background: linear-gradient(160deg, #eef6e8 0%, #f4f8f0 100%);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 16px; transition: opacity .5s;
+      gap: 18px; transition: opacity .5s;
     }
     #loading.hide { opacity: 0; pointer-events: none; }
     .spin {
@@ -269,87 +439,116 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #loading p { color: var(--muted); font-size: 14px; text-align: center; max-width: 340px; }
     #load-err {
-      display: none;
-      background: #2a1010; border: 1px solid #e05b5b;
-      border-radius: 10px; padding: 16px 20px;
-      color: #ffaaaa; font-size: 13px;
-      max-width: 420px; text-align: center; line-height: 1.6;
+      display: none; background: #fff0f0;
+      border: 1px solid #e08080; border-radius: 10px;
+      padding: 16px 20px; color: #903030;
+      font-size: 13px; max-width: 420px;
+      text-align: center; line-height: 1.6;
     }
-    #load-err b { color: #ff6666; }
 
-    /* ── MODAL ──────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════════════ */
     #moverlay {
       position: fixed; inset: 0; z-index: 2000;
-      background: rgba(0,0,0,.65);
+      background: rgba(20,40,10,.5);
       display: none; align-items: center; justify-content: center;
     }
     #moverlay.open { display: flex; }
     #modal {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      width: 540px; max-width: 95vw;
-      max-height: 88vh; overflow-y: auto;
-      padding: 26px; position: relative;
-      box-shadow: 0 8px 40px #000a;
+      border-radius: 16px;
+      width: 560px; max-width: 95vw;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      position: relative;
     }
     #modal::-webkit-scrollbar { width: 5px; }
     #modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Hero image at top of modal */
+    #modal-img-wrap {
+      width: 100%; height: 200px;
+      background: linear-gradient(135deg, var(--primarylt), var(--surface2));
+      overflow: hidden; position: relative; flex-shrink: 0;
+      border-radius: 16px 16px 0 0;
+    }
+    #modal-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: opacity .4s;
+    }
+    .modal-img-placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 60px;
+    }
+    #modal-img-credit {
+      position: absolute; bottom: 6px; right: 8px;
+      font-size: 9px; color: rgba(255,255,255,.7);
+      background: rgba(0,0,0,.3); padding: 2px 5px; border-radius: 4px;
+    }
+
+    #modal-inner { padding: 22px 26px 26px; }
+
     #mbtn-close {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--muted); width: 28px; height: 28px;
-      border-radius: 50%; font-size: 13px; display: flex;
-      align-items: center; justify-content: center;
-      transition: all .18s;
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      background: rgba(255,255,255,.9); border: 1px solid var(--border);
+      color: var(--muted); width: 30px; height: 30px;
+      border-radius: 50%; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s; box-shadow: var(--shadow-sm);
     }
     #mbtn-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-    .mcn   { font-size: 22px; font-weight: 700; padding-right: 36px; }
-    .msci  { font-style: italic; font-size: 14px; color: var(--muted); margin-top: 2px; margin-bottom: 12px; }
+    .mcn  { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; padding-right: 24px; color: var(--text); }
+    .msci { font-style: italic; font-size: 14px; color: var(--muted); margin-top: 3px; margin-bottom: 12px; }
     .mbadge {
-      display: inline-block;
-      padding: 3px 11px; border-radius: 12px;
-      font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .6px;
-      color: #fff; margin-bottom: 18px;
+      display: inline-block; padding: 3px 12px; border-radius: 12px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .6px; color: #fff; margin-bottom: 18px;
     }
-    .mgrid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 11px; margin-bottom: 18px;
-    }
+    .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
     .mf .mfl { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
-    .mf .mfv { font-size: 14px; }
+    .mf .mfv { font-size: 14px; color: var(--text); margin-top: 2px; }
     .mf .mfv.hi { color: var(--accent); font-weight: 600; }
     .msect {
       font-size: 10px; text-transform: uppercase; letter-spacing: .7px;
-      color: var(--muted); border-top: 1px solid var(--border);
+      color: var(--muted); border-top: 1px solid var(--border-lt);
       padding-top: 12px; margin-bottom: 8px;
     }
     .progbox {
       background: var(--surface2); border: 1px solid var(--border);
       border-radius: 8px; padding: 10px 13px;
-      font-size: 13px; font-style: italic;
+      font-size: 13px; font-style: italic; color: var(--text);
     }
 
-    /* ── D3 TOOLTIP ─────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       D3 TOOLTIP
+    ══════════════════════════════════════════════ */
     #tt {
       position: fixed; z-index: 3000;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; padding: 9px 12px;
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 13px;
       font-size: 12px; color: var(--text);
       pointer-events: none; opacity: 0;
       transition: opacity .12s;
-      max-width: 220px; box-shadow: 0 4px 20px #000a;
+      max-width: 240px; box-shadow: var(--shadow);
     }
     #tt.show { opacity: 1; }
-    #tt b { display: block; font-size: 13px; color: var(--primary); margin-bottom: 2px; }
+    #tt b { display: block; font-size: 13px; color: var(--primary); margin-bottom: 3px; }
+    #tt .tt-img {
+      width: 100%; height: 80px; object-fit: cover;
+      border-radius: 6px; margin-bottom: 7px;
+    }
   </style>
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loading">
+  <div style="font-size:48px">🌱</div>
   <div class="spin"></div>
   <p id="load-msg">Loading Crop Origins &amp; Phylo database…</p>
   <div id="load-err"></div>
@@ -358,14 +557,15 @@
 <!-- HEADER -->
 <div id="header">
   <div class="logo">
-    <span class="icon">🌱</span>
+    <span class="icon">🌿</span>
     <div>
       <h1>Crop Origins Explorer</h1>
-      <p>Milla et al. · Crop Origins &amp; Phylo Dataset</p>
+      <p>Milla et al. · Crop Origins &amp; Phylo</p>
     </div>
   </div>
   <nav id="nav">
-    <button class="nbtn active" data-v="map">🗺 Map</button>
+    <button class="nbtn active" data-v="home">🏠 Home</button>
+    <button class="nbtn" data-v="map">🗺 Map</button>
     <button class="nbtn" data-v="timeline">📅 Timeline</button>
     <button class="nbtn" data-v="tree">🌳 Phylo Tree</button>
     <button class="nbtn" data-v="stats">📊 Stats</button>
@@ -375,7 +575,7 @@
 <!-- BODY -->
 <div id="body">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (hidden on Home) -->
   <aside id="sidebar">
     <div class="fsection">
       <div class="flabel">🔍 Search crop</div>
@@ -383,11 +583,9 @@
         <input type="text" id="s-search" placeholder="e.g. Wheat, Maize, Rice…" />
         <button id="btn-search">Go</button>
       </div>
-      <div class="search-hint">Press Enter or click Go to search</div>
+      <div class="search-hint">Press Enter or click Go</div>
     </div>
-
     <hr class="sdiv" />
-
     <div class="fsection">
       <div class="flabel">Family</div>
       <select id="s-family"><option value="">All families</option></select>
@@ -404,9 +602,7 @@
       <div class="flabel">Growth form</div>
       <select id="s-gf"><option value="">All growth forms</option></select>
     </div>
-
     <hr class="sdiv" />
-
     <div class="fsection">
       <div class="flabel">Domestication age (years ago)</div>
       <div class="range-labels">
@@ -416,25 +612,66 @@
       <input type="range" id="r-min" min="0" max="12000" step="100" value="0" />
       <input type="range" id="r-max" min="0" max="12000" step="100" value="12000" />
     </div>
-
     <hr class="sdiv" />
-
     <div id="count-wrap"><b id="cnt">—</b> crops shown</div>
     <button id="btn-reset">↺ Reset all filters</button>
-
     <hr class="sdiv" />
-
     <div class="fsection">
       <div class="flabel">Realm colour key</div>
       <div class="legend" id="legend"></div>
     </div>
   </aside>
 
-  <!-- VIEWS -->
+  <!-- MAIN -->
   <main id="main">
 
+    <!-- HOME -->
+    <div id="view-home" class="view active">
+      <!-- Hero -->
+      <div id="hero">
+        <div class="hero-inner">
+          <div class="hero-tag">🌾 Open Research Dataset</div>
+          <h2>Where Did Our Food Come From?</h2>
+          <p>Explore the origins, domestication history, and geographic roots of the world's crop species — from ancient grains to modern staples.</p>
+          <div class="hero-stats" id="hero-stats">
+            <div class="hstat"><b id="hs-crops">—</b><span>Crop species</span></div>
+            <div class="hstat"><b id="hs-fam">—</b><span>Plant families</span></div>
+            <div class="hstat"><b id="hs-realms">—</b><span>Biogeographic realms</span></div>
+            <div class="hstat"><b id="hs-old">—</b><span>Oldest crop (yrs)</span></div>
+          </div>
+          <div class="hero-btns">
+            <button class="hbtn hbtn-primary" onclick="gotoView('map')">🗺 Explore the Map</button>
+            <button class="hbtn hbtn-outline" onclick="gotoView('timeline')">📅 View Timeline</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured crops gallery -->
+      <div id="feat-section">
+        <div class="section-heading">
+          <h3>Spotlight Crops</h3>
+          <span>Click any crop to explore its full origin story</span>
+        </div>
+        <div id="feat-grid">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0">Loading featured crops…</div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div id="about-strip">
+        <div class="about-col">
+          <h4>About this dataset</h4>
+          <p>The Crop Origins &amp; Phylo database was compiled by <strong>Prof. Rubén Milla</strong> and colleagues, documenting the geographic origins, domestication timelines, and phylogenetic relationships of food and feed crops worldwide. Data is drawn from published literature and updated periodically on <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank">GitHub</a>.</p>
+        </div>
+        <div class="about-col">
+          <h4>How to use the explorer</h4>
+          <p>Use the <strong>Map</strong> to see where crops originate on a world map. The <strong>Timeline</strong> shows when crops were domesticated. The <strong>Phylo Tree</strong> lets you explore the taxonomic tree from Order down to species. Use the sidebar filters on any view to narrow results by family, use, or region.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- MAP -->
-    <div id="view-map" class="view active">
+    <div id="view-map" class="view">
       <div id="map"></div>
     </div>
 
@@ -451,7 +688,7 @@
     <div id="view-tree" class="view">
       <div class="vhdr">
         <h2>Taxonomic Explorer</h2>
-        <p>Click any node to expand / collapse. Leaf nodes are individual crop species — click for details.</p>
+        <p>Click any node to expand / collapse. Leaf nodes are individual crop species — click for full details.</p>
       </div>
       <div class="vscroll" id="tree-wrap"></div>
     </div>
@@ -459,7 +696,7 @@
     <!-- STATS -->
     <div id="view-stats" class="view">
       <div id="stats-wrap">
-        <div class="vhdr" style="padding-left:0;padding-top:4px">
+        <div class="vhdr" style="padding-left:0;padding-top:4px;border:none;background:transparent">
           <h2>Dataset Statistics</h2>
           <p>An overview of the Crop Origins &amp; Phylo database.</p>
         </div>
@@ -474,305 +711,329 @@
 <div id="moverlay">
   <div id="modal">
     <button id="mbtn-close">✕</button>
-    <div id="modal-body"></div>
+    <div id="modal-img-wrap">
+      <div class="modal-img-placeholder" id="modal-img-placeholder">🌱</div>
+      <img id="modal-img" src="" alt="" style="opacity:0;position:absolute;inset:0" />
+      <div id="modal-img-credit"></div>
+    </div>
+    <div id="modal-inner">
+      <div id="modal-body"></div>
+    </div>
   </div>
 </div>
 
 <!-- TOOLTIP -->
 <div id="tt"></div>
 
-
-<!-- SCRIPTS ──────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 
 <script>
-/* ================================================================
-   CONFIG
-================================================================ */
+'use strict';
+
+/* ── CONFIG ─────────────────────────────────────── */
 const CSV = 'https://raw.githubusercontent.com/rubenmilla/Crop_Origins_Phylo/master/Crop_Origins_Phylo_v_live/crop_origins_v_live/crop_origins_live_db.csv';
 
+const FEATURED_NAMES = ['Rice','Wheat','Maize','Potato','Tomato','Coffee','Tea',
+                        'Banana','Onion','Grape','Sunflower','Soybean'];
+
 const REALM_CLR = {
-  'Neartic':      '#e67e22', 'Nearctic':     '#e67e22',
-  'Neotropical':  '#27ae60',
-  'Paleartic':    '#3498db', 'Palearctic':   '#3498db',
-  'Indo_malay':   '#9b59b6', 'Indomalayan':  '#9b59b6',
-  'Afrotropical': '#e74c3c', 'Afrotropic':   '#e74c3c',
-  'Australasian': '#1abc9c', 'Australasia':  '#1abc9c',
-  'Oceanian':     '#f39c12',
+  'Neartic':'#d4782a','Nearctic':'#d4782a',
+  'Neotropical':'#2e9e52',
+  'Paleartic':'#2e7ec4','Palearctic':'#2e7ec4',
+  'Indo_malay':'#8856b8','Indomalayan':'#8856b8',
+  'Afrotropical':'#c83c3c','Afrotropic':'#c83c3c',
+  'Australasian':'#1a9a80','Australasia':'#1a9a80',
+  'Oceanian':'#c49020',
 };
 const REALM_LBL = {
-  'Neartic': 'Nearctic',   'Nearctic': 'Nearctic',
-  'Paleartic': 'Palearctic', 'Palearctic': 'Palearctic',
-  'Indo_malay': 'Indo-Malayan', 'Indomalayan': 'Indo-Malayan',
-  'Afrotropical': 'Afrotropical', 'Afrotropic': 'Afrotropical',
-  'Australasian': 'Australasian', 'Australasia': 'Australasian',
+  'Neartic':'Nearctic','Nearctic':'Nearctic',
+  'Paleartic':'Palearctic','Palearctic':'Palearctic',
+  'Indo_malay':'Indo-Malayan','Indomalayan':'Indo-Malayan',
+  'Afrotropical':'Afrotropical','Afrotropic':'Afrotropical',
+  'Australasian':'Australasian','Australasia':'Australasian',
 };
-function rc(r) { return REALM_CLR[r] || '#7f8c8d'; }
-function rl(r) { return REALM_LBL[r] || (r ? r.replace(/_/g,' ') : 'Unknown'); }
+function rc(r){ return REALM_CLR[r]||'#6a8a6a'; }
+function rl(r){ return REALM_LBL[r]||(r?r.replace(/_/g,' '):'Unknown'); }
 
-/* ================================================================
-   STATE
-================================================================ */
-let ALL = [];          // all crop objects
-let DATA = [];         // after filtering
-let _cropMap = {};     // key → crop  (for popup buttons)
-let _leafMap = null;
-let _mLayer  = null;
-let _curView = 'map';
+/* ── STATE ──────────────────────────────────────── */
+let ALL=[], DATA=[], _cropMap={}, _leafMap=null, _mLayer=null, _curView='home';
+const imgCache = {};
 
-/* ================================================================
-   UTILITIES
-================================================================ */
-function pn(v) {
-  if (!v || v === 'NA') return null;
-  return parseFloat(String(v).replace(',', '.'));
+/* ── UTILS ──────────────────────────────────────── */
+function pn(v){ if(!v||v==='NA')return null; return parseFloat(String(v).replace(',','.')); }
+function clean(s){ return(s||'').replace(/_/g,' ').trim(); }
+function esc(s){ return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
+function fage(v){ const n=pn(v); return n==null?'—':n.toLocaleString()+' yrs ago'; }
+
+/* ── WIKIPEDIA IMAGES ───────────────────────────── */
+async function getImg(query, size=400){
+  const key = query+'|'+size;
+  if(imgCache[key]!==undefined) return imgCache[key];
+  imgCache[key] = null;
+  try{
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query.replace(/ /g,'_'))}`,
+      { headers:{ Accept:'application/json' } }
+    );
+    if(!res.ok) throw new Error();
+    const d = await res.json();
+    const src = d.thumbnail?.source || null;
+    imgCache[key] = src ? src.replace(/\/\d+px-/,`/${size}px-`) : null;
+  }catch(e){}
+  return imgCache[key];
 }
-function clean(s) { return (s||'').replace(/_/g,' ').trim(); }
-function esc(s)   { return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
-function fage(v)  {
-  const n = pn(v);
-  return n == null ? '—' : n.toLocaleString() + ' yrs ago';
-}
 
-/* ================================================================
-   LOAD DATA
-================================================================ */
-function loadData() {
-  Papa.parse(CSV, {
-    download: true,
-    header: true,
-    delimiter: ';',
-    skipEmptyLines: true,
-    complete(res) {
-      ALL = res.data.map((row, i) => parseCrop(row, i)).filter(Boolean);
-      if (!ALL.length) { showErr('CSV parsed but no rows found. Check the data source.'); return; }
+/* ── DATA LOADING ───────────────────────────────── */
+function loadData(){
+  Papa.parse(CSV,{
+    download:true, header:true, delimiter:';', skipEmptyLines:true,
+    complete(res){
+      ALL = res.data.map((row,i)=>parseCrop(row,i)).filter(Boolean);
+      if(!ALL.length){ showErr('CSV parsed but no rows found.'); return; }
       init();
     },
-    error(err) {
-      showErr(
-        '<b>Could not fetch the crop database.</b><br/>' +
-        'If you opened this file directly from your computer (file://),<br/>' +
-        'browsers block remote requests for security reasons.<br/><br/>' +
-        'To fix this:<br/>• Upload the file to GitHub Pages and open it from there<br/>' +
-        '• Or use a local server: run <code>python -m http.server</code> in the folder<br/><br/>' +
-        '<small style="color:#888">Error: ' + (err.message || err) + '</small>'
-      );
+    error(err){
+      showErr('<b>Could not fetch the crop database.</b><br/>This app must be served from a web server (GitHub Pages or Vercel).<br/>Opening directly as a local file will be blocked by browser security.<br/><small>'+((err&&err.message)||err)+'</small>');
     }
   });
 }
 
-function parseCrop(row, i) {
-  const lon = pn(row.mode_ecoreg_centroid_lon);
-  const lat = pn(row.mode_ecoreg_centroid_lat);
+function parseCrop(row,i){
   return {
-    _key:    String(row.id || i),
-    id:      row.id || String(i),
-    name:    clean(row.common_name_crop) || clean(row.species_name) || '—',
-    sci:     clean(row.species_name_taxonstand_) || clean(row.species_name) || '—',
-    genus:   clean(row.genus),
-    sps:     clean(row.sps),
-    family:  clean(row.family),
-    order:   clean(row.order),
-    gf:      clean(row.gf),
-    prog:    clean(row.wild_progenitor),
-    tCult:   pn(row.minimum_time_cultivation),
-    tDom:    pn(row.minimum_time_domestication),
-    food:    row.use_food === '1',
-    feed:    row.use_animal_feed === '1',
-    use:     clean(row.use_primary),
-    useType: clean(row.use),
-    realm:   (row.biogeografic_realm || '').trim(),
-    eco:     clean(row.mode_ecoreg_name),
-    lon, lat,
-    gbif:    pn(row.number_gbif_records),
+    _key:   String(row.id||i),
+    name:   clean(row.common_name_crop)||clean(row.species_name)||'—',
+    sci:    clean(row.species_name_taxonstand_)||clean(row.species_name)||'—',
+    genus:  clean(row.genus), sps:clean(row.sps),
+    family: clean(row.family), order:clean(row.order),
+    gf:     clean(row.gf),
+    prog:   clean(row.wild_progenitor),
+    tCult:  pn(row.minimum_time_cultivation),
+    tDom:   pn(row.minimum_time_domestication),
+    food:   row.use_food==='1', feed:row.use_animal_feed==='1',
+    use:    clean(row.use_primary), useType:clean(row.use),
+    realm:  (row.biogeografic_realm||'').trim(),
+    eco:    clean(row.mode_ecoreg_name),
+    lon:    pn(row.mode_ecoreg_centroid_lon),
+    lat:    pn(row.mode_ecoreg_centroid_lat),
+    gbif:   pn(row.number_gbif_records),
   };
 }
 
-function showErr(html) {
-  document.getElementById('load-msg').style.display = 'none';
-  document.querySelector('.spin').style.display = 'none';
-  const e = document.getElementById('load-err');
-  e.style.display = 'block';
-  e.innerHTML = html;
+function showErr(html){
+  document.getElementById('load-msg').style.display='none';
+  document.querySelector('.spin').style.display='none';
+  const e=document.getElementById('load-err');
+  e.style.display='block'; e.innerHTML=html;
 }
 
-/* ================================================================
-   INIT
-================================================================ */
-function init() {
-  ALL.forEach(c => { _cropMap[c._key] = c; });
+/* ── INIT ───────────────────────────────────────── */
+function init(){
+  ALL.forEach(c=>{ _cropMap[c._key]=c; });
   populateFilters();
   applyFilters();
   buildLegend();
   initMap();
-  const loader = document.getElementById('loading');
+  fillHeroStats();
+  buildFeaturedGallery();
+  const loader=document.getElementById('loading');
   loader.classList.add('hide');
-  setTimeout(() => loader.style.display = 'none', 600);
+  setTimeout(()=>loader.style.display='none',600);
 }
 
-/* ================================================================
-   FILTERS
-================================================================ */
-function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort(); }
-
-function populateFilters() {
-  fillSel('s-family', uniq(ALL.map(d => d.family)));
-  fillSel('s-use',    uniq(ALL.map(d => d.use)));
-  fillSel('s-realm',  uniq(ALL.map(d => d.realm)), rl);
-  fillSel('s-gf',     uniq(ALL.map(d => d.gf)));
+/* ── HERO STATS ─────────────────────────────────── */
+function fillHeroStats(){
+  document.getElementById('hs-crops').textContent  = ALL.length.toLocaleString();
+  document.getElementById('hs-fam').textContent    = [...new Set(ALL.map(d=>d.family).filter(Boolean))].length;
+  document.getElementById('hs-realms').textContent = [...new Set(ALL.map(d=>d.realm).filter(Boolean))].length;
+  const oldest = ALL.filter(d=>d.tDom>0).reduce((a,b)=>a.tDom>b.tDom?a:b,{tDom:0});
+  document.getElementById('hs-old').textContent = oldest.tDom ? oldest.tDom.toLocaleString() : '—';
 }
 
-function fillSel(id, items, labelFn) {
-  const s = document.getElementById(id);
-  items.forEach(v => {
-    const o = document.createElement('option');
-    o.value = v;
-    o.textContent = labelFn ? labelFn(v) : v;
+/* ── FEATURED GALLERY ───────────────────────────── */
+function buildFeaturedGallery(){
+  const grid = document.getElementById('feat-grid');
+  grid.innerHTML = '';
+  const featured = FEATURED_NAMES.map(n=>{
+    const found = ALL.find(d=>d.name.toLowerCase()===n.toLowerCase());
+    return found || null;
+  }).filter(Boolean);
+
+  if(!featured.length){
+    grid.innerHTML='<p style="color:var(--muted);font-size:13px">Featured crops not found in dataset.</p>';
+    return;
+  }
+
+  featured.forEach(crop=>{
+    const card = document.createElement('div');
+    card.className = 'feat-card';
+    card.innerHTML = `
+      <div class="feat-img-placeholder" id="feat-ph-${crop._key}">🌾</div>
+      <div class="feat-info">
+        <div class="fname">${esc(crop.name)}</div>
+        <div class="ffam">${esc(crop.family)}</div>
+        <span class="frealm" style="background:${rc(crop.realm)}">${rl(crop.realm)}</span>
+      </div>`;
+    card.addEventListener('click', ()=>openModal(crop));
+    grid.appendChild(card);
+
+    // Async load Wikipedia image
+    getImg(crop.sci, 280).then(url=>{
+      if(!url) return;
+      const ph = document.getElementById(`feat-ph-${crop._key}`);
+      if(!ph) return;
+      const img = document.createElement('img');
+      img.className='feat-img';
+      img.src = url;
+      img.alt = crop.name;
+      img.onload = ()=>{ ph.replaceWith(img); };
+    });
+  });
+}
+
+/* ── FILTERS ────────────────────────────────────── */
+function uniq(arr){ return[...new Set(arr.filter(Boolean))].sort(); }
+
+function populateFilters(){
+  fillSel('s-family', uniq(ALL.map(d=>d.family)));
+  fillSel('s-use',    uniq(ALL.map(d=>d.use)));
+  fillSel('s-realm',  uniq(ALL.map(d=>d.realm)), rl);
+  fillSel('s-gf',     uniq(ALL.map(d=>d.gf)));
+}
+function fillSel(id,items,labelFn){
+  const s=document.getElementById(id);
+  items.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v; o.textContent=labelFn?labelFn(v):v;
     s.appendChild(o);
   });
 }
-
-function getF() {
-  return {
-    q:      document.getElementById('s-search').value.toLowerCase().trim(),
-    family: document.getElementById('s-family').value,
-    use:    document.getElementById('s-use').value,
-    realm:  document.getElementById('s-realm').value,
-    gf:     document.getElementById('s-gf').value,
-    amin:   +document.getElementById('r-min').value,
-    amax:   +document.getElementById('r-max').value,
+function getF(){
+  return{
+    q:     document.getElementById('s-search').value.toLowerCase().trim(),
+    family:document.getElementById('s-family').value,
+    use:   document.getElementById('s-use').value,
+    realm: document.getElementById('s-realm').value,
+    gf:    document.getElementById('s-gf').value,
+    amin:  +document.getElementById('r-min').value,
+    amax:  +document.getElementById('r-max').value,
   };
 }
-
-function applyFilters() {
-  const f = getF();
-  DATA = ALL.filter(d => {
-    if (f.q && !d.name.toLowerCase().includes(f.q) &&
-               !d.sci.toLowerCase().includes(f.q) &&
-               !d.family.toLowerCase().includes(f.q)) return false;
-    if (f.family && d.family !== f.family) return false;
-    if (f.use    && d.use    !== f.use)    return false;
-    if (f.realm  && d.realm  !== f.realm)  return false;
-    if (f.gf     && d.gf     !== f.gf)    return false;
-    if (d.tDom != null && (d.tDom < f.amin || d.tDom > f.amax)) return false;
+function applyFilters(){
+  const f=getF();
+  DATA=ALL.filter(d=>{
+    if(f.q&&!d.name.toLowerCase().includes(f.q)&&
+             !d.sci.toLowerCase().includes(f.q)&&
+             !d.family.toLowerCase().includes(f.q)) return false;
+    if(f.family&&d.family!==f.family) return false;
+    if(f.use   &&d.use   !==f.use)    return false;
+    if(f.realm &&d.realm !==f.realm)  return false;
+    if(f.gf    &&d.gf    !==f.gf)     return false;
+    if(d.tDom!=null&&(d.tDom<f.amin||d.tDom>f.amax)) return false;
     return true;
   });
-  document.getElementById('cnt').textContent = DATA.length;
+  document.getElementById('cnt').textContent=DATA.length;
   refreshView();
 }
-
-function refreshView() {
-  if (_curView === 'map')      updateMap();
-  if (_curView === 'timeline') drawTimeline();
-  if (_curView === 'tree')     drawTree();
-  if (_curView === 'stats')    drawStats();
+function refreshView(){
+  if(_curView==='map')      updateMap();
+  if(_curView==='timeline') drawTimeline();
+  if(_curView==='tree')     drawTree();
+  if(_curView==='stats')    drawStats();
 }
 
-/* ================================================================
-   FILTER EVENTS
-================================================================ */
-// Search only fires on Enter or the Go button
-const searchInput = document.getElementById('s-search');
-searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
-document.getElementById('btn-search').addEventListener('click', applyFilters);
-
-// Dropdowns apply instantly
-['s-family','s-use','s-realm','s-gf'].forEach(id =>
-  document.getElementById(id).addEventListener('change', applyFilters)
+/* ── FILTER EVENTS ──────────────────────────────── */
+const si=document.getElementById('s-search');
+si.addEventListener('keydown',e=>{ if(e.key==='Enter') applyFilters(); });
+document.getElementById('btn-search').addEventListener('click',applyFilters);
+['s-family','s-use','s-realm','s-gf'].forEach(id=>
+  document.getElementById(id).addEventListener('change',applyFilters)
 );
-['r-min','r-max'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => {
-    document.getElementById('rmin-lbl').textContent =
-      (+document.getElementById('r-min').value).toLocaleString();
-    document.getElementById('rmax-lbl').textContent =
-      (+document.getElementById('r-max').value).toLocaleString();
+['r-min','r-max'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    document.getElementById('rmin-lbl').textContent=(+document.getElementById('r-min').value).toLocaleString();
+    document.getElementById('rmax-lbl').textContent=(+document.getElementById('r-max').value).toLocaleString();
     applyFilters();
   });
 });
-document.getElementById('btn-reset').addEventListener('click', () => {
-  document.getElementById('s-search').value = '';
-  ['s-family','s-use','s-realm','s-gf'].forEach(id =>
-    document.getElementById(id).value = ''
-  );
-  document.getElementById('r-min').value = 0;
-  document.getElementById('r-max').value = 12000;
-  document.getElementById('rmin-lbl').textContent = '0';
-  document.getElementById('rmax-lbl').textContent = '12 000';
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  document.getElementById('s-search').value='';
+  ['s-family','s-use','s-realm','s-gf'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-min').value=0;
+  document.getElementById('r-max').value=12000;
+  document.getElementById('rmin-lbl').textContent='0';
+  document.getElementById('rmax-lbl').textContent='12 000';
   applyFilters();
 });
 
-/* ================================================================
-   VIEW SWITCHING
-================================================================ */
-document.querySelectorAll('.nbtn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const v = btn.dataset.v;
-    document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-    document.getElementById('view-' + v).classList.add('active');
-    _curView = v;
-    // Wait for the browser to paint the newly-visible view before D3 measures widths
-    setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(refreshView)), 80);
-  });
+/* ── VIEW SWITCHING ─────────────────────────────── */
+function gotoView(v){
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  // Sidebar: hidden on home, visible on all others
+  document.getElementById('sidebar').style.display = v==='home'?'none':'flex';
+  _curView=v;
+  if(v!=='home') setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(refreshView)),80);
+}
+
+document.querySelectorAll('.nbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>gotoView(btn.dataset.v));
 });
 
-/* ================================================================
-   LEGEND
-================================================================ */
-function buildLegend() {
-  const container = document.getElementById('legend');
-  uniq(ALL.map(d => d.realm)).forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'litem';
-    div.innerHTML = `<span class="ldot" style="background:${rc(r)}"></span><span>${rl(r)}</span>`;
-    container.appendChild(div);
+// Init: hide sidebar on home
+document.getElementById('sidebar').style.display='none';
+
+/* ── LEGEND ─────────────────────────────────────── */
+function buildLegend(){
+  const c=document.getElementById('legend');
+  uniq(ALL.map(d=>d.realm)).forEach(r=>{
+    const d=document.createElement('div');
+    d.className='litem';
+    d.innerHTML=`<span class="ldot" style="background:${rc(r)}"></span><span>${rl(r)}</span>`;
+    c.appendChild(d);
   });
 }
 
-/* ================================================================
-   MAP (Leaflet)
-================================================================ */
-function initMap() {
-  _leafMap = L.map('map', { preferCanvas: true }).setView([20, 10], 2);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    subdomains: 'abcd', maxZoom: 19,
+/* ── MAP ────────────────────────────────────────── */
+function initMap(){
+  _leafMap=L.map('map',{preferCanvas:true}).setView([25,15],2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    attribution:'© OpenStreetMap © CARTO',
+    subdomains:'abcd', maxZoom:19,
   }).addTo(_leafMap);
-
-  _mLayer = L.markerClusterGroup({
-    maxClusterRadius: 60,
-    showCoverageOnHover: false,
-    spiderfyOnMaxZoom: false,   // disabling spiderify removes the "confusion" at max zoom
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 7, // show individual dots at close zoom
+  _mLayer=L.markerClusterGroup({
+    maxClusterRadius:60,
+    showCoverageOnHover:false,
+    spiderfyOnMaxZoom:false,
+    zoomToBoundsOnClick:true,
+    disableClusteringAtZoom:7,
   });
   _leafMap.addLayer(_mLayer);
   updateMap();
 }
 
-function updateMap() {
-  if (!_leafMap) return;
+let _hoverCrop=null;
+function updateMap(){
+  if(!_leafMap) return;
   _mLayer.clearLayers();
-  const mapped = DATA.filter(d => d.lat != null && d.lon != null);
-
-  mapped.forEach(crop => {
-    const col = rc(crop.realm);
-    // Tiny deterministic offset so stacked same-centroid crops don't sit on top of each other
-    const keyN = crop._key.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
-    const jLat = crop.lat + ((keyN % 20) - 10) * 0.008;
-    const jLon = crop.lon + ((keyN % 17) - 8)  * 0.009;
-
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:11px;height:11px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,.55);box-shadow:0 0 5px ${col}99"></div>`,
-      iconSize: [11,11], iconAnchor: [5.5,5.5],
+  const mapped=DATA.filter(d=>d.lat!=null&&d.lon!=null);
+  mapped.forEach(crop=>{
+    const col=rc(crop.realm);
+    const kn=crop._key.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const jLat=crop.lat+((kn%20)-10)*0.007;
+    const jLon=crop.lon+((kn%17)-8)*0.008;
+    const icon=L.divIcon({
+      className:'',
+      html:`<div style="width:11px;height:11px;border-radius:50%;background:${col};border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.25)"></div>`,
+      iconSize:[11,11],iconAnchor:[5.5,5.5],
     });
-    const marker = L.marker([jLat, jLon], { icon });
+    const marker=L.marker([jLat,jLon],{icon});
     marker.bindPopup(`
       <div class="cpop">
         <h3>${esc(crop.name)}</h3>
@@ -785,31 +1046,62 @@ function updateMap() {
           <tr><td>Ecoregion</td><td>${esc(crop.eco)}</td></tr>
         </table>
         <button class="pop-btn" data-key="${esc(crop._key)}">Full details →</button>
-      </div>
-    `, { maxWidth: 240 });
+      </div>`,{maxWidth:240});
+
+    // Map hover: show tooltip with image
+    marker.on('mouseover',function(e){
+      _hoverCrop=crop._key;
+      const tt=document.getElementById('tt');
+      tt.innerHTML=`<b>${esc(crop.name)}</b><em style="display:block;font-size:11px;color:var(--muted)">${esc(crop.sci)}</em><span style="color:var(--accent)">${rl(crop.realm)}</span>`;
+      tt.classList.add('show');
+      positionTT(e.originalEvent);
+      // async load image into tooltip
+      getImg(crop.sci,200).then(url=>{
+        if(_hoverCrop!==crop._key||!url) return;
+        const imgEl=document.createElement('img');
+        imgEl.className='tt-img'; imgEl.src=url; imgEl.alt=crop.name;
+        tt.insertBefore(imgEl,tt.firstChild);
+      });
+    });
+    marker.on('mouseout',()=>{ _hoverCrop=null; document.getElementById('tt').classList.remove('show'); });
+    marker.on('mousemove',e=>positionTT(e.originalEvent));
     _mLayer.addLayer(marker);
   });
-
-  // Auto-zoom to filtered results (only when the user has actually filtered something)
-  if (mapped.length > 0 && mapped.length < ALL.length * 0.85) {
-    const bounds = L.latLngBounds(mapped.map(d => [d.lat, d.lon]));
-    _leafMap.fitBounds(bounds.pad(0.15), { maxZoom: 7, animate: true });
+  if(mapped.length>0&&mapped.length<ALL.length*0.85){
+    const bounds=L.latLngBounds(mapped.map(d=>[d.lat,d.lon]));
+    _leafMap.fitBounds(bounds.pad(0.15),{maxZoom:7,animate:true});
   }
 }
 
-// Event delegation: popup button clicks
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.pop-btn');
-  if (btn) openModal(_cropMap[btn.dataset.key]);
+function positionTT(ev){
+  const tt=document.getElementById('tt');
+  tt.style.left=(ev.clientX+14)+'px';
+  tt.style.top =(ev.clientY-20)+'px';
+}
+
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.pop-btn');
+  if(btn) openModal(_cropMap[btn.dataset.key]);
 });
 
-/* ================================================================
-   MODAL
-================================================================ */
-function openModal(crop) {
-  if (!crop) return;
-  const col = rc(crop.realm);
-  document.getElementById('modal-body').innerHTML = `
+/* ── MODAL ──────────────────────────────────────── */
+function openModal(crop){
+  if(!crop) return;
+  const col=rc(crop.realm);
+
+  // Reset image area
+  const imgEl=document.getElementById('modal-img');
+  const phEl =document.getElementById('modal-img-placeholder');
+  imgEl.style.opacity='0'; imgEl.src='';
+  phEl.style.display='flex';
+  document.getElementById('modal-img-credit').textContent='';
+
+  // Set emoji placeholder based on use
+  const emojis={'grain':'🌾','fruit_flower':'🍅','tuber_root':'🥔','leaf_shoot':'🥬','seed':'🌰','drink':'☕','nut':'🌰'};
+  const useKey=Object.keys(emojis).find(k=>crop.useType.toLowerCase().includes(k));
+  phEl.textContent=emojis[useKey]||'🌱';
+
+  document.getElementById('modal-body').innerHTML=`
     <div class="mcn">${esc(crop.name)}</div>
     <div class="msci">${esc(crop.sci)}</div>
     <span class="mbadge" style="background:${col}">${rl(crop.realm)}</span>
@@ -827,404 +1119,321 @@ function openModal(crop) {
       <div class="mf"><div class="mfl">Ecoregion</div><div class="mfv">${esc(crop.eco)||'—'}</div></div>
       <div class="mf"><div class="mfl">GBIF records</div><div class="mfv">${crop.gbif!=null?crop.gbif.toLocaleString():'—'}</div></div>
     </div>
-    ${crop.prog ? `<div class="msect">Wild Progenitor</div><div class="progbox">${esc(crop.prog)}</div>` : ''}
+    ${crop.prog?`<div class="msect">Wild Progenitor</div><div class="progbox">${esc(crop.prog)}</div>`:''}
   `;
   document.getElementById('moverlay').classList.add('open');
+
+  // Async load Wikipedia image into modal banner
+  getImg(crop.sci,800).then(url=>{
+    if(!url) return;
+    imgEl.onload=()=>{ imgEl.style.opacity='1'; phEl.style.display='none'; document.getElementById('modal-img-credit').textContent='Photo: Wikimedia Commons'; };
+    imgEl.src=url;
+    imgEl.style.position='absolute'; imgEl.inset='0';
+  });
 }
 
-document.getElementById('mbtn-close').addEventListener('click', closeModal);
-document.getElementById('moverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('moverlay')) closeModal();
-});
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.getElementById('mbtn-close').addEventListener('click',closeModal);
+document.getElementById('moverlay').addEventListener('click',e=>{ if(e.target===document.getElementById('moverlay')) closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+function closeModal(){ document.getElementById('moverlay').classList.remove('open'); }
 
-function closeModal() {
-  document.getElementById('moverlay').classList.remove('open');
-}
+/* ── TIMELINE ───────────────────────────────────── */
+function drawTimeline(){
+  const wrap=document.getElementById('tl-wrap');
+  wrap.innerHTML='';
+  const pts=DATA.filter(d=>d.tDom!=null&&d.tDom>0);
+  if(!pts.length){ wrap.innerHTML='<p style="color:var(--muted);padding:24px 0">No crops with domestication age data match your filters.</p>'; return; }
+  const realms=[...new Set(pts.map(d=>d.realm||'Unknown'))].sort();
+  const rowH=54;
+  const rect=wrap.getBoundingClientRect();
+  const W=Math.max(rect.width-44,580);
+  const mg={t:24,r:24,b:46,l:130};
+  const iW=W-mg.l-mg.r, iH=realms.length*rowH, H=iH+mg.t+mg.b;
 
-/* ================================================================
-   TIMELINE (D3)
-================================================================ */
-function drawTimeline() {
-  const wrap = document.getElementById('tl-wrap');
-  wrap.innerHTML = '';
+  const svg=d3.select(wrap).append('svg').attr('width',W).attr('height',H)
+    .style('overflow','visible').style('display','block');
+  const g=svg.append('g').attr('transform',`translate(${mg.l},${mg.t})`);
 
-  const pts = DATA.filter(d => d.tDom != null && d.tDom > 0);
-  if (!pts.length) {
-    wrap.innerHTML = '<p style="color:var(--muted);padding:20px">No crops with domestication age data match your filters.</p>';
-    return;
-  }
+  const maxAge=d3.max(pts,d=>d.tDom);
+  const xSc=d3.scaleLinear().domain([0,maxAge*1.04]).range([iW,0]);
 
-  const realms = [...new Set(pts.map(d => d.realm || 'Unknown'))].sort();
-  // Larger row height so many dots don't all stack on one line
-  const rowH = 54;
-  // Use getBoundingClientRect for reliable width after layout
-  const rect = wrap.getBoundingClientRect();
-  const W    = Math.max(rect.width - 44, 580);  // subtract padding
-  const mg   = { t: 24, r: 24, b: 46, l: 130 };
-  const iW   = W - mg.l - mg.r;
-  const iH   = realms.length * rowH;
-  const H    = iH + mg.t + mg.b;
-
-  const svg = d3.select(wrap).append('svg')
-    .attr('width', W).attr('height', H)
-    .style('overflow', 'visible')   // prevent label clipping
-    .style('display', 'block');     // remove inline-block bottom gap
-
-  const g = svg.append('g').attr('transform', `translate(${mg.l},${mg.t})`);
-
-  const maxAge = d3.max(pts, d => d.tDom);
-  const xSc    = d3.scaleLinear().domain([0, maxAge * 1.04]).range([iW, 0]);
-
-  // Alternating row backgrounds
-  realms.forEach((r, i) => {
-    g.append('rect')
-      .attr('x', 0).attr('y', i * rowH)
-      .attr('width', iW).attr('height', rowH)
-      .attr('fill', i % 2 === 0 ? 'rgba(255,255,255,.025)' : 'rgba(0,0,0,.1)');
+  realms.forEach((r,i)=>{
+    g.append('rect').attr('x',0).attr('y',i*rowH)
+     .attr('width',iW).attr('height',rowH)
+     .attr('fill',i%2===0?'rgba(58,122,30,.05)':'rgba(58,122,30,.02)');
   });
 
-  // Vertical grid lines
-  const gridG = g.append('g').attr('transform', `translate(0,${iH})`);
+  const gridG=g.append('g').attr('transform',`translate(0,${iH})`);
   gridG.call(d3.axisBottom(xSc).ticks(8).tickSize(-iH).tickFormat(''));
-  gridG.selectAll('line').attr('stroke','#2b3b2a').attr('stroke-dasharray','3,5');
+  gridG.selectAll('line').attr('stroke','#c4dbb8').attr('stroke-dasharray','3,5');
   gridG.select('.domain').remove();
 
-  // X axis with labels
-  const xAxis = g.append('g').attr('transform', `translate(0,${iH})`)
-    .call(d3.axisBottom(xSc).ticks(8)
-      .tickFormat(d => d === 0 ? 'Today' : d.toLocaleString() + ' yr'));
-  xAxis.selectAll('text').attr('fill','#7a9a76').attr('font-size','11px');
-  xAxis.selectAll('line,path').attr('stroke','#2b3b2a');
-  g.append('text')
-    .attr('x', iW / 2).attr('y', iH + 40)
-    .attr('text-anchor','middle').attr('fill','#7a9a76').attr('font-size','11px')
-    .text('← Years before present');
+  const xAxis=g.append('g').attr('transform',`translate(0,${iH})`)
+    .call(d3.axisBottom(xSc).ticks(8).tickFormat(d=>d===0?'Today':d.toLocaleString()+' yr'));
+  xAxis.selectAll('text').attr('fill','#5a7a4a').attr('font-size','11px');
+  xAxis.selectAll('line,path').attr('stroke','#c4dbb8');
+  g.append('text').attr('x',iW/2).attr('y',iH+40)
+   .attr('text-anchor','middle').attr('fill','#5a7a4a').attr('font-size','11px')
+   .text('← Years before present');
 
-  // Realm row labels (left side)
-  realms.forEach((r, i) => {
+  realms.forEach((r,i)=>{
     g.append('text')
-      .attr('x', -10).attr('y', i * rowH + rowH / 2 + 4)
-      .attr('text-anchor','end')
-      .attr('fill', rc(r)).attr('font-size','11px').attr('font-weight','700')
-      .text(rl(r));
+     .attr('x',-10).attr('y',i*rowH+rowH/2+4)
+     .attr('text-anchor','end').attr('fill',rc(r)).attr('font-size','11px').attr('font-weight','700')
+     .text(rl(r));
   });
 
-  // Crop dots with deterministic y-jitter (so dots spread within the row instead of all on one line)
-  const tt = d3.select('#tt');
-  g.selectAll('.tdot')
-    .data(pts)
-    .join('circle')
-    .attr('class','tdot')
-    .attr('cx', d => xSc(d.tDom))
-    .attr('cy', d => {
-      const ri   = realms.indexOf(d.realm || 'Unknown');
-      const mid  = ri * rowH + rowH / 2;
-      // Deterministic jitter: spread dots across 80% of the row height
-      const hash = Array.from(d.name).reduce((a, c) => a + c.charCodeAt(0), 0);
-      const spread = rowH * 0.38;
-      return mid + (((hash * 7) % 100) / 100 - 0.5) * 2 * spread;
-    })
-    .attr('r', 4.5)
-    .attr('fill', d => rc(d.realm))
-    .attr('fill-opacity', 0.82)
-    .style('cursor','pointer')
-    .on('mousemove', function(ev, d) {
-      tt.classed('show', true)
-        .html(`<b>${esc(d.name)}</b>
-               <em style="color:var(--muted);font-size:11px;display:block">${esc(d.sci)}</em>
-               <span style="color:var(--accent)">~${d.tDom.toLocaleString()} yrs ago</span><br/>
-               ${esc(d.family)} · ${rl(d.realm)}`)
-        .style('left', (ev.clientX + 14) + 'px')
-        .style('top',  (ev.clientY - 30) + 'px');
-    })
-    .on('mouseleave', () => tt.classed('show', false))
-    .on('click', (_, d) => { tt.classed('show', false); openModal(d); });
+  const tt=d3.select('#tt');
+  g.selectAll('.tdot').data(pts).join('circle')
+   .attr('class','tdot')
+   .attr('cx',d=>xSc(d.tDom))
+   .attr('cy',d=>{
+     const ri=realms.indexOf(d.realm||'Unknown');
+     const mid=ri*rowH+rowH/2;
+     const hash=Array.from(d.name).reduce((a,c)=>a+c.charCodeAt(0),0);
+     const spread=rowH*0.38;
+     return mid+(((hash*7)%100)/100-0.5)*2*spread;
+   })
+   .attr('r',4.5)
+   .attr('fill',d=>rc(d.realm))
+   .attr('fill-opacity',.85)
+   .attr('stroke',d=>rc(d.realm))
+   .attr('stroke-width','0.5')
+   .style('cursor','pointer')
+   .on('mousemove',function(ev,d){
+     tt.classed('show',true)
+       .html(`<b>${esc(d.name)}</b><em style="color:var(--muted);font-size:11px;display:block">${esc(d.sci)}</em><span style="color:var(--accent)">~${d.tDom.toLocaleString()} yrs ago</span><br/>${esc(d.family)} · ${rl(d.realm)}`)
+       .style('left',(ev.clientX+14)+'px').style('top',(ev.clientY-30)+'px');
+   })
+   .on('mouseleave',()=>tt.classed('show',false))
+   .on('click',(_,d)=>{ tt.classed('show',false); openModal(d); });
 }
 
-/* ================================================================
-   TAXONOMIC TREE (D3 collapsible)
-================================================================ */
-function drawTree() {
-  const wrap = document.getElementById('tree-wrap');
-  wrap.innerHTML = '';
+/* ── TREE ───────────────────────────────────────── */
+function drawTree(){
+  const wrap=document.getElementById('tree-wrap');
   const tdata = buildTreeData(DATA);
   if (!tdata.children.length) {
-    wrap.innerHTML = '<p style="color:var(--muted);padding:20px">No data matches your filters.</p>';
+    wrap.innerHTML = '<p style="color:var(--muted);padding:24px 0">No data matches your filters.</p>';
     return;
   }
+  const nodeW = 190, nodeH = 22;
+  const root = d3.hierarchy(tdata);
+  root.sort((a, b) => d3.ascending(a.data.name, b.data.name));
+  const totalLeaves = cntLeaves(root);
+  const svgH = Math.max(totalLeaves * nodeH + 60, 400);
+  const svgW = Math.max(wrap.getBoundingClientRect().width - 8, 600);
+  const depth = root.height;
+  const colW = Math.min(nodeW, (svgW - 40) / (depth + 1));
 
-  const nodeW = 190, nodeH = 20;
-  const root  = d3.hierarchy(tdata);
+  d3.tree().nodeSize([nodeH, colW])(root);
 
-  // Collapse genus level initially
-  root.each(d => {
-    if (d.depth === 2 && d.children) { d._children = d.children; d.children = null; }
+  // shift so min y = 30
+  const minY = d3.min(root.descendants(), d => d.x);
+  root.descendants().forEach(d => d.x -= minY - 30);
+
+  const svg = d3.select(wrap).append('svg')
+    .attr('width', svgW)
+    .attr('height', svgH)
+    .style('font', '12px Inter, sans-serif');
+
+  // links
+  svg.append('g').attr('fill', 'none').attr('stroke', 'var(--border)').attr('stroke-width', 1.2)
+    .selectAll('path').data(root.links()).join('path')
+    .attr('d', d3.linkHorizontal().x(d => d.y + 20).y(d => d.x));
+
+  // nodes
+  const nodeGrp = svg.append('g').selectAll('g').data(root.descendants()).join('g')
+    .attr('transform', d => `translate(${d.y + 20},${d.x})`)
+    .style('cursor', d => d.data.crop ? 'pointer' : 'default');
+
+  nodeGrp.append('circle')
+    .attr('r', d => d.data.crop ? 4 : 3)
+    .attr('fill', d => d.data.crop ? 'var(--accent)' : (d.depth === 1 ? 'var(--primary)' : 'var(--border)'))
+    .attr('stroke', d => d.data.crop ? 'var(--accent)' : 'var(--border)');
+
+  nodeGrp.append('text')
+    .attr('x', d => d.data.crop ? 8 : (d.children ? -6 : 8))
+    .attr('text-anchor', d => d.data.crop ? 'start' : (d.children ? 'end' : 'start'))
+    .attr('dy', '0.32em')
+    .attr('font-size', d => d.depth === 0 ? 13 : (d.data.crop ? 11 : 12))
+    .attr('font-weight', d => d.depth <= 1 ? 600 : 400)
+    .attr('fill', d => d.data.crop ? 'var(--accent)' : (d.depth === 0 ? 'var(--primary)' : 'var(--text)'))
+    .text(d => {
+      const lbl = d.data.name || '—';
+      return lbl.length > 26 ? lbl.slice(0, 24) + '…' : lbl;
+    });
+
+  nodeGrp.on('click', (ev, d) => {
+    if (d.data.crop) openModal(d.data.crop);
   });
-
-  const layout = d3.tree().nodeSize([nodeH, nodeW]);
-  const svgEl  = d3.select(wrap).append('svg').style('overflow','visible');
-  const g      = svgEl.append('g');
-  const tt     = d3.select('#tt');
-
-  function draw(src) {
-    layout(root);
-    const nodes = root.descendants();
-    const links = root.links();
-    const xs = nodes.map(n => n.x);
-    const ys = nodes.map(n => n.y);
-    const minX = Math.min(...xs), maxX = Math.max(...xs);
-    const maxY = Math.max(...ys);
-    svgEl.attr('width', maxY + nodeW + 40).attr('height', maxX - minX + 40);
-    g.attr('transform', `translate(18,${18 - minX})`);
-
-    // Links
-    g.selectAll('.tlink')
-     .data(links, d => d.target.id)
-     .join(
-       e => e.append('path').attr('class','tlink')
-             .attr('d', d3.linkHorizontal().x(n => n.y).y(n => n.x)),
-       u => u.transition().duration(250)
-             .attr('d', d3.linkHorizontal().x(n => n.y).y(n => n.x)),
-       ex => ex.remove()
-     );
-
-    // Nodes
-    const isLeaf      = d => !d.children && !d._children;
-    const isCollapsed = d => !!d._children;
-
-    const nodeGrp = g.selectAll('.tnode')
-      .data(nodes, d => d.data.name + '-' + d.depth)
-      .join(
-        enter => {
-          const ng = enter.append('g');
-          ng.append('circle').attr('r', 6);
-          ng.append('text')
-            .attr('dy','0.32em')
-            .attr('font-size', d => d.depth <= 1 ? '12px' : '11px')
-            .attr('font-weight', d => d.depth <= 1 ? '600' : '400')
-            .attr('fill', d => {
-              if (d.depth === 0) return '#5caa38';
-              if (d.depth === 1) return '#e8a030';
-              if (d.depth === 2) return '#4fc3a1';
-              return '#d6e8d2';
-            });
-          return ng;
-        },
-        update => update,
-        exit   => exit.remove()
-      );
-
-    // Update class, position, and text on ALL nodes (enter + update merged)
-    nodeGrp
-      .attr('class', d => 'tnode' + (isLeaf(d) ? ' leaf' : '') + (isCollapsed(d) ? ' coll' : ''))
-      .transition().duration(220)
-      .attr('transform', d => `translate(${d.y},${d.x})`);
-
-    nodeGrp.select('text')
-      .attr('x', d => isLeaf(d) ? 10 : -10)
-      .attr('text-anchor', d => isLeaf(d) ? 'start' : 'end')
-      .text(d => {
-        const n   = d.data.name;
-        const cnt = d._children ? ` (${cntLeaves(d)})` : '';
-        const lbl = n.length > 26 ? n.slice(0, 24) + '…' : n;
-        return lbl + cnt;
-      });
-
-    // Re-bind events on merged selection every draw so newly-entered nodes also get them
-    nodeGrp
-      .on('click', (_, d) => {
-        tt.classed('show', false);
-        if (d.data.crop) { openModal(d.data.crop); return; }
-        if (d._children) { d.children = d._children; d._children = null; }
-        else if (d.children) { d._children = d.children; d.children = null; }
-        draw(d);
-      })
-      .on('mousemove', (ev, d) => {
-        if (d.data.crop) {
-          tt.classed('show', true)
-            .html(`<b>${esc(d.data.name)}</b>
-                   <em style="font-size:11px;color:var(--muted);display:block">${esc(d.data.crop.sci)}</em>
-                   Click for full details`)
-            .style('left', (ev.clientX + 14) + 'px')
-            .style('top',  (ev.clientY - 28) + 'px');
-        }
-      })
-      .on('mouseleave', () => tt.classed('show', false));
-  }
-
-  draw(root);
 }
 
 function cntLeaves(node) {
-  const ch = node.children || node._children || [];
-  if (!ch.length) return 1;
-  return ch.reduce((a,c) => a + cntLeaves(c), 0);
+  if (!node.children || !node.children.length) return 1;
+  return node.children.reduce((s, c) => s + cntLeaves(c), 0);
 }
 
-function buildTreeData(data) {
-  const root = { name:'Crops', children:[] };
-  const om   = {};
-  data.forEach(crop => {
-    const o = crop.order  || 'Unknown';
-    const f = crop.family || 'Unknown';
-    const g = crop.genus  || 'Unknown';
-    if (!om[o]) om[o] = {};
-    if (!om[o][f]) om[o][f] = {};
-    if (!om[o][f][g]) om[o][f][g] = [];
-    om[o][f][g].push({ name: crop.name || crop.sci, crop });
+function buildTreeData(crops) {
+  const root = { name: 'All Crops', children: [] };
+  const orderMap = {};
+  crops.forEach(c => {
+    const ord = c.order || 'Unknown Order';
+    const fam = c.family || 'Unknown Family';
+    if (!orderMap[ord]) { orderMap[ord] = {}; root.children.push({ name: ord, children: [] }); }
+    if (!orderMap[ord][fam]) {
+      orderMap[ord][fam] = true;
+      const ordNode = root.children.find(x => x.name === ord);
+      ordNode.children.push({ name: fam, children: [] });
+    }
+    const ordNode = root.children.find(x => x.name === ord);
+    const famNode = ordNode.children.find(x => x.name === fam);
+    famNode.children.push({ name: c.name, crop: c });
   });
-  root.children = Object.keys(om).sort().map(o => ({
-    name: o,
-    children: Object.keys(om[o]).sort().map(f => ({
-      name: f,
-      children: Object.keys(om[o][f]).sort().map(g => ({
-        name: g,
-        children: om[o][f][g].sort((a,b) => a.name.localeCompare(b.name))
-      }))
-    }))
-  }));
   return root;
 }
 
-/* ================================================================
-   STATS (D3)
-================================================================ */
+/* ── STATS ──────────────────────────────────────── */
 function drawStats() {
-  const inner = document.getElementById('stats-inner');
-  inner.innerHTML = '';
-  if (!DATA.length) {
-    inner.innerHTML = '<p style="color:var(--muted)">No data matches your filters.</p>';
-    return;
-  }
+  const wrap = document.getElementById('stats-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const crops = DATA;
+  if (!crops.length) { wrap.innerHTML = '<p style="color:var(--muted);padding:16px">No data.</p>'; return; }
 
-  const withAge = DATA.filter(d => d.tDom != null && d.tDom > 0);
-  const oldest  = withAge.length ? withAge.reduce((a,b) => a.tDom > b.tDom ? a : b) : null;
-  const cntFood = DATA.filter(d => d.food).length;
-  const famMap  = countBy(DATA, d => d.family);
-  const realmMap= countBy(DATA, d => d.realm || 'Unknown');
-  const topFam  = topN(famMap, 1)[0];
-  const topRealm= topN(realmMap, 1)[0];
+  const W = Math.max(wrap.getBoundingClientRect().width - 48, 300);
 
-  const cards = [
-    { i:'🌾', v: DATA.length,         l:'Total crops',          s:`in filtered selection`},
-    { i:'⏳', v: withAge.length,       l:'With age data',        s:`have estimates`},
-    { i:'🏺', v: oldest ? oldest.tDom.toLocaleString() : '—',
-              l:'Oldest age (yrs)',    s: oldest ? oldest.name : ''},
-    { i:'🍽️', v: cntFood,             l:'Food crops',           s:`${Math.round(cntFood/DATA.length*100)}% of selection`},
-    { i:'🌿', v: topFam ? topFam[0] : '—',
-              l:'Most common family',  s: topFam ? topFam[1]+' species' : ''},
-    { i:'🌍', v: topRealm ? rl(topRealm[0]) : '—',
-              l:'Top realm',           s: topRealm ? topRealm[1]+' crops' : ''},
-    { i:'🔬', v:[...new Set(DATA.map(d=>d.family))].length, l:'Unique families', s:''},
-    { i:'🌐', v:[...new Set(DATA.map(d=>d.realm).filter(Boolean))].length, l:'Realms represented', s:''},
-  ];
+  // Row 1: Families bar
+  const famCounts = topN(countBy(crops, d => d.family || 'Unknown'), 14);
+  drawBars(wrap, 'Top Plant Families', famCounts, W, 'var(--primary)');
 
-  // Cards
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  cards.forEach(c => {
-    grid.innerHTML += `<div class="card">
-      <div class="ci">${c.i}</div>
-      <div class="cv">${c.v}</div>
-      <div class="cl">${c.l}</div>
-      ${c.s ? `<div class="cs">${c.s}</div>` : ''}
-    </div>`;
-  });
-  inner.appendChild(grid);
+  // Row 2: Realms bar
+  const realmCounts = topN(countBy(crops, d => d.realm || 'Unknown'), 10);
+  drawBars(wrap, 'Biogeographic Realms', realmCounts, W, 'var(--accent)');
 
-  // Chart rows
-  const row1 = document.createElement('div'); row1.className = 'chart-row';
-  const row2 = document.createElement('div'); row2.className = 'chart-row';
+  // Row 3: Growth forms bar
+  const gfCounts = topN(countBy(crops, d => d.gf || 'Unknown'), 10);
+  drawBars(wrap, 'Growth Forms', gfCounts, W, '#4a9e6b');
 
-  row1.innerHTML = `
-    <div class="ccrd"><h3>Top 12 Families by Crop Count</h3><div id="ch-fam"></div></div>
-    <div class="ccrd"><h3>Crops by Biogeographic Realm</h3><div id="ch-realm"></div></div>
-  `;
-  row2.innerHTML = `
-    <div class="ccrd"><h3>Growth Forms</h3><div id="ch-gf"></div></div>
-    <div class="ccrd"><h3>Domestication Age Distribution</h3><div id="ch-age"></div></div>
-  `;
-  inner.appendChild(row1);
-  inner.appendChild(row2);
-
-  requestAnimationFrame(() => {
-    drawBars('ch-fam',   topN(famMap, 12),  () => '#5caa38');
-    drawBars('ch-realm', topN(realmMap, 10), ([k]) => rc(k), ([k]) => rl(k));
-    drawBars('ch-gf',    topN(countBy(DATA, d=>d.gf||'unknown'), 8), () => '#4fc3a1');
-    drawAgeHist('ch-age', withAge);
-  });
+  // Row 4: Domestication age histogram
+  const ages = crops.map(d => d.tDom).filter(v => v > 0 && v < 15000);
+  drawAgeHist(wrap, 'Domestication Age Distribution (years ago)', ages, W);
 }
 
 function countBy(arr, fn) {
   const m = {};
-  arr.forEach(d => { const k = fn(d); if(k) m[k] = (m[k]||0)+1; });
-  return m;
-}
-function topN(obj, n) {
-  return Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0,n);
+  arr.forEach(d => { const k = fn(d); m[k] = (m[k] || 0) + 1; });
+  return Object.entries(m).map(([k, v]) => ({ label: k, value: v }));
 }
 
-function drawBars(id, data, colorFn, labelFn) {
-  const el = document.getElementById(id);
-  if (!el || !data.length) return;
-  const max = data[0][1];
-  const list = document.createElement('div');
-  list.className = 'blist';
-  data.forEach(([k,cnt],i) => {
-    const lbl = labelFn ? labelFn([k,cnt]) : k;
-    const col = colorFn([k,cnt]);
-    list.innerHTML += `<div class="bitem">
-      <span class="rk">${i+1}</span>
-      <span class="nm" title="${esc(lbl)}">${esc(lbl)}</span>
-      <span class="bw"><span class="bf" style="width:${Math.round(cnt/max*100)}%;background:${col}"></span></span>
-      <span class="cnt">${cnt}</span>
-    </div>`;
-  });
-  el.appendChild(list);
+function topN(arr, n) {
+  return arr.sort((a, b) => b.value - a.value).slice(0, n);
 }
 
-function drawAgeHist(id, data) {
-  const el = document.getElementById(id);
-  if (!el || !data.length) return;
-  const W = Math.max(el.clientWidth||300, 200);
-  const H = 150;
-  const mg = { t:8, r:14, b:34, l:38 };
-  const iW = W - mg.l - mg.r, iH = H - mg.t - mg.b;
+function drawBars(container, title, data, W, color) {
+  const H = 200, margin = { top: 30, right: 16, bottom: 70, left: 44 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
 
-  const ages  = data.map(d => d.tDom);
-  const xSc   = d3.scaleLinear().domain([0, d3.max(ages)]).range([0, iW]);
-  const bins  = d3.bin().domain(xSc.domain()).thresholds(12)(ages);
-  const ySc   = d3.scaleLinear().domain([0, d3.max(bins, b => b.length)]).range([iH, 0]);
+  const div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:28px;';
+  container.appendChild(div);
 
-  const svg = d3.select(el).append('svg').attr('width', W).attr('height', H);
-  const g   = svg.append('g').attr('transform',`translate(${mg.l},${mg.t})`);
+  const svg = d3.select(div).append('svg').attr('width', W).attr('height', H);
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  svg.append('text').attr('x', margin.left).attr('y', 18)
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', 'var(--text)').text(title);
+
+  const x = d3.scaleBand().domain(data.map(d => d.label)).range([0, iW]).padding(0.22);
+  const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([iH, 0]);
+
+  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW))
+    .call(ax => ax.selectAll('.domain').remove())
+    .call(ax => ax.selectAll('.tick line').attr('stroke', 'var(--border-lt)'))
+    .call(ax => ax.selectAll('text').attr('fill', 'var(--muted)').attr('font-size', 10));
+
+  g.append('g').attr('transform', `translate(0,${iH})`).call(d3.axisBottom(x).tickSize(0))
+    .call(ax => ax.selectAll('.domain').attr('stroke', 'var(--border)'))
+    .call(ax => ax.selectAll('text').attr('fill', 'var(--text)').attr('font-size', 10)
+      .attr('transform', 'rotate(-38)').style('text-anchor', 'end'));
+
+  g.selectAll('rect').data(data).join('rect')
+    .attr('x', d => x(d.label)).attr('y', d => y(d.value))
+    .attr('width', x.bandwidth()).attr('height', d => iH - y(d.value))
+    .attr('fill', color).attr('rx', 3).attr('opacity', 0.85);
+
+  g.selectAll('.val-lbl').data(data).join('text').attr('class', 'val-lbl')
+    .attr('x', d => x(d.label) + x.bandwidth() / 2).attr('y', d => y(d.value) - 4)
+    .attr('text-anchor', 'middle').attr('font-size', 9).attr('fill', 'var(--muted)').text(d => d.value);
+}
+
+function drawAgeHist(container, title, ages, W) {
+  const H = 200, margin = { top: 30, right: 16, bottom: 40, left: 50 };
+  const iW = W - margin.left - margin.right;
+  const iH = H - margin.top - margin.bottom;
+
+  const div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:28px;';
+  container.appendChild(div);
+
+  const svg = d3.select(div).append('svg').attr('width', W).attr('height', H);
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  svg.append('text').attr('x', margin.left).attr('y', 18)
+    .attr('font-size', 13).attr('font-weight', 600).attr('fill', 'var(--text)').text(title);
+
+  const x = d3.scaleLinear().domain([0, d3.max(ages)]).nice().range([0, iW]);
+  const bins = d3.bin().domain(x.domain()).thresholds(20)(ages);
+  const y = d3.scaleLinear().domain([0, d3.max(bins, d => d.length)]).nice().range([iH, 0]);
+
+  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW))
+    .call(ax => ax.selectAll('.domain').remove())
+    .call(ax => ax.selectAll('.tick line').attr('stroke', 'var(--border-lt)'))
+    .call(ax => ax.selectAll('text').attr('fill', 'var(--muted)').attr('font-size', 10));
+
+  g.append('g').attr('transform', `translate(0,${iH})`).call(d3.axisBottom(x).ticks(6).tickFormat(d => d.toLocaleString()))
+    .call(ax => ax.selectAll('.domain').attr('stroke', 'var(--border)'))
+    .call(ax => ax.selectAll('text').attr('fill', 'var(--muted)').attr('font-size', 10));
 
   g.selectAll('rect').data(bins).join('rect')
-   .attr('x', b => xSc(b.x0)+1)
-   .attr('width', b => Math.max(0, xSc(b.x1)-xSc(b.x0)-2))
-   .attr('y', b => ySc(b.length))
-   .attr('height', b => iH - ySc(b.length))
-   .attr('fill','#e8a030').attr('fill-opacity',.8).attr('rx',2);
-
-  const xa = g.append('g').attr('transform',`translate(0,${iH})`)
-    .call(d3.axisBottom(xSc).ticks(5).tickFormat(d=>d.toLocaleString()));
-  xa.selectAll('text').attr('fill','#7a9a76').attr('font-size','9px');
-  xa.selectAll('line,path').attr('stroke','#2b3b2a');
-
-  const ya = g.append('g').call(d3.axisLeft(ySc).ticks(4));
-  ya.selectAll('text').attr('fill','#7a9a76').attr('font-size','9px');
-  ya.selectAll('line,path').attr('stroke','#2b3b2a');
-
-  g.append('text').attr('x',iW/2).attr('y',iH+28)
-   .attr('text-anchor','middle').attr('fill','#7a9a76').attr('font-size','9px')
-   .text('Years ago');
+    .attr('x', d => x(d.x0) + 1).attr('y', d => y(d.length))
+    .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 2))
+    .attr('height', d => iH - y(d.length))
+    .attr('fill', 'var(--primary)').attr('rx', 2).attr('opacity', 0.82);
 }
 
-/* ================================================================
-   BOOT
-================================================================ */
-loadData();
+/* ── BOOT ────────────────────────────────────────── */
+(async () => {
+  const CSV_URL = 'https://raw.githubusercontent.com/rubenmilla/Crop_Origins_Phylo/main/Data/Crop_origins_dataset.csv';
+  try {
+    const res = await fetch(CSV_URL);
+    const txt = await res.text();
+    Papa.parse(txt, {
+      header: true, delimiter: ';', skipEmptyLines: true,
+      complete: r => {
+        ALL = r.data.map(parseCrop).filter(d => d.name && d.name !== '—');
+        DATA = ALL.slice();
+        _cropMap = {};
+        ALL.forEach(c => { _cropMap[c._key] = c; });
+        document.getElementById('loading-overlay').style.display = 'none';
+        // hero stats
+        const families = new Set(ALL.map(d => d.family).filter(Boolean)).size;
+        const realms = new Set(ALL.map(d => d.realm).filter(Boolean)).size;
+        const oldest = Math.max(...ALL.map(d => d.tDom).filter(v => v > 0));
+        document.getElementById('hs-crops').textContent = ALL.length.toLocaleString();
+        document.getElementById('hs-fam').textContent = families;
+        document.getElementById('hs-realms').textContent = realms;
+        document.getElementById('hs-old').textContent = oldest > 0 ? oldest.toLocaleString() : '—';
+        buildFeatured();
+        populateFilters();
+      }
+    });
+  } catch(e) {
+    document.getElementById('loading-overlay').innerHTML =
+      '<div style="color:#fff;padding:40px;text-align:center"><b>Failed to load data.</b><br>Check your network connection.</div>';
+  }
+})();
 </script>
 </body>
 </html>
