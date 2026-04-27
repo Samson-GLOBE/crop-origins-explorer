@@ -12,9 +12,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
 
   <style>
-    /* ══════════════════════════════════════════════
-       DESIGN TOKENS – Light Botanical
-    ══════════════════════════════════════════════ */
     :root {
       --bg:        #f4f8f0;
       --surface:   #ffffff;
@@ -38,18 +35,11 @@
       --shadow-lg: 0 8px 40px rgba(30,60,10,.18);
       font-family: 'Inter', system-ui, sans-serif;
     }
-
-    /* ══════════════════════════════════════════════
-       RESET
-    ══════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
     button { cursor: pointer; font-family: inherit; }
     img { display: block; }
 
-    /* ══════════════════════════════════════════════
-       HEADER
-    ══════════════════════════════════════════════ */
     #header {
       position: fixed; inset: 0 0 auto 0; z-index: 900;
       height: var(--hdr);
@@ -82,18 +72,12 @@
     .nbtn:hover { color: var(--text); border-color: var(--primary); background: var(--primarylt); }
     .nbtn.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
 
-    /* ══════════════════════════════════════════════
-       APP BODY
-    ══════════════════════════════════════════════ */
     #body {
       position: fixed;
       top: var(--hdr); left: 0; right: 0; bottom: 0;
       display: flex;
     }
 
-    /* ══════════════════════════════════════════════
-       SIDEBAR
-    ══════════════════════════════════════════════ */
     #sidebar {
       width: var(--sidebar); flex-shrink: 0;
       background: var(--surface);
@@ -164,9 +148,6 @@
     .litem  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
     .ldot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ══════════════════════════════════════════════
-       VIEWS
-    ══════════════════════════════════════════════ */
     #main { flex: 1; position: relative; overflow: hidden; }
 
     .view {
@@ -186,9 +167,6 @@
     .vscroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .vscroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* ══════════════════════════════════════════════
-       HOME VIEW
-    ══════════════════════════════════════════════ */
     #view-home {
       overflow-y: auto;
       background: var(--bg);
@@ -196,7 +174,6 @@
     #view-home::-webkit-scrollbar { width: 6px; }
     #view-home::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* Hero banner */
     #hero {
       position: relative;
       background: linear-gradient(135deg, #1e4a0c 0%, #2d6b18 45%, #1a4a0a 100%);
@@ -204,7 +181,6 @@
       padding: 52px 48px 44px;
       color: #fff;
     }
-    /* Subtle botanical SVG leaf pattern overlay */
     #hero::before {
       content: '';
       position: absolute; inset: 0;
@@ -237,18 +213,12 @@
       font-size: 15px; color: rgba(255,255,255,.82);
       max-width: 540px; line-height: 1.6; margin-bottom: 28px;
     }
-    .hero-stats {
-      display: flex; gap: 24px; flex-wrap: wrap;
-    }
-    .hstat {
-      display: flex; flex-direction: column; gap: 2px;
-    }
+    .hero-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+    .hstat { display: flex; flex-direction: column; gap: 2px; }
     .hstat b { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
     .hstat span { font-size: 11px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .6px; }
 
-    .hero-btns {
-      display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap;
-    }
+    .hero-btns { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
     .hbtn {
       padding: 10px 22px; border-radius: 24px;
       font-size: 14px; font-weight: 600;
@@ -260,17 +230,9 @@
     .hbtn-outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
     .hbtn-outline:hover { background: rgba(255,255,255,.1); transform: translateY(-1px); }
 
-    /* Featured gallery */
-    #feat-section {
-      padding: 40px 40px 8px;
-    }
-    .section-heading {
-      display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px;
-    }
-    .section-heading h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px; color: var(--text);
-    }
+    #feat-section { padding: 40px 40px 8px; }
+    .section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; }
+    .section-heading h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); }
     .section-heading span { font-size: 13px; color: var(--muted); }
 
     #feat-grid {
@@ -287,16 +249,8 @@
       transition: transform .2s, box-shadow .2s, border-color .2s;
       box-shadow: var(--shadow-sm);
     }
-    .feat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow);
-      border-color: var(--primary);
-    }
-    .feat-img {
-      width: 100%; height: 120px;
-      object-fit: cover;
-      background: var(--surface2);
-    }
+    .feat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--primary); }
+    .feat-img { width: 100%; height: 120px; object-fit: cover; background: var(--surface2); }
     .feat-img-placeholder {
       width: 100%; height: 120px;
       background: linear-gradient(135deg, var(--primarylt), var(--surface2));
@@ -312,7 +266,6 @@
       padding: 2px 7px; border-radius: 10px; color: #fff;
     }
 
-    /* About strip */
     #about-strip {
       margin: 32px 40px 40px;
       background: var(--surface);
@@ -323,16 +276,10 @@
       gap: 28px;
     }
     @media(max-width:700px){ #about-strip { grid-template-columns: 1fr; } }
-    .about-col h4 {
-      font-family: 'Playfair Display', serif;
-      font-size: 17px; margin-bottom: 8px; color: var(--text);
-    }
+    .about-col h4 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 8px; color: var(--text); }
     .about-col p { font-size: 13px; color: var(--muted); line-height: 1.65; }
     .about-col a { color: var(--primary); }
 
-    /* ══════════════════════════════════════════════
-       MAP
-    ══════════════════════════════════════════════ */
     #map { flex: 1; min-height: 0; }
 
     .marker-cluster-small div,
@@ -362,28 +309,15 @@
     }
     .pop-btn:hover { background: var(--primarydk); }
 
-    /* ══════════════════════════════════════════════
-       TIMELINE
-    ══════════════════════════════════════════════ */
-    /* Timeline text colours adjusted for light bg */
     #tl-wrap svg text { font-family: 'Inter', sans-serif; }
 
-    /* ══════════════════════════════════════════════
-       TREE
-    ══════════════════════════════════════════════ */
-    .tnode circle {
-      fill: var(--surface2); stroke: var(--primary); stroke-width: 2;
-      cursor: pointer; transition: fill .15s;
-    }
+    .tnode circle { fill: var(--surface2); stroke: var(--primary); stroke-width: 2; cursor: pointer; transition: fill .15s; }
     .tnode circle:hover { fill: var(--primarylt); }
     .tnode.leaf circle { fill: var(--primary); stroke: var(--primarydk); }
     .tnode.coll circle { fill: var(--accent); stroke: var(--accent); }
     .tnode text { cursor: pointer; }
     .tlink { fill: none; stroke: var(--border); stroke-width: 1.5; }
 
-    /* ══════════════════════════════════════════════
-       STATS
-    ══════════════════════════════════════════════ */
     #view-stats { background: var(--bg); overflow-y: auto; }
     #view-stats::-webkit-scrollbar { width: 6px; }
     #view-stats::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -404,10 +338,7 @@
 
     .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
     @media(max-width:800px){ .chart-row { grid-template-columns: 1fr; } }
-    .ccrd {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm);
-    }
+    .ccrd { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm); }
     .ccrd h3 { font-size: 13px; color: var(--text); margin-bottom: 14px; font-weight: 600; }
 
     .blist { display: flex; flex-direction: column; gap: 7px; }
@@ -418,9 +349,6 @@
     .bitem .bf  { height: 100%; border-radius: 3px; }
     .bitem .cnt { width: 30px; text-align: right; color: var(--muted); font-size: 11px; }
 
-    /* ══════════════════════════════════════════════
-       LOADING
-    ══════════════════════════════════════════════ */
     #loading {
       position: fixed; inset: 0; z-index: 9999;
       background: linear-gradient(160deg, #eef6e8 0%, #f4f8f0 100%);
@@ -446,9 +374,6 @@
       text-align: center; line-height: 1.6;
     }
 
-    /* ══════════════════════════════════════════════
-       MODAL
-    ══════════════════════════════════════════════ */
     #moverlay {
       position: fixed; inset: 0; z-index: 2000;
       background: rgba(20,40,10,.5);
@@ -467,18 +392,13 @@
     #modal::-webkit-scrollbar { width: 5px; }
     #modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* Hero image at top of modal */
     #modal-img-wrap {
       width: 100%; height: 200px;
       background: linear-gradient(135deg, var(--primarylt), var(--surface2));
       overflow: hidden; position: relative; flex-shrink: 0;
       border-radius: 16px 16px 0 0;
     }
-    #modal-img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: opacity .4s;
-    }
+    #modal-img { width: 100%; height: 100%; object-fit: cover; transition: opacity .4s; }
     .modal-img-placeholder {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -524,9 +444,6 @@
       font-size: 13px; font-style: italic; color: var(--text);
     }
 
-    /* ══════════════════════════════════════════════
-       D3 TOOLTIP
-    ══════════════════════════════════════════════ */
     #tt {
       position: fixed; z-index: 3000;
       background: #fff; border: 1px solid var(--border);
@@ -538,15 +455,11 @@
     }
     #tt.show { opacity: 1; }
     #tt b { display: block; font-size: 13px; color: var(--primary); margin-bottom: 3px; }
-    #tt .tt-img {
-      width: 100%; height: 80px; object-fit: cover;
-      border-radius: 6px; margin-bottom: 7px;
-    }
+    #tt .tt-img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 7px; }
   </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading">
   <div style="font-size:48px">🌱</div>
   <div class="spin"></div>
@@ -554,7 +467,6 @@
   <div id="load-err"></div>
 </div>
 
-<!-- HEADER -->
 <div id="header">
   <div class="logo">
     <span class="icon">🌿</span>
@@ -572,10 +484,8 @@
   </nav>
 </div>
 
-<!-- BODY -->
 <div id="body">
 
-  <!-- SIDEBAR (hidden on Home) -->
   <aside id="sidebar">
     <div class="fsection">
       <div class="flabel">🔍 Search crop</div>
@@ -622,12 +532,9 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main id="main">
 
-    <!-- HOME -->
     <div id="view-home" class="view active">
-      <!-- Hero -->
       <div id="hero">
         <div class="hero-inner">
           <div class="hero-tag">🌾 Open Research Dataset</div>
@@ -646,7 +553,6 @@
         </div>
       </div>
 
-      <!-- Featured crops gallery -->
       <div id="feat-section">
         <div class="section-heading">
           <h3>Spotlight Crops</h3>
@@ -657,7 +563,6 @@
         </div>
       </div>
 
-      <!-- About -->
       <div id="about-strip">
         <div class="about-col">
           <h4>About this dataset</h4>
@@ -670,12 +575,10 @@
       </div>
     </div>
 
-    <!-- MAP -->
     <div id="view-map" class="view">
       <div id="map"></div>
     </div>
 
-    <!-- TIMELINE -->
     <div id="view-timeline" class="view">
       <div class="vhdr">
         <h2>Domestication Timeline</h2>
@@ -684,7 +587,6 @@
       <div class="vscroll" id="tl-wrap"></div>
     </div>
 
-    <!-- TREE -->
     <div id="view-tree" class="view">
       <div class="vhdr">
         <h2>Taxonomic Explorer</h2>
@@ -693,7 +595,6 @@
       <div class="vscroll" id="tree-wrap"></div>
     </div>
 
-    <!-- STATS -->
     <div id="view-stats" class="view">
       <div id="stats-wrap">
         <div class="vhdr" style="padding-left:0;padding-top:4px;border:none;background:transparent">
@@ -707,7 +608,6 @@
   </main>
 </div>
 
-<!-- MODAL -->
 <div id="moverlay">
   <div id="modal">
     <button id="mbtn-close">✕</button>
@@ -722,12 +622,8 @@
   </div>
 </div>
 
-<!-- TOOLTIP -->
 <div id="tt"></div>
 
-<!-- ══════════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -736,7 +632,6 @@
 <script>
 'use strict';
 
-/* ── CONFIG ─────────────────────────────────────── */
 const CSV = 'https://raw.githubusercontent.com/rubenmilla/Crop_Origins_Phylo/master/Crop_Origins_Phylo_v_live/crop_origins_v_live/crop_origins_live_db.csv';
 
 const FEATURED_NAMES = ['Rice','Wheat','Maize','Potato','Tomato','Coffee','Tea',
@@ -761,17 +656,14 @@ const REALM_LBL = {
 function rc(r){ return REALM_CLR[r]||'#6a8a6a'; }
 function rl(r){ return REALM_LBL[r]||(r?r.replace(/_/g,' '):'Unknown'); }
 
-/* ── STATE ──────────────────────────────────────── */
 let ALL=[], DATA=[], _cropMap={}, _leafMap=null, _mLayer=null, _curView='home';
 const imgCache = {};
 
-/* ── UTILS ──────────────────────────────────────── */
 function pn(v){ if(!v||v==='NA')return null; return parseFloat(String(v).replace(',','.')); }
 function clean(s){ return(s||'').replace(/_/g,' ').trim(); }
 function esc(s){ return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
 function fage(v){ const n=pn(v); return n==null?'—':n.toLocaleString()+' yrs ago'; }
 
-/* ── WIKIPEDIA IMAGES ───────────────────────────── */
 async function getImg(query, size=400){
   const key = query+'|'+size;
   if(imgCache[key]!==undefined) return imgCache[key];
@@ -789,7 +681,6 @@ async function getImg(query, size=400){
   return imgCache[key];
 }
 
-/* ── DATA LOADING ───────────────────────────────── */
 function loadData(){
   Papa.parse(CSV,{
     download:true, header:true, delimiter:';', skipEmptyLines:true,
@@ -832,7 +723,6 @@ function showErr(html){
   e.style.display='block'; e.innerHTML=html;
 }
 
-/* ── INIT ───────────────────────────────────────── */
 function init(){
   ALL.forEach(c=>{ _cropMap[c._key]=c; });
   populateFilters();
@@ -846,7 +736,6 @@ function init(){
   setTimeout(()=>loader.style.display='none',600);
 }
 
-/* ── HERO STATS ─────────────────────────────────── */
 function fillHeroStats(){
   document.getElementById('hs-crops').textContent  = ALL.length.toLocaleString();
   document.getElementById('hs-fam').textContent    = [...new Set(ALL.map(d=>d.family).filter(Boolean))].length;
@@ -855,7 +744,6 @@ function fillHeroStats(){
   document.getElementById('hs-old').textContent = oldest.tDom ? oldest.tDom.toLocaleString() : '—';
 }
 
-/* ── FEATURED GALLERY ───────────────────────────── */
 function buildFeaturedGallery(){
   const grid = document.getElementById('feat-grid');
   grid.innerHTML = '';
@@ -882,7 +770,6 @@ function buildFeaturedGallery(){
     card.addEventListener('click', ()=>openModal(crop));
     grid.appendChild(card);
 
-    // Async load Wikipedia image
     getImg(crop.sci, 280).then(url=>{
       if(!url) return;
       const ph = document.getElementById(`feat-ph-${crop._key}`);
@@ -896,7 +783,6 @@ function buildFeaturedGallery(){
   });
 }
 
-/* ── FILTERS ────────────────────────────────────── */
 function uniq(arr){ return[...new Set(arr.filter(Boolean))].sort(); }
 
 function populateFilters(){
@@ -947,7 +833,6 @@ function refreshView(){
   if(_curView==='stats')    drawStats();
 }
 
-/* ── FILTER EVENTS ──────────────────────────────── */
 const si=document.getElementById('s-search');
 si.addEventListener('keydown',e=>{ if(e.key==='Enter') applyFilters(); });
 document.getElementById('btn-search').addEventListener('click',applyFilters);
@@ -971,12 +856,10 @@ document.getElementById('btn-reset').addEventListener('click',()=>{
   applyFilters();
 });
 
-/* ── VIEW SWITCHING ─────────────────────────────── */
 function gotoView(v){
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  // Sidebar: hidden on home, visible on all others
   document.getElementById('sidebar').style.display = v==='home'?'none':'flex';
   _curView=v;
   if(v!=='home') setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(refreshView)),80);
@@ -986,10 +869,8 @@ document.querySelectorAll('.nbtn').forEach(btn=>{
   btn.addEventListener('click',()=>gotoView(btn.dataset.v));
 });
 
-// Init: hide sidebar on home
 document.getElementById('sidebar').style.display='none';
 
-/* ── LEGEND ─────────────────────────────────────── */
 function buildLegend(){
   const c=document.getElementById('legend');
   uniq(ALL.map(d=>d.realm)).forEach(r=>{
@@ -1000,7 +881,6 @@ function buildLegend(){
   });
 }
 
-/* ── MAP ────────────────────────────────────────── */
 function initMap(){
   _leafMap=L.map('map',{preferCanvas:true}).setView([25,15],2);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
@@ -1048,14 +928,12 @@ function updateMap(){
         <button class="pop-btn" data-key="${esc(crop._key)}">Full details →</button>
       </div>`,{maxWidth:240});
 
-    // Map hover: show tooltip with image
     marker.on('mouseover',function(e){
       _hoverCrop=crop._key;
       const tt=document.getElementById('tt');
       tt.innerHTML=`<b>${esc(crop.name)}</b><em style="display:block;font-size:11px;color:var(--muted)">${esc(crop.sci)}</em><span style="color:var(--accent)">${rl(crop.realm)}</span>`;
       tt.classList.add('show');
       positionTT(e.originalEvent);
-      // async load image into tooltip
       getImg(crop.sci,200).then(url=>{
         if(_hoverCrop!==crop._key||!url) return;
         const imgEl=document.createElement('img');
@@ -1084,19 +962,16 @@ document.addEventListener('click',e=>{
   if(btn) openModal(_cropMap[btn.dataset.key]);
 });
 
-/* ── MODAL ──────────────────────────────────────── */
 function openModal(crop){
   if(!crop) return;
   const col=rc(crop.realm);
 
-  // Reset image area
   const imgEl=document.getElementById('modal-img');
   const phEl =document.getElementById('modal-img-placeholder');
   imgEl.style.opacity='0'; imgEl.src='';
   phEl.style.display='flex';
   document.getElementById('modal-img-credit').textContent='';
 
-  // Set emoji placeholder based on use
   const emojis={'grain':'🌾','fruit_flower':'🍅','tuber_root':'🥔','leaf_shoot':'🥬','seed':'🌰','drink':'☕','nut':'🌰'};
   const useKey=Object.keys(emojis).find(k=>crop.useType.toLowerCase().includes(k));
   phEl.textContent=emojis[useKey]||'🌱';
@@ -1123,7 +998,6 @@ function openModal(crop){
   `;
   document.getElementById('moverlay').classList.add('open');
 
-  // Async load Wikipedia image into modal banner
   getImg(crop.sci,800).then(url=>{
     if(!url) return;
     imgEl.onload=()=>{ imgEl.style.opacity='1'; phEl.style.display='none'; document.getElementById('modal-img-credit').textContent='Photo: Wikimedia Commons'; };
@@ -1137,7 +1011,6 @@ document.getElementById('moverlay').addEventListener('click',e=>{ if(e.target===
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 function closeModal(){ document.getElementById('moverlay').classList.remove('open'); }
 
-/* ── TIMELINE ───────────────────────────────────── */
 function drawTimeline(){
   const wrap=document.getElementById('tl-wrap');
   wrap.innerHTML='';
@@ -1209,9 +1082,9 @@ function drawTimeline(){
    .on('click',(_,d)=>{ tt.classed('show',false); openModal(d); });
 }
 
-/* ── TREE ───────────────────────────────────────── */
 function drawTree(){
   const wrap=document.getElementById('tree-wrap');
+  wrap.innerHTML='';
   const tdata = buildTreeData(DATA);
   if (!tdata.children.length) {
     wrap.innerHTML = '<p style="color:var(--muted);padding:24px 0">No data matches your filters.</p>';
@@ -1228,7 +1101,6 @@ function drawTree(){
 
   d3.tree().nodeSize([nodeH, colW])(root);
 
-  // shift so min y = 30
   const minY = d3.min(root.descendants(), d => d.x);
   root.descendants().forEach(d => d.x -= minY - 30);
 
@@ -1237,12 +1109,10 @@ function drawTree(){
     .attr('height', svgH)
     .style('font', '12px Inter, sans-serif');
 
-  // links
   svg.append('g').attr('fill', 'none').attr('stroke', 'var(--border)').attr('stroke-width', 1.2)
     .selectAll('path').data(root.links()).join('path')
     .attr('d', d3.linkHorizontal().x(d => d.y + 20).y(d => d.x));
 
-  // nodes
   const nodeGrp = svg.append('g').selectAll('g').data(root.descendants()).join('g')
     .attr('transform', d => `translate(${d.y + 20},${d.x})`)
     .style('cursor', d => d.data.crop ? 'pointer' : 'default');
@@ -1293,7 +1163,6 @@ function buildTreeData(crops) {
   return root;
 }
 
-/* ── STATS ──────────────────────────────────────── */
 function drawStats() {
   const wrap = document.getElementById('stats-wrap');
   if (!wrap) return;
@@ -1303,19 +1172,15 @@ function drawStats() {
 
   const W = Math.max(wrap.getBoundingClientRect().width - 48, 300);
 
-  // Row 1: Families bar
   const famCounts = topN(countBy(crops, d => d.family || 'Unknown'), 14);
   drawBars(wrap, 'Top Plant Families', famCounts, W, 'var(--primary)');
 
-  // Row 2: Realms bar
   const realmCounts = topN(countBy(crops, d => d.realm || 'Unknown'), 10);
   drawBars(wrap, 'Biogeographic Realms', realmCounts, W, 'var(--accent)');
 
-  // Row 3: Growth forms bar
   const gfCounts = topN(countBy(crops, d => d.gf || 'Unknown'), 10);
   drawBars(wrap, 'Growth Forms', gfCounts, W, '#4a9e6b');
 
-  // Row 4: Domestication age histogram
   const ages = crops.map(d => d.tDom).filter(v => v > 0 && v < 15000);
   drawAgeHist(wrap, 'Domestication Age Distribution (years ago)', ages, W);
 }
@@ -1404,36 +1269,7 @@ function drawAgeHist(container, title, ages, W) {
 }
 
 /* ── BOOT ────────────────────────────────────────── */
-(async () => {
-  const CSV_URL = 'https://raw.githubusercontent.com/rubenmilla/Crop_Origins_Phylo/main/Data/Crop_origins_dataset.csv';
-  try {
-    const res = await fetch(CSV_URL);
-    const txt = await res.text();
-    Papa.parse(txt, {
-      header: true, delimiter: ';', skipEmptyLines: true,
-      complete: r => {
-        ALL = r.data.map(parseCrop).filter(d => d.name && d.name !== '—');
-        DATA = ALL.slice();
-        _cropMap = {};
-        ALL.forEach(c => { _cropMap[c._key] = c; });
-        document.getElementById('loading-overlay').style.display = 'none';
-        // hero stats
-        const families = new Set(ALL.map(d => d.family).filter(Boolean)).size;
-        const realms = new Set(ALL.map(d => d.realm).filter(Boolean)).size;
-        const oldest = Math.max(...ALL.map(d => d.tDom).filter(v => v > 0));
-        document.getElementById('hs-crops').textContent = ALL.length.toLocaleString();
-        document.getElementById('hs-fam').textContent = families;
-        document.getElementById('hs-realms').textContent = realms;
-        document.getElementById('hs-old').textContent = oldest > 0 ? oldest.toLocaleString() : '—';
-        buildFeatured();
-        populateFilters();
-      }
-    });
-  } catch(e) {
-    document.getElementById('loading-overlay').innerHTML =
-      '<div style="color:#fff;padding:40px;text-align:center"><b>Failed to load data.</b><br>Check your network connection.</div>';
-  }
-})();
+loadData();
 </script>
 </body>
 </html>
