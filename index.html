@@ -664,20 +664,26 @@ function clean(s){ return(s||'').replace(/_/g,' ').trim(); }
 function esc(s){ return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
 function fage(v){ const n=pn(v); return n==null?'—':n.toLocaleString()+' yrs ago'; }
 
-async function getImg(query, size=400){
-  const key = query+'|'+size;
-  if(imgCache[key]!==undefined) return imgCache[key];
-  imgCache[key] = null;
+async function fetchWikiImg(title, size){
   try{
     const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query.replace(/ /g,'_'))}`,
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`,
       { headers:{ Accept:'application/json' } }
     );
-    if(!res.ok) throw new Error();
+    if(!res.ok) return null;
     const d = await res.json();
     const src = d.thumbnail?.source || null;
-    imgCache[key] = src ? src.replace(/\/\d+px-/,`/${size}px-`) : null;
-  }catch(e){}
+    if(!src || src.includes('.svg')) return null;
+    return src.replace(/\/\d+px-/,`/${size}px-`);
+  }catch(e){ return null; }
+}
+
+async function getImg(commonName, sciName, size=400){
+  const key = (commonName||sciName)+'|'+size;
+  if(imgCache[key]!==undefined) return imgCache[key];
+  imgCache[key] = null;
+  if(commonName) imgCache[key] = await fetchWikiImg(commonName, size);
+  if(!imgCache[key] && sciName) imgCache[key] = await fetchWikiImg(sciName, size);
   return imgCache[key];
 }
 
