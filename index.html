@@ -634,7 +634,7 @@ function initMap() {
   const noteCtrl = L.control({ position: 'bottomleft' });
   noteCtrl.onAdd = function() {
     const d = L.DomUtil.create('div', 'map-note');
-    d.innerHTML = <strong>'⚠ Each crop is placed at the ecoregion with the most GBIF records for its wild progenitor. This may not reflect the actual domestication site. Gradient markers indicate geographic uncertainty.'</strong>;
+    d.innerHTML = '⚠ Each crop is placed at the ecoregion with the most GBIF records for its wild progenitor. This may not reflect the actual domestication site. Gradient markers indicate geographic uncertainty.';
     return d;
   };
   noteCtrl.addTo(_leafMap);
