@@ -425,15 +425,27 @@ async function getImg(commonName, sciName, size=400) {
 
 /* ── DATA LOADING ───────────────────────────────── */
 function loadData() {
+  /* Safety timeout — if nothing happens in 20 s, show an actionable error */
+  const deadline = setTimeout(() => {
+    showErr('<b>Loading timed out.</b><br/>Could not reach the crop database within 20 seconds.<br/><small>Check your internet connection, then try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R).</small>');
+  }, 20000);
+
   Papa.parse(CSV, {
-    download:true, header:true, delimiter:';', skipEmptyLines:true,
+    download: true, header: true, delimiter: ';', skipEmptyLines: true,
     complete(res) {
-      ALL = res.data.map((row,i) => parseCrop(row,i)).filter(Boolean);
-      if (!ALL.length) { showErr('CSV parsed but no rows found.'); return; }
-      init();
+      clearTimeout(deadline);
+      try {
+        ALL = res.data.map((row, i) => parseCrop(row, i)).filter(Boolean);
+        if (!ALL.length) { showErr('CSV parsed but no rows found. The data source may be temporarily unavailable.'); return; }
+        init();
+      } catch (e) {
+        showErr('<b>Error initialising the app.</b><br/><small>' + (e && e.message ? e.message : String(e)) + '</small>');
+        console.error('init error:', e);
+      }
     },
     error(err) {
-      showErr('<b>Could not fetch the crop database.</b><br/>This app requires a web server (GitHub Pages or Vercel).<br/><small>'+((err&&err.message)||err)+'</small>');
+      clearTimeout(deadline);
+      showErr('<b>Could not fetch the crop database.</b><br/>Check your internet connection or try again in a moment.<br/><small>' + ((err && err.message) || err) + '</small>');
     }
   });
 }
@@ -767,7 +779,7 @@ const INFO = {
       <p>Phylo Food is a time-calibrated and fully resolved phylogenetic tree of the species in Crop Origins, enabling evolutionary and comparative analyses across the full breadth of food crops.</p>
       <p>Both Crop Origins and Phylo Food are freely available at: <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank">github.com/rubenmilla/Crop_Origins_Phylo</a></p>
       <h3>What is the Crop Origins Explorer?</h3>
-      <p>The Crop Origins Explorer is an interactive web application developed by <a href="mailto:mikesase270598@gmail.com">Samson Solomon</a> to make the Crop Origins scientific dataset accessible and explorable to a wide audience researchers, students, educators, and anyone curious about the origins of our food. It allows users to search, filter, and visualise crop data across four interactive views: a world map, a domestication timeline, a taxonomic tree, and a statistics dashboard.</p>
+      <p>The Crop Origins Explorer is an interactive web application developed by <a href="mailto:mikesase270598@gmail.com">Samson Solomon</a> to make the Crop Origins scientific dataset accessible and explorable to a wide audience — researchers, students, educators, and anyone curious about the origins of our food. It allows users to search, filter, and visualise crop data across four interactive views: a world map, a domestication timeline, a taxonomic tree, and a statistics dashboard.</p>
       <p>The dataset was compiled by <strong>Prof. Rubén Milla</strong> </p>
     `
   },
@@ -781,13 +793,13 @@ const INFO = {
         <li><strong>Family</strong> — the plant family (e.g. Poaceae, Solanaceae).</li>
         <li><strong>Growth Form</strong> — the plant's physical form (e.g. herb, shrub, tree).</li>
         <li><strong>Primary Use</strong> — the crop organ most relevant or most frequently harvested for human consumption: fruit or flowers, roots, seeds, or vegetative shoots. Crops harvested primarily as animal feed are classified separately as forage.</li>
-        <li><strong>Biogeographic Realm</strong> — the biogeographic realm where the crop's wild ancestor is most abundant, which may not be the same as the region where the crop was domesticated. Likewise, on the map, each crop is placed in the ecoregion (based on the Olson et al. classification, BioScience 51:933–938) that has the highest number of recorded occurrences of its wild progenitor — which may or may not match the crop's actual domestication area.</li>
+        <li><strong>Biogeographic Realm</strong> — the biogeographic realm where the crop's wild ancestor is most abundant, which may not be the same as the region where the crop was domesticated. Likewise, on the map, each crop is placed in the ecoregion (based on the Olson et al. classification, BioScience 51:933–938) that has the highest number of recorded occurrences of its wild progenitor which may or may not match the crop's actual domestication area.</li>
         <li><strong>Domestication Antiquity</strong> — filter crops by how long ago they were first domesticated (in years before present). Domestication and cultivation antiquity are estimates of earliest dates found in written records. However, the literature on antiquity of domestication is of mixed quality, ranging from single records in the grey literature to long-standing results from multiple genomic and archaeological projects. This provides strong support for antiquity data on some crops, while others are backed only weakly.</li>
       </ul>
       <h3>The Map</h3>
-      <p>Each crop is shown as a <strong>gradient dot</strong> — strong colour in the centre, fading toward the edges — to communicate geographic uncertainty. The location shown is the ecoregion with the most GBIF records for that crop's wild progenitor, not necessarily the domestication site. Click any dot for a summary popup, then click <strong>"Full details →"</strong> to open the complete record including a Wikipedia photo.</p>
+      <p>Each crop is shown as a <strong>gradient dot</strong> — strong colour in the centre, fading toward the edges to communicate geographic uncertainty. The location shown is the ecoregion with the most GBIF records for that crop's wild progenitor, not necessarily the domestication site. Click any dot for a summary popup, then click <strong>"Full details →"</strong> to open the complete record including a Wikipedia photo.</p>
       <h3>Timeline, Phylo Tree &amp; Stats</h3>
-      <p>The <strong>Timeline</strong> displays crops as dots along a time axis, grouped by biogeographic realm. The <strong>Phylo Tree</strong> shows the taxonomic hierarchy from Order to Species — click any species for its full record. The <strong>Stats</strong> view shows charts of families, realms, growth forms, and domestication age distribution for whatever filters are currently applied.</p>
+      <p>The <strong>Timeline</strong> displays crops as dots along a time axis, grouped by biogeographic realm. The <strong>Phylo Tree</strong> shows the taxonomic hierarchy from Order to Species click any species for its full record. The <strong>Stats</strong> view shows charts of families, realms, growth forms, and domestication age distribution for whatever filters are currently applied.</p>
     `
   },
   terms: {
