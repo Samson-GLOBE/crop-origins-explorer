@@ -59,7 +59,15 @@
       transition:all .18s;white-space:nowrap;
     }
     .nbtn:hover { color:var(--text);border-color:var(--primary);background:var(--primarylt); }
-    .nbtn.active { background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600; }
+    .nbtn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(58,122,30,.30);
+  transform: translateY(-1px);
+}
+.nbtn { transition: all .18s, transform .12s; }
 
     /* Info nav */
     #nav-info { display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end; }
@@ -105,8 +113,17 @@
 
     /* ── VIEWS ── */
     #main{flex:1;position:relative;overflow:hidden;}
-    .view{position:absolute;inset:0;display:none;overflow:hidden;}
-    .view.active{display:flex;flex-direction:column;}
+    .view {
+  display: none; flex: 1; min-height: 0;
+  flex-direction: column; overflow: hidden;
+  animation: view-in .22s ease;
+}
+.view.active { display: flex; }
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
     .vhdr{padding:16px 22px 8px;flex-shrink:0;border-bottom:1px solid var(--border-lt);background:#fff;}
     .vhdr h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);}
     .vhdr p{font-size:13px;color:var(--muted);margin-top:4px;}
@@ -194,6 +211,25 @@
     #tt.show{opacity:1;}
     #tt b{display:block;font-size:13px;color:var(--primary);margin-bottom:3px;}
     #tt .tt-img{width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:7px;}
+    /* ── SIDEBAR ENTRANCE ANIMATIONS ── */
+.fsection, #count-wrap, #btn-reset, .legend {
+  opacity: 0;
+  transform: translateX(-18px);
+  animation: sb-slide-in .35s ease forwards;
+}
+.fsection:nth-child(1)  { animation-delay: .05s; }
+.fsection:nth-child(2)  { animation-delay: .10s; }
+.fsection:nth-child(3)  { animation-delay: .15s; }
+.fsection:nth-child(4)  { animation-delay: .20s; }
+.fsection:nth-child(5)  { animation-delay: .25s; }
+.fsection:nth-child(6)  { animation-delay: .30s; }
+#count-wrap             { animation-delay: .35s; }
+#btn-reset              { animation-delay: .40s; }
+.legend                 { animation-delay: .45s; }
+
+@keyframes sb-slide-in {
+  to { opacity: 1; transform: translateX(0); }
+}
   </style>
 </head>
 <body>
@@ -221,6 +257,7 @@
   <nav id="nav-main">
     <button class="nbtn active" data-v="map">🗺 Map</button>
     <button class="nbtn" data-v="timeline">📅 Timeline</button>
+    <button class="nbtn" data-v="antiquity">🕰 Antiquity</button>
     <button class="nbtn" data-v="tree">🌳 Phylo Tree</button>
     <button class="nbtn" data-v="stats">📊 Stats</button>
   </nav>
@@ -301,6 +338,65 @@
       </div>
       <div class="vscroll" id="tl-wrap"></div>
     </div>
+
+    <!-- ANTIQUITY -->
+<div id="view-antiquity" class="view">
+  <div class="vhdr">
+    <h2>Domestication Antiquity</h2>
+    <p>When were our food crops first domesticated? Explore the data, understand its scope, and compare across regions.</p>
+  </div>
+  <div class="vscroll" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:24px;">
+
+    <!-- Left: explanation card -->
+    <div style="flex:0 0 300px;display:flex;flex-direction:column;gap:16px;">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:10px;">What is Domestication Antiquity?</div>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);">Domestication antiquity is the estimated number of years before present when a wild plant species was first domesticated — meaning humans began selecting it for cultivation and altered its genetics through that process.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-top:8px;">These are minimum estimates based on the earliest written records, archaeological evidence, or genetic data available in the literature.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:12px;">Data Coverage</div>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px;">
+          <span style="font-size:32px;font-weight:700;color:var(--primary);">210</span>
+          <span style="font-size:13px;color:var(--muted);">crops have antiquity data</span>
+        </div>
+        <div style="background:var(--border-lt);border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;">
+          <div style="background:var(--primary);height:100%;width:24.2%;border-radius:4px;"></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.5;">Only <strong>210 of 867 crops</strong> (24%) in the database have a recorded domestication date. The remaining 76% have no known estimate in the published literature.</p>
+      </div>
+
+      <div style="background:var(--primarylt);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:8px;">Data Quality</div>
+        <p style="font-size:12px;line-height:1.6;color:var(--text);">The quality of antiquity records varies greatly — from single references in grey literature to well-established results from multiple genomic and archaeological studies. All values should be treated as <em>minimum estimates</em> subject to revision.</p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:8px;">Range in this dataset</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center;">
+          <div>
+            <div style="font-size:20px;font-weight:700;color:var(--accent);">~200</div>
+            <div style="font-size:11px;color:var(--muted);">years ago (most recent)</div>
+          </div>
+          <div>
+            <div style="font-size:20px;font-weight:700;color:var(--accent);">~11,300</div>
+            <div style="font-size:11px;color:var(--muted);">years ago (oldest)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: the actual timeline -->
+    <div style="flex:1;min-width:400px;">
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:12px;">Timeline — crops with antiquity data, grouped by biogeographic realm</div>
+      <div id="aq-tl-wrap"></div>
+    </div>
+
+  </div>
+</div>
 
     <!-- TREE -->
     <div id="view-tree" class="view">
@@ -598,6 +694,19 @@ function gotoView(v) {
   _curView = v;
   setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(refreshView)), 80);
 }
+  if (v === 'antiquity') {
+    // reuse the timeline draw function but target the antiquity wrap
+    const origWrap = document.getElementById('tl-wrap');
+    const aqWrap   = document.getElementById('aq-tl-wrap');
+    aqWrap.innerHTML = '';
+    // temporarily redirect drawTimeline to aq-tl-wrap
+    const saved = origWrap.id;
+    origWrap.id = '__hidden';
+    aqWrap.id   = 'tl-wrap';
+    drawTimeline();
+    aqWrap.id   = 'aq-tl-wrap';
+    origWrap.id = saved;
+  }
 document.querySelectorAll('.nbtn').forEach(btn =>
   btn.addEventListener('click', () => gotoView(btn.dataset.v))
 );
