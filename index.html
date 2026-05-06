@@ -269,10 +269,11 @@
       <div class="flabel">Domestication Antiquity (years ago)</div>
       <div class="range-labels">
         <span>Min: <b id="rmin-lbl">0</b></span>
-        <span>Max: <b id="rmax-lbl">12 000</b></span>
+        <span>Max: <b id="rmax-lbl">11 500</b></span>
       </div>
-      <input type="range" id="r-min" min="0" max="12000" step="100" value="0" />
-      <input type="range" id="r-max" min="0" max="12000" step="100" value="12000" />
+      <input type="range" id="r-min" min="0" max="11500" step="100" value="0" />
+      <input type="range" id="r-max" min="0" max="11500" step="100" value="11500" />
+      <div class="search-hint" style="margin-top:5px">Only <b style="color:var(--accent)">210</b> of 867 crops have antiquity data. Moving these sliders excludes crops without records.</div>
     </div>
     <hr class="sdiv" />
     <div id="count-wrap"><b id="cnt">—</b> crops shown</div>
@@ -528,7 +529,8 @@ function applyFilters() {
     if (f.use    && d.use    !== f.use)    return false;
     if (f.realm  && d.realm  !== f.realm)  return false;
     if (f.gf     && d.gf     !== f.gf)     return false;
-    if (d.tDom != null && (d.tDom < f.amin || d.tDom > f.amax)) return false;
+    const domActive = f.amin > 0 || f.amax < 11500;
+    if (domActive && (d.tDom == null || d.tDom < f.amin || d.tDom > f.amax)) return false;
     return true;
   });
   document.getElementById('cnt').textContent = DATA.length;
@@ -582,9 +584,9 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   document.getElementById('s-search').value = '';
   ['s-family','s-use','s-realm','s-gf'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('r-min').value = 0;
-  document.getElementById('r-max').value = 12000;
+  document.getElementById('r-max').value = 11500;
   document.getElementById('rmin-lbl').textContent = '0';
-  document.getElementById('rmax-lbl').textContent = '12 000';
+  document.getElementById('rmax-lbl').textContent = '11 500';
   applyFilters();
 });
 
@@ -795,7 +797,7 @@ const INFO = {
         <li><strong>Growth Form</strong> — the plant's physical form (e.g. herb, shrub, tree).</li>
         <li><strong>Primary Use</strong> — the crop organ most relevant or most frequently harvested for human consumption: fruit or flowers, roots, seeds, or vegetative shoots. Crops harvested primarily as animal feed are classified separately as forage.</li>
         <li><strong>Biogeographic Realm</strong> — the biogeographic realm where the crop's wild ancestor is most abundant, which may not be the same as the region where the crop was domesticated. Likewise, on the map, each crop is placed in the ecoregion (based on the Olson et al. classification, BioScience 51:933–938) that has the highest number of recorded occurrences of its wild progenitor which may or may not match the crop's actual domestication area.</li>
-        <li><strong>Domestication Antiquity</strong> — filter crops by how long ago they were first domesticated (in years before present). Domestication and cultivation antiquity are estimates of earliest dates found in written records. However, the literature on antiquity of domestication is of mixed quality, ranging from single records in the grey literature to long-standing results from multiple genomic and archaeological projects. This provides strong support for antiquity data on some crops, while others are backed only weakly.</li>
+        <li><strong>Domestication Antiquity</strong> — filter crops by how long ago they were first domesticated (in years before present). Domestication and cultivation antiquity are estimates of earliest dates found in written records. However, the literature on antiquity of domestication is of mixed quality, ranging from single records in the grey literature to long-standing results from multiple genomic and archaeological projects. This provides strong support for antiquity data on some crops, while others are backed only weakly. <strong>Important:</strong> only <strong>210 out of 867 crops</strong> in the dataset have domestication antiquity records. When you move either slider from its default position, the filter activates and crops without antiquity records are excluded from all views.</li>
       </ul>
       <h3>The Map</h3>
       <p>Each crop is shown as a <strong>gradient dot</strong> — strong colour in the centre, fading toward the edges to communicate geographic uncertainty. The location shown is the ecoregion with the most GBIF records for that crop's wild progenitor, not necessarily the domestication site. Click any dot for a summary popup, then click <strong>"Full details →"</strong> to open the complete record including a Wikipedia photo.</p>
