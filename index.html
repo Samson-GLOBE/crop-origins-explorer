@@ -148,7 +148,7 @@ a:hover { text-decoration:underline; }
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SIDEBAR (sticky left rail — chefaoui-style scroll-spy)
+   SIDEBAR
    ════════════════════════════════════════════════════════════════ */
 #sidebar {
   position:sticky;
@@ -742,7 +742,7 @@ main#main { min-width:0; padding:0; }
   <div class="logo">
     <div class="logo-l1">🌿 Crop Origins Explorer</div>
     <div class="logo-l2">
-      by <a href="mailto:s.solomon.2025@alumnos.urjc.es">Samson Solomon</a>
+      by <a href="mailto:mikesase270598@gmail.com">Samson Solomon</a>
       · data: <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Milla 2020</a>
     </div>
   </div>
@@ -754,7 +754,7 @@ main#main { min-width:0; padding:0; }
   <nav id="nav-info">
     <button class="ibtn" data-info="about">ℹ About</button>
     <button class="ibtn" data-info="howto">❓ How to Use</button>
-    <button class="ibtn" data-info="methods">🔬 Methods</button>
+    <button class="ibtn" data-info="methods">🔬 Data Sources</button>
     <button class="ibtn" data-info="terms">📋 Terms</button>
     <button class="ibtn" data-info="citations">📚 Cite</button>
   </nav>
@@ -777,15 +777,15 @@ main#main { min-width:0; padding:0; }
       <div class="nav-group">
         <div class="group-label">Explore Dataset <span class="group-count">867 spp.</span></div>
         <a href="#atlas"    class="nav-item"><span class="ico">🗺</span>Origin Atlas</a>
-        <a href="#timeline" class="nav-item"><span class="ico">📅</span>Time Axis</a>
+        <a href="#timeline" class="nav-item"><span class="ico">📅</span>Timeline</a>
         <a href="#tree"     class="nav-item"><span class="ico">🌳</span>Phylogenetic Tree</a>
-        <a href="#climate"  class="nav-item"><span class="ico">🌡</span>Climate Envelope</a>
+        <a href="#climate"  class="nav-item"><span class="ico">🌡</span>Climate</a>
         <a href="#stats"    class="nav-item"><span class="ico">📊</span>Dataset Stats</a>
       </div>
 
       <div class="nav-group">
-        <div class="group-label">Antiquity Atlas <span class="group-count">211 spp.</span></div>
-        <a href="#aq-intro"    class="nav-item"><span class="ico">🕰</span>About the subset</a>
+        <div class="group-label">Domestication Antiquity <span class="group-count">211 spp.</span></div>
+        <a href="#aq-intro"    class="nav-item"><span class="ico">🕰</span>About </a>
         <a href="#aq-map"      class="nav-item"><span class="ico">🌍</span>Origin Map</a>
         <a href="#aq-timeline" class="nav-item"><span class="ico">📈</span>Antiquity Timeline</a>
         <a href="#aq-compare"  class="nav-item"><span class="ico">⚖️</span>Oldest vs. Newest</a>
@@ -871,7 +871,7 @@ main#main { min-width:0; padding:0; }
         <div class="chapter-eyebrow"><span class="num">0</span>Introduction</div>
         <h1>Where do our crops come from?</h1>
         <p class="lede">
-          Of the roughly 350,000 known plant species, fewer than 900 are cultivated for food worldwide. This explorer turns Prof. Rubén Milla's <a href="https://doi.org/10.1111/geb.13057" target="_blank" rel="noopener">Crop Origins &amp; Phylo Food database</a> into an interactive atlas — letting you trace each crop back to the wild progenitor's biogeographic realm, plot its climate envelope, and follow its taxonomic and evolutionary lineage.
+          Of the roughly 350,000 known plant species, fewer than 900 are cultivated for food worldwide. This explorer turns Prof. Rubén Milla's <a href="https://doi.org/10.1111/geb.13057" target="_blank" rel="noopener">Crop Origins &amp; Phylo Food database</a> into an interactive page letting you trace each crop back to the wild progenitor's biogeographic realm, plot its climate envelope, and follow its taxonomic and evolutionary lineage.
         </p>
       </div>
 
@@ -883,7 +883,7 @@ main#main { min-width:0; padding:0; }
       </div>
 
       <p>
-        The interface is split in two: a <b>Global Explorer</b> covering all 867 crops, and a separate <b>Antiquity Atlas</b> chapter restricted to the 211 species for which a published domestication date exists. The two sets of filters are independent — moving the antiquity sliders does not constrain the rest of the explorer, and vice versa.
+        The interface is split in two: a <b>Global Explorer</b> covering all 867 crops, and a separate <b>Domestication Antiquity</b> A section for the 211 species for which a published domestication date exists. The two sets of filters are independent moving the antiquity sliders does not constrain the rest of the explorer, and vice versa.
       </p>
       <p>
         Scroll to navigate, or use the rail on the left to jump between sections. Press <span class="kbd">/</span> at any time to focus search, <span class="kbd">Esc</span> to close any open panel.
@@ -916,7 +916,7 @@ main#main { min-width:0; padding:0; }
     <section id="timeline" class="chapter dark">
       <div class="chapter-h">
         <div class="chapter-eyebrow"><span class="num">2</span>Time Axis</div>
-        <h1>Crops along the deep human timeline</h1>
+        <h1>Crops along the timeline</h1>
         <p class="lede">
           Every dot is a crop placed by its earliest published domestication date, grouped by biogeographic realm. The horizontal scale runs right-to-left: <em>Today</em> on the right, the dawn of agriculture on the left.
         </p>
@@ -936,7 +936,7 @@ main#main { min-width:0; padding:0; }
         <div class="chapter-eyebrow"><span class="num">3</span>Phylogenetic Tree</div>
         <h1>Order → Family → Species</h1>
         <p class="lede">
-          A taxonomic dendrogram of the filtered crop set. Click any species (orange leaf) for the full record — wild progenitor, climate envelope, domestication and cultivation antiquity, GBIF coverage.
+          A taxonomic dendrogram of the filtered crop set. Click any species (orange leaf) for the full record wild progenitor, climate envelope, domestication and cultivation antiquity, GBIF coverage.
         </p>
       </div>
       <div class="viz">
@@ -987,7 +987,7 @@ main#main { min-width:0; padding:0; }
         <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">A</span>Antiquity Atlas — separate chapter</div>
         <h1>The 211 dated crops</h1>
         <p class="lede">
-          Of the 867 species in the database, only <b>211</b> carry a published estimate for <em>minimum_time_domestication</em>. From here on, every visualization is restricted to that subset and uses an independent set of filters (the orange block in the sidebar) — so anything you set here will <em>not</em> affect the Global Explorer above.
+          Of the 867 species in the database, only <b>211</b> carry a published estimate for <em>minimum_time_domestication</em>. From here on, every visualization is restricted to that subset and uses an independent set of filters (the orange block in the sidebar) so anything you set here will <em>not</em> affect the Global Explorer above.
         </p>
       </div>
 
@@ -999,7 +999,7 @@ main#main { min-width:0; padding:0; }
       </div>
 
       <div class="note-box">
-        <b>Why 211?</b> The original Milla 2020 paper notes that domestication antiquity is documented for a minority of crops. Records range in quality from a single grey-literature reference to multi-source archaeobotanical and genomic syntheses, and all values are minimum estimates. Crops without a date are simply omitted from this chapter — they are still present everywhere else in the explorer.
+        <b>Why 211?</b> The original Milla 2020 paper notes that domestication antiquity is documented for a minority of crops. Records range in quality from a single grey-literature reference to multi-source archaeobotanical and genomic syntheses, and all values are minimum estimates. Crops without a date are simply omitted from this chapter they are still present everywhere else in the explorer.
       </div>
     </section>
 
@@ -1009,7 +1009,7 @@ main#main { min-width:0; padding:0; }
         <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">B</span>Antiquity · Origin Map</div>
         <h1>Where the dated crops were domesticated</h1>
         <p class="lede">
-          Same geographic logic as the Global Atlas, but restricted to the 211-species subset. Markers are coloured by <b>age class</b> rather than realm — to make the deep-time pattern visible at a glance. Hover for details, click for the full record.
+          Same geographic logic as the Global Atlas, but restricted to the 211-species subset. Markers are coloured by <b>age class</b> rather than realm to make the deep-time pattern visible at a glance. Hover for details, click for the full record.
         </p>
       </div>
       <div class="viz">
@@ -1045,18 +1045,18 @@ main#main { min-width:0; padding:0; }
     <section id="aq-compare" class="chapter aq-chapter" style="border-bottom:none">
       <div class="chapter-h">
         <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">D</span>Antiquity · Oldest vs. Newest</div>
-        <h1>The bookends of plant domestication</h1>
+        <h1>The earliest and latest domesticated crops</h1>
         <p class="lede">
           Side-by-side ranking of the 20 oldest and 20 most recently domesticated crops in the filtered subset. Click any row for the full record.
         </p>
       </div>
       <div class="compare-grid">
         <div class="compare-col old">
-          <h3>🏛 Oldest 20 — domesticated longest ago</h3>
+          <h3>🏛 Oldest 20  domesticated longest ago</h3>
           <div class="compare-list" id="cmp-old"></div>
         </div>
         <div class="compare-col new">
-          <h3>🌱 Newest 20 — most recently domesticated</h3>
+          <h3>🌱 Newest 20  most recently domesticated</h3>
           <div class="compare-list" id="cmp-new"></div>
         </div>
       </div>
@@ -2130,7 +2130,7 @@ const INFO = {
         '<li><b>Biogeographic Realm</b> — the realm where the wild ancestor is most abundant (per GBIF). This may differ from the actual domestication region.</li>' +
         '<li><b>Growth Form</b> — herb, shrub, tree, etc.</li>' +
       '</ul>' +
-      '<h3>The Antiquity Atlas chapter (211 spp.)</h3>' +
+      '<h3>The Domestication Antiquity Section (211 spp.)</h3>' +
       '<p>Only <b>211 of the 867 crops</b> in the database carry a published estimate for <em>minimum_time_domestication</em>. This is why the Antiquity Atlas is a separate chapter with a max count of <b>211 crops shown</b> — there simply is no antiquity data for the other 656 species. Inside this chapter you can:</p>' +
       '<ul>' +
         '<li>Slide the time range (years before present, 0–11,500).</li>' +
@@ -2146,11 +2146,11 @@ const INFO = {
       '<h3>Keyboard</h3>' +
       '<p><span class="kbd">/</span> focus search · <span class="kbd">Esc</span> close any panel · <span class="kbd">⬇ CSV</span> in the sidebar exports the currently filtered subset.</p>'
   },
-  methods: {
-    title:'Methods & Data Sources',
+  DataSources: {
+    title:'Data Sources',
     html:
       '<h3>Source dataset</h3>' +
-      '<p>All records come from the <b>crop_origins_live_db.csv</b> file in the <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Crop_Origins_Phylo</a> repository (Milla 2020, 2021). The CSV is fetched live from GitHub at page load — no data is stored locally — so the explorer always shows the latest version of the database.</p>' +
+      '<p>All records come from the <b>crop_origins_live_db.csv</b> file in the <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Crop_Origins_Phylo</a> repository (Milla 2020, 2021). The CSV is fetched live from GitHub at page load — no data is stored locally so the explorer always shows the latest version of the database.</p>' +
       '<h3>Geographic placement</h3>' +
       '<p>Each species is plotted at the longitude/latitude centroid of the WWF terrestrial ecoregion (Olson et al. 2001) that contains the highest number of GBIF occurrence records for its wild progenitor. The slight scatter of nearby markers is a small deterministic jitter applied in the client to prevent overplot of co-occurring species in the same ecoregion.</p>' +
       '<h3>Antiquity classes</h3>' +
@@ -2163,7 +2163,7 @@ const INFO = {
         '<li><b>Modern</b> — &lt;500 yr BP</li>' +
       '</ul>' +
       '<h3>Climate variables</h3>' +
-      '<p>The Climate Envelope plots <b>median_BIO1</b> against <b>median_BIO12</b>. These are WorldClim bioclim variables computed across the wild-progenitor\'s GBIF records: BIO1 (annual mean temperature, stored in tenths of °C — divided by 10 in the display) and BIO12 (annual precipitation, mm). The detail modal additionally exposes BIO4, BIO5, BIO6 and BIO15.</p>' +
+      '<p>The Climate Envelope plots <b>median_BIO1</b> against <b>median_BIO12</b>. These are WorldClim bioclim variables computed across the wild-progenitor\'s GBIF records: BIO1 (annual mean temperature, stored in tenths of °C divided by 10 in the display) and BIO12 (annual precipitation, mm). The detail modal additionally exposes BIO4, BIO5, BIO6 and BIO15.</p>' +
       '<h3>Imagery</h3>' +
       '<p>Crop photographs are fetched on-demand from the <b>Wikipedia REST summary API</b> using common name first, scientific name as fallback. Images remain on Wikimedia\'s servers and are subject to their respective licences.</p>'
   },
