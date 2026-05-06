@@ -1,416 +1,1071 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crop Origins Explorer</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" />
-  <style>
-    :root {
-      --bg:#f4f8f0; --surface:#ffffff; --surface2:#edf5e7;
-      --border:#c4dbb8; --border-lt:#dcefd4;
-      --primary:#3a7a1e; --primarydk:#285514; --primarylt:#e8f5e0;
-      --accent:#bf7318; --text:#1a2e12; --muted:#5a7a4a; --danger:#b83030;
-      --radius:10px; --hdr:72px; --sidebar:272px;
-      --shadow-sm:0 1px 4px rgba(30,60,10,.08);
-      --shadow:0 4px 20px rgba(30,60,10,.12);
-      --shadow-lg:0 8px 40px rgba(30,60,10,.18);
-      font-family:'Inter',system-ui,sans-serif;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;}
-    button{cursor:pointer;font-family:inherit;}
-    img{display:block;}
-    a{color:var(--primary);}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crop Origins Explorer · Milla 2020 dataset</title>
+<meta name="description" content="Interactive explorer of the Crop Origins & Phylo Food database — 867 food crops, their wild progenitors, biogeographic origins, climate envelopes, and domestication antiquity." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
 
-    /* ── HEADER ── */
-    #header {
-      position:fixed;inset:0 0 auto 0;z-index:900;
-      height:var(--hdr);background:#fff;
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;
-      padding:0 16px;gap:10px;
-      box-shadow:var(--shadow-sm);
-    }
-    .logo { flex-shrink:0; }
-    .logo .logo-l1 {
-      font-family:'Playfair Display',serif;
-      font-size:15px;font-weight:700;color:var(--primary);line-height:1.2;
-    }
-    .logo .logo-l2 { font-size:11px;color:var(--muted);line-height:1.4; }
-    .logo .logo-l2 a { color:var(--accent);text-decoration:none; }
-    .logo .logo-l2 a:hover { text-decoration:underline; }
-    .logo .logo-l3 { font-size:10px;color:var(--muted);line-height:1.4; }
-    .logo .logo-l3 a { color:var(--muted);text-decoration:none; }
-    .logo .logo-l3 a:hover { text-decoration:underline;color:var(--primary); }
+<!-- Leaflet + clusters -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
 
-    .hdr-divider { width:1px;height:36px;background:var(--border);flex-shrink:0; }
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
 
-    /* Main view nav */
-    #nav-main { display:flex;gap:5px;flex-wrap:wrap; }
-    .nbtn {
-      background:transparent;border:1px solid var(--border);color:var(--muted);
-      padding:6px 13px;border-radius:20px;font-size:13px;font-weight:500;
-      transition:all .18s;white-space:nowrap;
-    }
-    .nbtn:hover { color:var(--text);border-color:var(--primary);background:var(--primarylt); }
-    .nbtn.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(58,122,30,.30);
-  transform: translateY(-1px);
+<style>
+/* ════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — earthy, scientific, serious
+   ════════════════════════════════════════════════════════════════ */
+:root {
+  --bg:#f6f9f2;
+  --surface:#ffffff;
+  --surface2:#edf5e7;
+  --surface3:#f8fbf4;
+  --border:#c4dbb8;
+  --border-lt:#dcefd4;
+  --primary:#2f6a18;
+  --primarydk:#1f4a0e;
+  --primarylt:#e8f5e0;
+  --accent:#bf7318;
+  --accent-dk:#8a5512;
+  --text:#162610;
+  --muted:#5a7a4a;
+  --muted-lt:#88a47a;
+  --danger:#b83030;
+  --info:#2e7ec4;
+
+  --radius:10px;
+  --radius-lg:14px;
+  --hdr:64px;
+  --sidebar:296px;
+
+  --shadow-sm:0 1px 4px rgba(30,60,10,.08);
+  --shadow:0 4px 20px rgba(30,60,10,.12);
+  --shadow-lg:0 8px 40px rgba(30,60,10,.18);
+
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+  --font-serif:'Playfair Display',Georgia,serif;
+  --font-mono:'JetBrains Mono',Menlo,monospace;
 }
-.nbtn { transition: all .18s, transform .12s; }
 
-    /* Info nav */
-    #nav-info { display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end; }
-    .ibtn {
-      background:transparent;border:1px solid transparent;color:var(--muted);
-      padding:5px 10px;border-radius:20px;font-size:11px;font-weight:500;
-      transition:all .18s;white-space:nowrap;
-    }
-    .ibtn:hover { color:var(--primary);border-color:var(--border);background:var(--primarylt); }
-
-    /* ── APP BODY ── */
-    #body { position:fixed;top:var(--hdr);left:0;right:0;bottom:0;display:flex; }
-
-    /* ── SIDEBAR ── */
-    #sidebar {
-      width:var(--sidebar);flex-shrink:0;background:var(--surface);
-      border-right:1px solid var(--border);overflow-y:auto;
-      padding:14px 13px 24px;display:flex;flex-direction:column;gap:12px;
-    }
-    #sidebar::-webkit-scrollbar{width:4px;}
-    #sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-    .flabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:5px;}
-    .fsection{display:flex;flex-direction:column;}
-    .search-row{display:flex;gap:6px;}
-    .search-row input{flex:1;}
-    #btn-search{background:var(--primary);border:none;color:#fff;padding:7px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;flex-shrink:0;transition:background .18s;}
-    #btn-search:hover{background:var(--primarydk);}
-    .search-hint{font-size:10px;color:var(--muted);margin-top:3px;}
-    .fsection input[type=text],.fsection select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--radius);font-size:13px;width:100%;outline:none;transition:border-color .18s;}
-    .fsection input[type=text]:focus,.fsection select:focus{border-color:var(--primary);}
-    .range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;}
-    .range-labels b{color:var(--accent);}
-    input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none;margin:3px 0;}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--primary);border-radius:50%;cursor:pointer;}
-    .sdiv{border:none;border-top:1px solid var(--border-lt);}
-    #count-wrap{text-align:center;padding:4px 0;font-size:13px;color:var(--muted);}
-    #count-wrap b{color:var(--primary);font-size:20px;font-weight:700;}
-    #btn-reset{background:#fff;border:1px solid var(--border);color:var(--muted);padding:7px;border-radius:var(--radius);font-size:12px;width:100%;transition:all .18s;}
-    #btn-reset:hover{border-color:var(--danger);color:var(--danger);}
-    .legend{display:flex;flex-direction:column;gap:5px;}
-    .litem{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
-    .ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-
-    /* ── VIEWS ── */
-    #main{flex:1;position:relative;overflow:hidden;}
-    .view {
-  display: none; flex: 1; min-height: 0;
-  flex-direction: column; overflow: hidden;
-  animation: view-in .22s ease;
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  font-size:14px;
+  line-height:1.55;
+  scroll-behavior:smooth;
 }
-.view.active { display: flex; }
+body { min-height:100vh; }
+button { cursor:pointer; font-family:inherit; }
+img { display:block; }
+a { color:var(--primary); text-decoration:none; }
+a:hover { text-decoration:underline; }
 
-@keyframes view-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Custom scrollbars (webkit) */
+::-webkit-scrollbar { width:8px; height:8px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:var(--muted-lt); }
+
+/* ════════════════════════════════════════════════════════════════
+   HEADER (sticky top bar)
+   ════════════════════════════════════════════════════════════════ */
+#header {
+  position:sticky; top:0; z-index:900;
+  height:var(--hdr);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:0 22px; gap:14px;
+  box-shadow:var(--shadow-sm);
 }
-    .vhdr{padding:16px 22px 8px;flex-shrink:0;border-bottom:1px solid var(--border-lt);background:#fff;}
-    .vhdr h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);}
-    .vhdr p{font-size:13px;color:var(--muted);margin-top:4px;}
-    .vscroll{flex:1;min-height:0;overflow:auto;padding:0 22px 22px;background:var(--bg);}
-    .vscroll::-webkit-scrollbar{width:5px;height:5px;}
-    .vscroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-
-    /* ── MAP ── */
-    #map{flex:1;min-height:0;}
-    .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(58,122,30,.8)!important;color:#fff!important;font-weight:700;}
-    .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(58,122,30,.2)!important;}
-    .leaflet-popup-content-wrapper{border-radius:12px!important;box-shadow:var(--shadow)!important;border:1px solid var(--border)!important;}
-    .cpop h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
-    .cpop .cs{font-style:italic;font-size:11px;color:var(--muted);margin-bottom:8px;}
-    .cpop table{font-size:12px;width:100%;border-collapse:collapse;}
-    .cpop td{padding:2px 0;color:var(--text);}
-    .cpop td:first-child{color:var(--muted);padding-right:8px;font-weight:500;}
-    .pop-btn{margin-top:9px;width:100%;padding:6px 8px;background:var(--primary);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:600;}
-    .pop-btn:hover{background:var(--primarydk);}
-    .map-note{font-size:10px;color:var(--muted);font-style:italic;padding:6px 10px;background:rgba(255,255,255,.85);border-radius:6px;border:1px solid var(--border-lt);max-width:340px;}
-
-    /* ── TIMELINE ── */
-    #tl-wrap svg text{font-family:'Inter',sans-serif;}
-
-    /* ── TREE ── */
-    .tlink{fill:none;stroke:var(--border);stroke-width:1.5;}
-
-    /* ── STATS ── */
-    #view-stats{background:var(--bg);overflow-y:auto;}
-    #view-stats::-webkit-scrollbar{width:6px;}
-    #view-stats::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-    #stats-wrap{padding:24px;}
-
-    /* ── LOADING ── */
-    #loading{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#eef6e8 0%,#f4f8f0 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s;}
-    #loading.hide{opacity:0;pointer-events:none;}
-    .spin{width:46px;height:46px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .85s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-    #loading p{color:var(--muted);font-size:14px;text-align:center;max-width:340px;}
-    #load-err{display:none;background:#fff0f0;border:1px solid #e08080;border-radius:10px;padding:16px 20px;color:#903030;font-size:13px;max-width:420px;text-align:center;line-height:1.6;}
-
-    /* ── CROP DETAIL MODAL ── */
-    #moverlay{position:fixed;inset:0;z-index:2000;background:rgba(20,40,10,.5);display:none;align-items:center;justify-content:center;}
-    #moverlay.open{display:flex;}
-    #modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);position:relative;}
-    #modal::-webkit-scrollbar{width:5px;}
-    #modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-    #modal-img-wrap{width:100%;height:200px;background:linear-gradient(135deg,var(--primarylt),var(--surface2));overflow:hidden;position:relative;border-radius:16px 16px 0 0;}
-    #modal-img{width:100%;height:100%;object-fit:cover;transition:opacity .4s;}
-    .modal-img-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;}
-    #modal-img-credit{position:absolute;bottom:6px;right:8px;font-size:9px;color:rgba(255,255,255,.8);background:rgba(0,0,0,.35);padding:2px 5px;border-radius:4px;}
-    #modal-inner{padding:22px 26px 26px;}
-    #mbtn-close{position:absolute;top:10px;right:10px;z-index:10;background:rgba(255,255,255,.9);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .18s;}
-    #mbtn-close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
-    .mcn{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;padding-right:24px;color:var(--text);}
-    .msci{font-style:italic;font-size:14px;color:var(--muted);margin-top:3px;margin-bottom:12px;}
-    .mbadge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#fff;margin-bottom:18px;}
-    .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
-    .mf .mfl{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
-    .mf .mfv{font-size:14px;color:var(--text);margin-top:2px;}
-    .mf .mfv.hi{color:var(--accent);font-weight:600;}
-    .msect{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);border-top:1px solid var(--border-lt);padding-top:12px;margin-bottom:8px;}
-    .progbox{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;font-style:italic;color:var(--text);}
-
-    /* ── INFO MODAL (About / How to Use / Terms / Citations) ── */
-    #ioverlay{position:fixed;inset:0;z-index:2100;background:rgba(20,40,10,.5);display:none;align-items:center;justify-content:center;}
-    #ioverlay.open{display:flex;}
-    #imodal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:680px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);position:relative;}
-    #imodal::-webkit-scrollbar{width:5px;}
-    #imodal::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-    #imodal-inner{padding:32px 36px 36px;}
-    #imodal-inner h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--primary);margin-bottom:18px;padding-right:28px;}
-    #imodal-inner h3{font-size:14px;font-weight:600;color:var(--text);margin:18px 0 6px;}
-    #imodal-inner p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px;}
-    #imodal-inner ul{padding-left:18px;margin-bottom:10px;}
-    #imodal-inner li{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:6px;}
-    #imodal-inner a{color:var(--primary);}
-    #imodal-inner .cite-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--text);line-height:1.7;margin-bottom:10px;}
-    #imodal-inner .warn-box{background:#fffbea;border:1px solid #e8d07a;border-radius:8px;padding:12px 16px;font-size:12px;color:#6b5500;line-height:1.65;margin-bottom:10px;}
-    #ibtn-close{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.9);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .18s;}
-    #ibtn-close:hover{background:var(--danger);color:#fff;border-color:var(--danger);}
-
-    /* ── TOOLTIP ── */
-    #tt{position:fixed;z-index:3000;background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-size:12px;color:var(--text);pointer-events:none;opacity:0;transition:opacity .12s;max-width:240px;box-shadow:var(--shadow);}
-    #tt.show{opacity:1;}
-    #tt b{display:block;font-size:13px;color:var(--primary);margin-bottom:3px;}
-    #tt .tt-img{width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:7px;}
-    /* ── SIDEBAR ENTRANCE ANIMATIONS ── */
-.fsection, #count-wrap, #btn-reset, .legend {
-  opacity: 0;
-  transform: translateX(-18px);
-  animation: sb-slide-in .35s ease forwards;
+.logo { display:flex; flex-direction:column; line-height:1.2; flex-shrink:0; }
+.logo .logo-l1 {
+  font-family:var(--font-serif);
+  font-size:17px; font-weight:700; color:var(--primary);
+  letter-spacing:-.01em;
 }
-.fsection:nth-child(1)  { animation-delay: .05s; }
-.fsection:nth-child(2)  { animation-delay: .10s; }
-.fsection:nth-child(3)  { animation-delay: .15s; }
-.fsection:nth-child(4)  { animation-delay: .20s; }
-.fsection:nth-child(5)  { animation-delay: .25s; }
-.fsection:nth-child(6)  { animation-delay: .30s; }
-#count-wrap             { animation-delay: .35s; }
-#btn-reset              { animation-delay: .40s; }
-.legend                 { animation-delay: .45s; }
-
-@keyframes sb-slide-in {
-  to { opacity: 1; transform: translateX(0); }
+.logo .logo-l2 {
+  font-size:10.5px; color:var(--muted);
+  font-weight:500; letter-spacing:.02em;
 }
-  </style>
+.logo .logo-l2 a { color:var(--accent); font-weight:600; }
+
+.hdr-divider { width:1px; height:34px; background:var(--border); flex-shrink:0; }
+
+.hdr-search { flex:1; max-width:340px; position:relative; }
+.hdr-search input {
+  width:100%; padding:8px 36px 8px 34px;
+  background:var(--surface3); border:1px solid var(--border);
+  border-radius:20px; font-size:13px; color:var(--text);
+  font-family:inherit; outline:none;
+  transition:border-color .18s, background .18s, box-shadow .18s;
+}
+.hdr-search input:focus {
+  border-color:var(--primary); background:#fff;
+  box-shadow:0 0 0 3px rgba(47,106,24,.12);
+}
+.hdr-search::before {
+  content:'🔍'; position:absolute; left:11px; top:50%;
+  transform:translateY(-50%); font-size:12px; opacity:.5; pointer-events:none;
+}
+.hdr-search .clr {
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  background:transparent; border:none; color:var(--muted);
+  font-size:13px; padding:3px 6px; border-radius:50%;
+  display:none;
+}
+.hdr-search.has-q .clr { display:inline; }
+
+#nav-info {
+  margin-left:auto; display:flex; gap:3px; flex-wrap:wrap; justify-content:flex-end;
+}
+.ibtn {
+  background:transparent; border:1px solid transparent;
+  color:var(--muted); padding:6px 11px; border-radius:18px;
+  font-size:12px; font-weight:500;
+  transition:all .18s; white-space:nowrap;
+}
+.ibtn:hover { color:var(--primary); border-color:var(--border); background:var(--primarylt); }
+
+/* ════════════════════════════════════════════════════════════════
+   APP LAYOUT
+   ════════════════════════════════════════════════════════════════ */
+.app {
+  display:grid;
+  grid-template-columns:var(--sidebar) 1fr;
+  gap:0; align-items:flex-start;
+  max-width:1680px; margin:0 auto;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SIDEBAR (sticky left rail — chefaoui-style scroll-spy)
+   ════════════════════════════════════════════════════════════════ */
+#sidebar {
+  position:sticky;
+  top:var(--hdr);
+  height:calc(100vh - var(--hdr));
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  display:flex; flex-direction:column;
+  padding:18px 14px 24px;
+  gap:18px;
+}
+
+/* Scroll-spy nav */
+.scroll-nav { display:flex; flex-direction:column; gap:14px; }
+.nav-group { display:flex; flex-direction:column; gap:2px; }
+.group-label {
+  font-size:9.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted-lt);
+  padding:0 12px 4px; border-bottom:1px dashed var(--border-lt);
+  margin-bottom:4px;
+}
+.group-label .group-count {
+  color:var(--accent); font-weight:700; margin-left:4px;
+}
+.nav-item {
+  position:relative;
+  display:flex; align-items:center; gap:10px;
+  padding:7px 12px 7px 18px; margin:0 -2px;
+  border-radius:8px;
+  font-size:12.5px; font-weight:500;
+  color:var(--muted); text-decoration:none;
+  transition:all .18s;
+  border-left:3px solid transparent;
+  margin-left:8px; padding-left:14px;
+}
+.nav-item .ico { font-size:14px; opacity:.85; flex-shrink:0; }
+.nav-item:hover {
+  color:var(--primary); background:var(--primarylt); text-decoration:none;
+}
+.nav-item.active {
+  color:var(--primary); background:var(--primarylt);
+  border-left-color:var(--primary); font-weight:600;
+}
+.nav-item.active .ico { opacity:1; }
+/* Subtle pulse on active */
+.nav-item.active::after {
+  content:''; position:absolute; right:10px; top:50%;
+  transform:translateY(-50%);
+  width:6px; height:6px; border-radius:50%;
+  background:var(--primary);
+  box-shadow:0 0 0 0 rgba(47,106,24,.4);
+  animation:pulse 1.8s infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow:0 0 0 0 rgba(47,106,24,.4); }
+  70%  { box-shadow:0 0 0 8px rgba(47,106,24,0); }
+  100% { box-shadow:0 0 0 0 rgba(47,106,24,0); }
+}
+
+/* Filter blocks */
+.filter-block {
+  background:var(--surface3);
+  border:1px solid var(--border-lt);
+  border-radius:var(--radius);
+  padding:12px 12px 14px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.filter-block.aq {
+  background:linear-gradient(160deg, #fff8ed 0%, #fff2dd 100%);
+  border-color:#e8c585;
+}
+.filter-title {
+  font-size:10px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--accent-dk);
+  display:flex; align-items:center; gap:6px;
+}
+.filter-title.global { color:var(--primarydk); }
+.filter-title .badge {
+  background:var(--accent); color:#fff;
+  font-size:9px; padding:1px 6px; border-radius:8px;
+  font-weight:700; letter-spacing:.04em;
+}
+.filter-title.global .badge { background:var(--primary); }
+
+.fctrl { display:flex; flex-direction:column; gap:4px; }
+.flabel {
+  font-size:10px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--muted);
+}
+.fctrl select, .fctrl input[type=text] {
+  background:#fff; border:1px solid var(--border);
+  color:var(--text); padding:7px 10px;
+  border-radius:7px; font-size:12.5px; width:100%;
+  outline:none; font-family:inherit;
+  transition:border-color .15s, box-shadow .15s;
+}
+.fctrl select:focus, .fctrl input[type=text]:focus {
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(47,106,24,.12);
+}
+
+/* Range sliders */
+.range-row { display:flex; flex-direction:column; gap:4px; }
+.range-labels {
+  display:flex; justify-content:space-between;
+  font-size:10.5px; color:var(--muted);
+}
+.range-labels b { color:var(--accent); font-weight:700; }
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:4px;
+  background:var(--border); border-radius:3px; outline:none;
+  margin:2px 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px;
+  background:var(--accent); border-radius:50%;
+  cursor:pointer; border:2px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
+input[type=range]::-moz-range-thumb {
+  width:14px; height:14px; background:var(--accent);
+  border-radius:50%; cursor:pointer; border:2px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
+
+/* Count + actions */
+.count-pill {
+  background:var(--primary); color:#fff;
+  border-radius:8px; padding:8px 10px;
+  display:flex; align-items:baseline; justify-content:space-between;
+  font-size:11px; font-weight:500;
+}
+.count-pill b { font-size:18px; font-weight:700; }
+.count-pill.aq { background:var(--accent); }
+
+.btn-row { display:flex; gap:6px; }
+.sb-btn {
+  flex:1; background:#fff; border:1px solid var(--border);
+  color:var(--muted); padding:7px 10px; border-radius:7px;
+  font-size:11.5px; font-weight:500; transition:all .15s;
+  display:flex; align-items:center; justify-content:center; gap:4px;
+}
+.sb-btn:hover { color:var(--primary); border-color:var(--primary); background:var(--primarylt); }
+.sb-btn.danger:hover { color:var(--danger); border-color:var(--danger); background:#fff0f0; }
+
+/* Legend */
+.legend {
+  display:flex; flex-direction:column; gap:5px;
+  padding:8px 4px 0;
+}
+.legend-title {
+  font-size:9.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:var(--muted-lt); margin-bottom:4px;
+}
+.litem {
+  display:flex; align-items:center; gap:8px;
+  font-size:11.5px; color:var(--text);
+}
+.ldot {
+  width:11px; height:11px; border-radius:50%;
+  flex-shrink:0; box-shadow:0 0 0 1px rgba(0,0,0,.04);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MAIN COLUMN — chapter sections (scroll-stacked)
+   ════════════════════════════════════════════════════════════════ */
+main#main { min-width:0; padding:0; }
+
+.chapter {
+  scroll-margin-top:calc(var(--hdr) + 14px);
+  padding:36px 38px 56px;
+  border-bottom:1px solid var(--border-lt);
+  background:var(--bg);
+}
+.chapter.dark { background:var(--surface3); }
+.chapter.aq-chapter {
+  background:linear-gradient(180deg, #fff8ed 0%, #fffbf3 100%);
+  border-top:2px solid var(--accent);
+  border-bottom:2px solid var(--accent);
+}
+
+.chapter-h {
+  margin-bottom:18px;
+  display:flex; flex-direction:column; gap:6px;
+  max-width:920px;
+}
+.chapter-eyebrow {
+  font-size:10.5px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent);
+  display:flex; align-items:center; gap:8px;
+}
+.chapter-eyebrow .num {
+  width:22px; height:22px; border-radius:50%;
+  background:var(--accent); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; letter-spacing:0;
+}
+.chapter h1 {
+  font-family:var(--font-serif); font-size:32px;
+  font-weight:700; color:var(--text); line-height:1.15;
+  letter-spacing:-.015em;
+}
+.chapter h2 {
+  font-family:var(--font-serif); font-size:24px;
+  font-weight:700; color:var(--text); line-height:1.2;
+  margin:24px 0 8px;
+}
+.chapter p.lede {
+  font-size:15px; color:var(--muted); line-height:1.7;
+  max-width:680px;
+}
+.chapter p { font-size:13.5px; color:var(--muted); line-height:1.7; max-width:680px; }
+.chapter p strong { color:var(--text); }
+
+/* Cards */
+.card {
+  background:var(--surface); border:1px solid var(--border-lt);
+  border-radius:var(--radius); padding:16px 18px;
+  box-shadow:var(--shadow-sm);
+}
+.card-grid {
+  display:grid; gap:14px; margin:18px 0;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+}
+.card-stat .stat-num {
+  font-family:var(--font-serif); font-size:28px;
+  font-weight:700; color:var(--primary); line-height:1;
+}
+.card-stat .stat-label {
+  font-size:11px; text-transform:uppercase; color:var(--muted);
+  letter-spacing:.06em; margin-top:6px;
+}
+.card-stat.accent .stat-num { color:var(--accent); }
+
+/* Visualization wrappers */
+.viz {
+  background:#fff; border:1px solid var(--border-lt);
+  border-radius:var(--radius); padding:14px;
+  box-shadow:var(--shadow-sm);
+  position:relative; overflow:hidden;
+}
+.viz-toolbar {
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px;
+  padding:0 0 12px;
+  border-bottom:1px solid var(--border-lt);
+  margin-bottom:12px;
+}
+.viz-toolbar h3 {
+  font-size:14px; font-weight:600; color:var(--text);
+  display:flex; align-items:center; gap:8px;
+}
+.viz-toolbar h3 .vh-badge {
+  font-size:10px; padding:2px 7px; border-radius:8px;
+  background:var(--primarylt); color:var(--primary);
+  font-weight:600;
+}
+.viz-toolbar .toolset { display:flex; gap:6px; }
+.tb-btn {
+  background:transparent; border:1px solid var(--border);
+  color:var(--muted); font-size:11px; padding:5px 10px;
+  border-radius:6px; transition:all .15s; font-weight:500;
+}
+.tb-btn:hover { color:var(--primary); border-color:var(--primary); background:var(--primarylt); }
+.tb-btn.on { color:#fff; background:var(--primary); border-color:var(--primary); }
+
+/* Map (Leaflet) */
+.map-wrap { height:560px; width:100%; border-radius:var(--radius); overflow:hidden; }
+.map-wrap.tall { height:620px; }
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+  background:rgba(47,106,24,.85)!important; color:#fff!important; font-weight:700;
+}
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+  background:rgba(47,106,24,.2)!important;
+}
+.leaflet-popup-content-wrapper {
+  border-radius:12px!important; box-shadow:var(--shadow)!important;
+  border:1px solid var(--border)!important;
+}
+.leaflet-popup-content { margin:14px 16px!important; }
+.cpop h3 { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.cpop .cs { font-style:italic; font-size:11px; color:var(--muted); margin-bottom:8px; }
+.cpop table { font-size:12px; width:100%; border-collapse:collapse; }
+.cpop td { padding:2px 0; color:var(--text); }
+.cpop td:first-child { color:var(--muted); padding-right:8px; font-weight:500; }
+.pop-btn {
+  margin-top:9px; width:100%; padding:7px 10px;
+  background:var(--primary); border:none; border-radius:7px;
+  color:#fff; font-size:12px; font-weight:600;
+}
+.pop-btn:hover { background:var(--primarydk); }
+.map-note {
+  font-size:10.5px; color:var(--muted); font-style:italic;
+  padding:7px 11px; background:rgba(255,255,255,.92);
+  border-radius:6px; border:1px solid var(--border-lt);
+  max-width:360px;
+}
+
+/* SVG common */
+.viz svg { display:block; max-width:100%; font-family:var(--font); }
+.viz svg text { font-family:var(--font); }
+
+/* Compare panel */
+.compare-grid {
+  display:grid; gap:18px; margin-top:14px;
+  grid-template-columns:1fr 1fr;
+}
+@media (max-width:980px) { .compare-grid { grid-template-columns:1fr; } }
+.compare-col h3 {
+  font-family:var(--font-serif); font-size:18px;
+  margin-bottom:12px; padding-bottom:8px;
+  border-bottom:2px solid var(--border);
+}
+.compare-col.old h3 { color:var(--accent-dk); border-bottom-color:var(--accent); }
+.compare-col.new h3 { color:var(--primary); border-bottom-color:var(--primary); }
+.compare-list { display:flex; flex-direction:column; gap:8px; }
+.compare-item {
+  display:flex; gap:12px; align-items:center;
+  padding:9px 11px; background:#fff;
+  border:1px solid var(--border-lt); border-radius:8px;
+  cursor:pointer; transition:all .15s;
+}
+.compare-item:hover { border-color:var(--primary); transform:translateY(-1px); box-shadow:var(--shadow-sm); }
+.compare-rank {
+  width:28px; height:28px; border-radius:50%;
+  background:var(--surface2); color:var(--muted-lt);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; flex-shrink:0;
+  font-family:var(--font-mono);
+}
+.compare-item .info { flex:1; min-width:0; }
+.compare-item .nm { font-size:13px; font-weight:600; color:var(--text); }
+.compare-item .sc { font-size:11px; color:var(--muted); font-style:italic; }
+.compare-item .ag {
+  font-family:var(--font-mono); font-size:11.5px; font-weight:600;
+  color:var(--accent); text-align:right;
+  white-space:nowrap; flex-shrink:0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LOADING SCREEN
+   ════════════════════════════════════════════════════════════════ */
+#loading {
+  position:fixed; inset:0; z-index:9999;
+  background:linear-gradient(160deg, #eef6e8 0%, #f6f9f2 100%);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:18px; transition:opacity .5s;
+}
+#loading.hide { opacity:0; pointer-events:none; }
+.spin {
+  width:48px; height:48px;
+  border:4px solid var(--border);
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin .85s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+#loading p { color:var(--muted); font-size:13px; max-width:340px; text-align:center; }
+#loading .lp-emoji { font-size:48px; }
+#load-err {
+  display:none; background:#fff0f0; border:1px solid #e08080;
+  border-radius:10px; padding:16px 20px; color:#903030;
+  font-size:13px; max-width:440px; text-align:center; line-height:1.6;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CROP DETAIL MODAL
+   ════════════════════════════════════════════════════════════════ */
+#moverlay {
+  position:fixed; inset:0; z-index:2000;
+  background:rgba(20,40,10,.6);
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+#moverlay.open { display:flex; }
+#modal {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; width:580px; max-width:100%;
+  max-height:90vh; overflow-y:auto;
+  box-shadow:var(--shadow-lg); position:relative;
+}
+#modal-img-wrap {
+  width:100%; height:200px;
+  background:linear-gradient(135deg, var(--primarylt), var(--surface2));
+  overflow:hidden; position:relative;
+  border-radius:16px 16px 0 0;
+}
+#modal-img { width:100%; height:100%; object-fit:cover; transition:opacity .4s; }
+.modal-img-placeholder {
+  position:absolute; inset:0; display:flex;
+  align-items:center; justify-content:center; font-size:72px;
+}
+#modal-img-credit {
+  position:absolute; bottom:6px; right:8px; font-size:9px;
+  color:rgba(255,255,255,.92); background:rgba(0,0,0,.4);
+  padding:3px 7px; border-radius:5px;
+}
+#modal-inner { padding:22px 26px 26px; }
+#mbtn-close {
+  position:absolute; top:12px; right:12px; z-index:10;
+  background:rgba(255,255,255,.95); border:1px solid var(--border);
+  color:var(--muted); width:32px; height:32px;
+  border-radius:50%; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s;
+}
+#mbtn-close:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+.mcn {
+  font-family:var(--font-serif); font-size:24px; font-weight:700;
+  padding-right:24px; color:var(--text);
+}
+.msci { font-style:italic; font-size:14px; color:var(--muted); margin:3px 0 12px; }
+.mbadge {
+  display:inline-block; padding:3px 12px; border-radius:12px;
+  font-size:10.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; color:#fff; margin-bottom:18px;
+}
+.mgrid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  margin-bottom:18px;
+}
+.mf .mfl {
+  font-size:9.5px; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--muted); font-weight:600;
+}
+.mf .mfv { font-size:13.5px; color:var(--text); margin-top:2px; }
+.mf .mfv.hi { color:var(--accent); font-weight:600; }
+.mf .mfv em { font-style:italic; }
+.msect {
+  font-size:9.5px; text-transform:uppercase; letter-spacing:.07em;
+  color:var(--muted); font-weight:600;
+  border-top:1px solid var(--border-lt); padding-top:12px;
+  margin-bottom:6px;
+}
+.progbox {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:10px 13px;
+  font-size:12.5px; font-style:italic; color:var(--text);
+  line-height:1.5;
+}
+.bioclim {
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;
+  margin-top:8px;
+  background:var(--surface3); border:1px solid var(--border-lt);
+  border-radius:8px; padding:10px 12px;
+  font-size:11.5px;
+}
+.bioclim div { display:flex; justify-content:space-between; }
+.bioclim div span:first-child { color:var(--muted); }
+.bioclim div span:last-child { color:var(--text); font-family:var(--font-mono); font-weight:500; }
+
+/* ════════════════════════════════════════════════════════════════
+   INFO MODAL
+   ════════════════════════════════════════════════════════════════ */
+#ioverlay {
+  position:fixed; inset:0; z-index:2100;
+  background:rgba(20,40,10,.6);
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+#ioverlay.open { display:flex; }
+#imodal {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; width:720px; max-width:100%;
+  max-height:88vh; overflow-y:auto;
+  box-shadow:var(--shadow-lg); position:relative;
+}
+#imodal-inner { padding:32px 36px 36px; }
+#imodal-inner h2 {
+  font-family:var(--font-serif); font-size:24px;
+  color:var(--primary); margin-bottom:18px; padding-right:28px;
+}
+#imodal-inner h3 {
+  font-size:14px; font-weight:600; color:var(--text);
+  margin:18px 0 6px;
+}
+#imodal-inner p, #imodal-inner li {
+  font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:8px;
+}
+#imodal-inner ul { padding-left:20px; margin-bottom:10px; }
+#imodal-inner a { color:var(--primary); }
+.cite-block {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:12px 16px;
+  font-size:12px; color:var(--text); line-height:1.7;
+  margin-bottom:10px;
+}
+.warn-box {
+  background:#fffbea; border:1px solid #e8d07a;
+  border-radius:8px; padding:12px 16px;
+  font-size:12.5px; color:#6b5500; line-height:1.65;
+  margin-bottom:14px;
+}
+.note-box {
+  background:var(--primarylt); border:1px solid var(--border);
+  border-radius:8px; padding:12px 16px;
+  font-size:12.5px; color:var(--text); line-height:1.65;
+  margin-bottom:14px;
+}
+.note-box b { color:var(--primary); }
+#ibtn-close {
+  position:absolute; top:14px; right:14px;
+  background:rgba(255,255,255,.95); border:1px solid var(--border);
+  color:var(--muted); width:32px; height:32px;
+  border-radius:50%; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s;
+}
+#ibtn-close:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+
+/* ════════════════════════════════════════════════════════════════
+   TOOLTIP (floating)
+   ════════════════════════════════════════════════════════════════ */
+#tt {
+  position:fixed; z-index:3000;
+  background:#fff; border:1px solid var(--border);
+  border-radius:10px; padding:10px 13px;
+  font-size:12px; color:var(--text);
+  pointer-events:none; opacity:0;
+  transition:opacity .12s;
+  max-width:240px;
+  box-shadow:var(--shadow);
+}
+#tt.show { opacity:1; }
+#tt b { display:block; font-size:13px; color:var(--primary); margin-bottom:3px; }
+#tt em { font-style:italic; color:var(--muted); font-size:11px; display:block; }
+#tt .tt-img {
+  width:100%; height:90px; object-fit:cover;
+  border-radius:6px; margin-bottom:7px;
+}
+#tt .tt-meta { color:var(--accent); font-weight:500; }
+
+/* ════════════════════════════════════════════════════════════════
+   HELP / KEYBOARD HINT (corner)
+   ════════════════════════════════════════════════════════════════ */
+.kbd {
+  display:inline-block; padding:1px 6px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-bottom-width:2px; border-radius:4px;
+  font-family:var(--font-mono); font-size:10.5px;
+  color:var(--text);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 920px) {
+  :root { --sidebar:100%; --hdr:54px; }
+  .app { display:block; }
+  #sidebar {
+    position:relative; top:auto; height:auto;
+    border-right:none; border-bottom:1px solid var(--border);
+    max-height:none;
+  }
+  .scroll-nav { flex-direction:row; flex-wrap:wrap; gap:4px; }
+  .nav-group { flex-direction:row; flex-wrap:wrap; align-items:center; gap:4px; }
+  .group-label { padding:4px 8px; border:none; }
+  .nav-item { margin-left:0; padding:6px 10px; border-left:none; border-bottom:3px solid transparent; }
+  .nav-item.active { border-left:none; border-bottom-color:var(--primary); }
+  .nav-item.active::after { display:none; }
+  .chapter { padding:24px 16px 36px; }
+  .chapter h1 { font-size:24px; }
+  #header { padding:0 12px; }
+  .hdr-search { display:none; }
+  .logo .logo-l2 { display:none; }
+  .map-wrap { height:420px; }
+}
+
+/* Print-friendly */
+@media print {
+  #sidebar, #header, #moverlay, #ioverlay, #tt { display:none; }
+  .chapter { page-break-after:always; }
+}
+</style>
 </head>
+
 <body>
 
-<!-- LOADING -->
+<!-- ══════════════════ LOADING ══════════════════ -->
 <div id="loading">
-  <div style="font-size:48px">🌱</div>
+  <div class="lp-emoji">🌱</div>
   <div class="spin"></div>
-  <p id="load-msg">Loading Crop Origins &amp; Phylo database…</p>
+  <p id="load-msg">Loading the Crop Origins &amp; Phylo Food database…</p>
   <div id="load-err"></div>
 </div>
 
-<!-- HEADER -->
-<div id="header">
-  <!-- 3-line logo with authorship -->
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header id="header">
   <div class="logo">
     <div class="logo-l1">🌿 Crop Origins Explorer</div>
-    <div class="logo-l2">Author: <a href="mailto:mikesase270598@gmail.com">Samson Solomon</a></div>
-    <div class="logo-l3">Based on data in the <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank">Crop Origins &amp; Phylo Food databases</a></div>
+    <div class="logo-l2">
+      by <a href="mailto:s.solomon.2025@alumnos.urjc.es">Samson Solomon</a>
+      · data: <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Milla 2020</a>
+    </div>
   </div>
-
   <div class="hdr-divider"></div>
-
-  <!-- Main view navigation -->
-  <nav id="nav-main">
-    <button class="nbtn active" data-v="map">🗺 Map</button>
-    <button class="nbtn" data-v="timeline">📅 Timeline</button>
-    <button class="nbtn" data-v="antiquity">🕰 Antiquity</button>
-    <button class="nbtn" data-v="tree">🌳 Phylo Tree</button>
-    <button class="nbtn" data-v="stats">📊 Stats</button>
-  </nav>
-
-  <!-- Info navigation -->
+  <div class="hdr-search" id="hdr-search-wrap">
+    <input type="text" id="s-search" placeholder="Search 867 crops by name…" autocomplete="off" />
+    <button class="clr" id="s-clear" title="Clear">✕</button>
+  </div>
   <nav id="nav-info">
-    <button class="ibtn" onclick="openInfo('about')">ℹ About</button>
-    <button class="ibtn" onclick="openInfo('howto')">❓ How to Use</button>
-    <button class="ibtn" onclick="openInfo('terms')">📋 Terms &amp; Disclaimer</button>
-    <button class="ibtn" onclick="openInfo('citations')">📚 Citations</button>
+    <button class="ibtn" data-info="about">ℹ About</button>
+    <button class="ibtn" data-info="howto">❓ How to Use</button>
+    <button class="ibtn" data-info="methods">🔬 Methods</button>
+    <button class="ibtn" data-info="terms">📋 Terms</button>
+    <button class="ibtn" data-info="citations">📚 Cite</button>
   </nav>
-</div>
+</header>
 
-<!-- BODY -->
-<div id="body">
+<!-- ══════════════════ APP ══════════════════ -->
+<div class="app">
 
-  <!-- SIDEBAR -->
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
   <aside id="sidebar">
-    <div class="fsection">
-      <div class="flabel">🔍 Search crop</div>
-      <div class="search-row">
-        <input type="text" id="s-search" placeholder="Common or scientific name…" />
-        <button id="btn-search">Go</button>
+
+    <!-- SCROLL-SPY NAVIGATION -->
+    <nav class="scroll-nav" id="scroll-nav">
+
+      <div class="nav-group">
+        <div class="group-label">Overview</div>
+        <a href="#intro" class="nav-item"><span class="ico">📖</span>Introduction</a>
       </div>
-      <div class="search-hint">Press Enter or click Go → jumps to map</div>
+
+      <div class="nav-group">
+        <div class="group-label">Explore Dataset <span class="group-count">867 spp.</span></div>
+        <a href="#atlas"    class="nav-item"><span class="ico">🗺</span>Origin Atlas</a>
+        <a href="#timeline" class="nav-item"><span class="ico">📅</span>Time Axis</a>
+        <a href="#tree"     class="nav-item"><span class="ico">🌳</span>Phylogenetic Tree</a>
+        <a href="#climate"  class="nav-item"><span class="ico">🌡</span>Climate Envelope</a>
+        <a href="#stats"    class="nav-item"><span class="ico">📊</span>Dataset Stats</a>
+      </div>
+
+      <div class="nav-group">
+        <div class="group-label">Antiquity Atlas <span class="group-count">211 spp.</span></div>
+        <a href="#aq-intro"    class="nav-item"><span class="ico">🕰</span>About the subset</a>
+        <a href="#aq-map"      class="nav-item"><span class="ico">🌍</span>Origin Map</a>
+        <a href="#aq-timeline" class="nav-item"><span class="ico">📈</span>Antiquity Timeline</a>
+        <a href="#aq-compare"  class="nav-item"><span class="ico">⚖️</span>Oldest vs. Newest</a>
+      </div>
+
+    </nav>
+
+    <!-- GLOBAL FILTERS (apply to Explore Dataset chapters) -->
+    <div class="filter-block" id="global-filters-block">
+      <div class="filter-title global"><span class="badge">Global</span>Filters · 867 spp.</div>
+
+      <div class="fctrl">
+        <label class="flabel" for="s-family">Family</label>
+        <select id="s-family"><option value="">All families</option></select>
+      </div>
+      <div class="fctrl">
+        <label class="flabel" for="s-use">Primary use</label>
+        <select id="s-use"><option value="">All uses</option></select>
+      </div>
+      <div class="fctrl">
+        <label class="flabel" for="s-realm">Biogeographic realm</label>
+        <select id="s-realm"><option value="">All realms</option></select>
+      </div>
+      <div class="fctrl">
+        <label class="flabel" for="s-gf">Growth form</label>
+        <select id="s-gf"><option value="">All growth forms</option></select>
+      </div>
+
+      <div class="count-pill">
+        <span><b id="cnt">—</b> matching</span>
+        <span style="opacity:.85;">/ 867</span>
+      </div>
+      <div class="btn-row">
+        <button class="sb-btn danger" id="btn-reset">↻ Reset</button>
+        <button class="sb-btn" id="btn-export">⬇ CSV</button>
+      </div>
     </div>
-    <hr class="sdiv" />
-    <div class="fsection">
-      <div class="flabel">Family</div>
-      <select id="s-family"><option value="">All families</option></select>
+
+    <!-- ANTIQUITY-LOCAL FILTERS (visible when in antiquity chapters) -->
+    <div class="filter-block aq" id="aq-filters-block" style="display:none;">
+      <div class="filter-title"><span class="badge">Antiquity</span>Filters · 211 spp.</div>
+
+      <div class="range-row">
+        <div class="range-labels">
+          <span>Min: <b id="rmin-lbl">0</b> yr BP</span>
+          <span>Max: <b id="rmax-lbl">11,500</b> yr BP</span>
+        </div>
+        <input type="range" id="r-min" min="0" max="11500" step="50" value="0" />
+        <input type="range" id="r-max" min="0" max="11500" step="50" value="11500" />
+      </div>
+      <div class="fctrl">
+        <label class="flabel" for="s-aq-family">Family</label>
+        <select id="s-aq-family"><option value="">All families</option></select>
+      </div>
+      <div class="fctrl">
+        <label class="flabel" for="s-aq-realm">Realm</label>
+        <select id="s-aq-realm"><option value="">All realms</option></select>
+      </div>
+
+      <div class="count-pill aq">
+        <span><b id="cnt-aq">—</b> matching</span>
+        <span style="opacity:.85;">/ 211</span>
+      </div>
+      <div class="btn-row">
+        <button class="sb-btn danger" id="btn-reset-aq">↻ Reset</button>
+      </div>
     </div>
-    <div class="fsection">
-      <div class="flabel">Primary Use</div>
-      <select id="s-use"><option value="">All uses</option></select>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="legend-title">Realm colours</div>
+      <div id="legend-list"></div>
     </div>
-    <div class="fsection">
-      <div class="flabel">Biogeographic Realm</div>
-      <select id="s-realm"><option value="">All realms</option></select>
-    </div>
-    <div class="fsection">
-      <div class="flabel">Growth Form</div>
-      <select id="s-gf"><option value="">All growth forms</option></select>
-    </div>
-    
+
   </aside>
 
-  <!-- MAIN VIEWS -->
+  <!-- ══════════════════ MAIN ══════════════════ -->
   <main id="main">
 
-    <!-- MAP -->
-    <div id="view-map" class="view active">
-      <div id="map"></div>
-    </div>
-
-    <!-- TIMELINE -->
-    <div id="view-timeline" class="view">
-      <div class="vhdr">
-        <h2>Domestication Timeline</h2>
-        <p>Each dot is a crop placed by its estimated domestication antiquity. Hover or click for details.</p>
-      </div>
-      <div class="vscroll" id="tl-wrap"></div>
-    </div>
-
-    <!-- ANTIQUITY -->
-<div id="view-antiquity" class="view">
-  <div class="vhdr">
-    <h2>Domestication Antiquity</h2>
-    327      <p>When were our food crops first domesticated? Explore the data, understand its scope, and compare across regions.</p>
-328      <div style="display:flex;align-items:center;gap:20px;margin-top:10px;flex-wrap:wrap;">
-329        <div style="flex:1;min-width:220px;max-width:380px;">
-330          <div class="range-labels"><span>Min: <b id="rmin-lbl">0</b></span><span>Max: <b id="rmax-lbl">11 500</b></span></div>
-331          <input type="range" id="r-min" min="0" max="11500" step="100" value="0" />
-332          <input type="range" id="r-max" min="0" max="11500" step="100" value="11500" />
-333        </div>
-334        <div style="font-size:11px;color:var(--muted);max-width:260px;">Only <b style="color:var(--accent)">210</b> of 867 crops have antiquity data. Moving the sliders filters all views.</div>
-335      </div>
-  <div class="vscroll" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:24px;">
-
-    <!-- Left: explanation card -->
-    <div style="flex:0 0 300px;display:flex;flex-direction:column;gap:16px;">
-
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:10px;">What is Domestication Antiquity?</div>
-        <p style="font-size:13px;line-height:1.7;color:var(--text);">Domestication antiquity is the estimated number of years before present when a wild plant species was first domesticated — meaning humans began selecting it for cultivation and altered its genetics through that process.</p>
-        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-top:8px;">These are minimum estimates based on the earliest written records, archaeological evidence, or genetic data available in the literature.</p>
+    <!-- INTRO ──────────────────────────────────────── -->
+    <section id="intro" class="chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">0</span>Introduction</div>
+        <h1>Where do our crops come from?</h1>
+        <p class="lede">
+          Of the roughly 350,000 known plant species, fewer than 900 are cultivated for food worldwide. This explorer turns Prof. Rubén Milla's <a href="https://doi.org/10.1111/geb.13057" target="_blank" rel="noopener">Crop Origins &amp; Phylo Food database</a> into an interactive atlas — letting you trace each crop back to the wild progenitor's biogeographic realm, plot its climate envelope, and follow its taxonomic and evolutionary lineage.
+        </p>
       </div>
 
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:12px;">Data Coverage</div>
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px;">
-          <span style="font-size:32px;font-weight:700;color:var(--primary);">210</span>
-          <span style="font-size:13px;color:var(--muted);">crops have antiquity data</span>
-        </div>
-        <div style="background:var(--border-lt);border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;">
-          <div style="background:var(--primary);height:100%;width:24.2%;border-radius:4px;"></div>
-        </div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.5;">Only <strong>210 of 867 crops</strong> (24%) in the database have a recorded domestication date. The remaining 76% have no known estimate in the published literature.</p>
+      <div class="card-grid">
+        <div class="card card-stat"><div class="stat-num" id="kpi-crops">—</div><div class="stat-label">Food crop species</div></div>
+        <div class="card card-stat accent"><div class="stat-num" id="kpi-aq">—</div><div class="stat-label">With domestication antiquity</div></div>
+        <div class="card card-stat"><div class="stat-num" id="kpi-fam">—</div><div class="stat-label">Plant families</div></div>
+        <div class="card card-stat"><div class="stat-num" id="kpi-realm">—</div><div class="stat-label">Biogeographic realms</div></div>
       </div>
 
-      <div style="background:var(--primarylt);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:8px;">Data Quality</div>
-        <p style="font-size:12px;line-height:1.6;color:var(--text);">The quality of antiquity records varies greatly — from single references in grey literature to well-established results from multiple genomic and archaeological studies. All values should be treated as <em>minimum estimates</em> subject to revision.</p>
+      <p>
+        The interface is split in two: a <b>Global Explorer</b> covering all 867 crops, and a separate <b>Antiquity Atlas</b> chapter restricted to the 211 species for which a published domestication date exists. The two sets of filters are independent — moving the antiquity sliders does not constrain the rest of the explorer, and vice versa.
+      </p>
+      <p>
+        Scroll to navigate, or use the rail on the left to jump between sections. Press <span class="kbd">/</span> at any time to focus search, <span class="kbd">Esc</span> to close any open panel.
+      </p>
+    </section>
+
+    <!-- ATLAS / MAP ──────────────────────────────── -->
+    <section id="atlas" class="chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">1</span>Origin Atlas</div>
+        <h1>Where wild progenitors are most abundant</h1>
+        <p class="lede">
+          Each crop is plotted at the centroid of the ecoregion (Olson et al. 2001) where its wild progenitor has the most GBIF occurrence records. Marker colour encodes biogeographic realm; the soft gradient communicates that the location is an indicator of <em>origin region</em>, not the precise domestication site.
+        </p>
       </div>
 
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:8px;">Range in this dataset</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center;">
-          <div>
-            <div style="font-size:20px;font-weight:700;color:var(--accent);">~200</div>
-            <div style="font-size:11px;color:var(--muted);">years ago (most recent)</div>
-          </div>
-          <div>
-            <div style="font-size:20px;font-weight:700;color:var(--accent);">~11,300</div>
-            <div style="font-size:11px;color:var(--muted);">years ago (oldest)</div>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>🗺 Origin map <span class="vh-badge" id="atlas-badge">— shown</span></h3>
+          <div class="toolset">
+            <button class="tb-btn" id="atlas-fit">Fit to selection</button>
+            <button class="tb-btn" id="atlas-reset">Reset view</button>
           </div>
         </div>
+        <div class="map-wrap" id="atlas-map"></div>
       </div>
+    </section>
 
-    </div>
-
-    <!-- Right: the actual timeline -->
-    <div style="flex:1;min-width:400px;">
-      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:12px;">Timeline — crops with antiquity data, grouped by biogeographic realm</div>
-      <div id="aq-tl-wrap"></div>
-    </div>
-
-  </div>
-</div>
-
-    <!-- TREE -->
-    <div id="view-tree" class="view">
-      <div class="vhdr">
-        <h2>Taxonomic Explorer</h2>
-        <p>Crops organised by Order → Family → Species. Click any species node for full details.</p>
+    <!-- TIMELINE ─────────────────────────────────── -->
+    <section id="timeline" class="chapter dark">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">2</span>Time Axis</div>
+        <h1>Crops along the deep human timeline</h1>
+        <p class="lede">
+          Every dot is a crop placed by its earliest published domestication date, grouped by biogeographic realm. The horizontal scale runs right-to-left: <em>Today</em> on the right, the dawn of agriculture on the left.
+        </p>
       </div>
-      <div class="vscroll" id="tree-wrap"></div>
-    </div>
-
-    <!-- STATS -->
-    <div id="view-stats" class="view">
-      <div id="stats-wrap">
-        <div class="vhdr" style="padding-left:0;padding-top:4px;border:none;background:transparent">
-          <h2>Dataset Statistics</h2>
-          <p>An overview of the Crop Origins &amp; Phylo Food database.</p>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>📅 Domestication timeline <span class="vh-badge" id="tl-badge">—</span></h3>
+          <div class="toolset"><button class="tb-btn" id="tl-png">⬇ PNG</button></div>
         </div>
-        <div id="stats-inner"></div>
+        <div id="tl-wrap"></div>
       </div>
-    </div>
+    </section>
+
+    <!-- TREE ─────────────────────────────────────── -->
+    <section id="tree" class="chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">3</span>Phylogenetic Tree</div>
+        <h1>Order → Family → Species</h1>
+        <p class="lede">
+          A taxonomic dendrogram of the filtered crop set. Click any species (orange leaf) for the full record — wild progenitor, climate envelope, domestication and cultivation antiquity, GBIF coverage.
+        </p>
+      </div>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>🌳 Taxonomic explorer <span class="vh-badge" id="tree-badge">—</span></h3>
+          <div class="toolset"><button class="tb-btn" id="tree-png">⬇ PNG</button></div>
+        </div>
+        <div id="tree-wrap"></div>
+      </div>
+    </section>
+
+    <!-- CLIMATE ENVELOPE ──────────────────────────── -->
+    <section id="climate" class="chapter dark">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">4</span>Climate Envelope</div>
+        <h1>Mean annual temperature × precipitation</h1>
+        <p class="lede">
+          A Whittaker-style plot of each crop's wild-progenitor median climate. X-axis: <b>BIO1</b> (mean annual temperature, °C), Y-axis: <b>BIO12</b> (annual precipitation, mm). Dots are coloured by realm. Hover any point for species and ecoregion; click to open the full record.
+        </p>
+      </div>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>🌡 Climate scatter <span class="vh-badge" id="cl-badge">—</span></h3>
+          <div class="toolset">
+            <button class="tb-btn" id="cl-biomes">Show biome bands</button>
+            <button class="tb-btn" id="cl-png">⬇ PNG</button>
+          </div>
+        </div>
+        <div id="cl-wrap"></div>
+      </div>
+    </section>
+
+    <!-- STATS ────────────────────────────────────── -->
+    <section id="stats" class="chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow"><span class="num">5</span>Dataset Stats</div>
+        <h1>What's in the filtered subset?</h1>
+        <p class="lede">Live charts that update with whatever family / use / realm / growth-form filters you've applied above.</p>
+      </div>
+      <div id="stats-wrap"></div>
+    </section>
+
+    <!-- ══════════════════ ANTIQUITY CHAPTER ══════════════════ -->
+
+    <!-- AQ INTRO ────────────────────────────────── -->
+    <section id="aq-intro" class="chapter aq-chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">A</span>Antiquity Atlas — separate chapter</div>
+        <h1>The 211 dated crops</h1>
+        <p class="lede">
+          Of the 867 species in the database, only <b>211</b> carry a published estimate for <em>minimum_time_domestication</em>. From here on, every visualization is restricted to that subset and uses an independent set of filters (the orange block in the sidebar) — so anything you set here will <em>not</em> affect the Global Explorer above.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <div class="card card-stat accent"><div class="stat-num">211</div><div class="stat-label">Species with antiquity data</div></div>
+        <div class="card card-stat"><div class="stat-num">24%</div><div class="stat-label">of the full database</div></div>
+        <div class="card card-stat accent"><div class="stat-num" id="aq-oldest">—</div><div class="stat-label">Oldest (yr BP)</div></div>
+        <div class="card card-stat"><div class="stat-num" id="aq-newest">—</div><div class="stat-label">Most recent (yr BP)</div></div>
+      </div>
+
+      <div class="note-box">
+        <b>Why 211?</b> The original Milla 2020 paper notes that domestication antiquity is documented for a minority of crops. Records range in quality from a single grey-literature reference to multi-source archaeobotanical and genomic syntheses, and all values are minimum estimates. Crops without a date are simply omitted from this chapter — they are still present everywhere else in the explorer.
+      </div>
+    </section>
+
+    <!-- AQ MAP ──────────────────────────────────── -->
+    <section id="aq-map" class="chapter aq-chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">B</span>Antiquity · Origin Map</div>
+        <h1>Where the dated crops were domesticated</h1>
+        <p class="lede">
+          Same geographic logic as the Global Atlas, but restricted to the 211-species subset. Markers are coloured by <b>age class</b> rather than realm — to make the deep-time pattern visible at a glance. Hover for details, click for the full record.
+        </p>
+      </div>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>🌍 Antiquity origin map <span class="vh-badge" id="aq-map-badge">—</span></h3>
+          <div class="toolset">
+            <div id="aq-color-legend" style="display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted)"></div>
+          </div>
+        </div>
+        <div class="map-wrap tall" id="aq-leaflet"></div>
+      </div>
+    </section>
+
+    <!-- AQ TIMELINE ─────────────────────────────── -->
+    <section id="aq-timeline" class="chapter aq-chapter">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">C</span>Antiquity · Timeline</div>
+        <h1>Ridgeline through the Holocene</h1>
+        <p class="lede">
+          A horizontal beeswarm: each species is a dot at its domestication date, jittered vertically inside its realm row. Density reads as plant-domestication intensity per region per millennium.
+        </p>
+      </div>
+      <div class="viz">
+        <div class="viz-toolbar">
+          <h3>📈 Antiquity ridgeline <span class="vh-badge" id="aq-tl-badge">—</span></h3>
+          <div class="toolset"><button class="tb-btn" id="aq-tl-png">⬇ PNG</button></div>
+        </div>
+        <div id="aq-tl-wrap"></div>
+      </div>
+    </section>
+
+    <!-- AQ COMPARE ──────────────────────────────── -->
+    <section id="aq-compare" class="chapter aq-chapter" style="border-bottom:none">
+      <div class="chapter-h">
+        <div class="chapter-eyebrow" style="color:var(--accent-dk)"><span class="num" style="background:var(--accent-dk)">D</span>Antiquity · Oldest vs. Newest</div>
+        <h1>The bookends of plant domestication</h1>
+        <p class="lede">
+          Side-by-side ranking of the 20 oldest and 20 most recently domesticated crops in the filtered subset. Click any row for the full record.
+        </p>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-col old">
+          <h3>🏛 Oldest 20 — domesticated longest ago</h3>
+          <div class="compare-list" id="cmp-old"></div>
+        </div>
+        <div class="compare-col new">
+          <h3>🌱 Newest 20 — most recently domesticated</h3>
+          <div class="compare-list" id="cmp-new"></div>
+        </div>
+      </div>
+    </section>
 
   </main>
 </div>
 
-<!-- CROP DETAIL MODAL -->
+<!-- ══════════════════ MODALS ══════════════════ -->
 <div id="moverlay">
   <div id="modal">
     <button id="mbtn-close">✕</button>
@@ -423,7 +1078,6 @@
   </div>
 </div>
 
-<!-- INFO MODAL -->
 <div id="ioverlay">
   <div id="imodal">
     <button id="ibtn-close">✕</button>
@@ -434,41 +1088,56 @@
   </div>
 </div>
 
-<!-- TOOLTIP -->
 <div id="tt"></div>
 
+<!-- ══════════════════ LIBRARIES ══════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 
+<!-- ══════════════════ APPLICATION ══════════════════ -->
 <script>
 'use strict';
 
-/* ── CSV SOURCE ─────────────────────────────────── */
+/* ── Data source ───────────────────────────────────── */
 const CSV = 'https://raw.githubusercontent.com/rubenmilla/Crop_Origins_Phylo/master/Crop_Origins_Phylo_v_live/crop_origins_v_live/crop_origins_live_db.csv';
 
-/* ── REALM COLOURS & LABELS ─────────────────────── */
+/* ── Realm colours / labels ───────────────────────── */
 const REALM_CLR = {
-  'Neartic':'#d4782a','Nearctic':'#d4782a',
-  'Neotropical':'#2e9e52',
-  'Paleartic':'#2e7ec4','Palearctic':'#2e7ec4',
-  'Indo_malay':'#8856b8','Indomalayan':'#8856b8',
-  'Afrotropical':'#c83c3c','Afrotropic':'#c83c3c',
-  'Australasian':'#1a9a80','Australasia':'#1a9a80',
-  'Oceanian':'#c49020',
+  'Nearctic':'#d4782a',  'Neartic':'#d4782a',
+  'Neotropic':'#2e9e52', 'Neotropical':'#2e9e52',
+  'Palearctic':'#2e7ec4','Paleartic':'#2e7ec4',
+  'Indo_malay':'#8856b8','Indomalayan':'#8856b8','Indo-Malay':'#8856b8',
+  'Afrotropic':'#c83c3c','Afrotropical':'#c83c3c',
+  'Australasia':'#1a9a80','Australasian':'#1a9a80',
+  'Oceania':'#c49020','Oceanian':'#c49020',
 };
 const REALM_LBL = {
-  'Neartic':'Nearctic','Nearctic':'Nearctic',
-  'Paleartic':'Palearctic','Palearctic':'Palearctic',
+  'Nearctic':'Nearctic','Neartic':'Nearctic',
+  'Neotropic':'Neotropical','Neotropical':'Neotropical',
+  'Palearctic':'Palearctic','Paleartic':'Palearctic',
   'Indo_malay':'Indo-Malayan','Indomalayan':'Indo-Malayan',
-  'Afrotropical':'Afrotropical','Afrotropic':'Afrotropical',
-  'Australasian':'Australasian','Australasia':'Australasian',
+  'Afrotropic':'Afrotropical','Afrotropical':'Afrotropical',
+  'Australasia':'Australasian','Australasian':'Australasian',
+  'Oceania':'Oceanian','Oceanian':'Oceanian',
 };
 function rc(r){ return REALM_CLR[r] || '#6a8a6a'; }
 function rl(r){ return REALM_LBL[r] || (r ? r.replace(/_/g,' ') : 'Unknown'); }
 
-/* Convert hex colour to rgba string */
+/* ── Antiquity age classes (for AQ map colouring) ── */
+const AGE_CLASSES = [
+  { label:'Holocene early (>9,000 yr BP)', min:9000, max:Infinity, color:'#5b2d8e' },
+  { label:'Holocene mid (5,000–9,000)',    min:5000, max:9000,     color:'#a83bc4' },
+  { label:'Bronze–Iron Age (2,000–5,000)', min:2000, max:5000,     color:'#bf7318' },
+  { label:'Classical–Medieval (500–2,000)',min:500,  max:2000,     color:'#2e7ec4' },
+  { label:'Modern (<500 yr BP)',           min:0,    max:500,      color:'#2f6a18' },
+];
+function ageClass(y){
+  return AGE_CLASSES.find(a => y >= a.min && y < a.max) || AGE_CLASSES[AGE_CLASSES.length-1];
+}
+
+/* ── Hex → rgba string ────────────────────────────── */
 function hexRgba(hex, alpha) {
   const h = hex.replace('#','');
   const r = parseInt(h.substring(0,2),16);
@@ -477,32 +1146,37 @@ function hexRgba(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/* ── STATE ──────────────────────────────────────── */
-let ALL=[], DATA=[], _cropMap={}, _leafMap=null, _mLayer=null, _curView='map';
+/* ── State ────────────────────────────────────────── */
+let ALL = [], DATA = [], DATA_AQ = [];
+const _cropMap = {};
+let _atlasMap = null, _atlasLayer = null;
+let _aqMap = null, _aqLayer = null;
 const imgCache = {};
 
-/* ── UTILS ──────────────────────────────────────── */
-function pn(v){ if(!v||v==='NA') return null; return parseFloat(String(v).replace(',','.')); }
+/* ── Utils ────────────────────────────────────────── */
+function pn(v){ if(v==null||v===''||v==='NA') return null; const n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : null; }
 function clean(s){ return (s||'').replace(/_/g,' ').trim(); }
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
-function fage(v){ const n=pn(v); return n==null ? '—' : n.toLocaleString()+' yrs ago'; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fage(v){ const n = pn(v); return n==null ? '—' : n.toLocaleString()+' yr BP'; }
+function fnum(v){ const n = pn(v); return n==null ? '—' : (Math.abs(n)>=10 ? n.toFixed(0) : n.toFixed(2)); }
 
-/* ── WIKIPEDIA IMAGES ───────────────────────────── */
+/* ── Wikipedia images ─────────────────────────────── */
 async function fetchWikiImg(title, size) {
   try {
     const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`,
+      'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title.replace(/ /g,'_')),
       { headers:{ Accept:'application/json' } }
     );
     if (!res.ok) return null;
     const d = await res.json();
-    const src = d.thumbnail?.source || null;
+    const src = d.thumbnail && d.thumbnail.source;
     if (!src || src.includes('.svg')) return null;
-    return src.replace(/\/\d+px-/, `/${size}px-`);
-  } catch(e) { return null; }
+    return src.replace(/\/\d+px-/, '/' + size + 'px-');
+  } catch (e) { return null; }
 }
-async function getImg(commonName, sciName, size=400) {
-  const key = (commonName||sciName)+'|'+size;
+async function getImg(commonName, sciName, size) {
+  size = size || 400;
+  const key = (commonName||sciName) + '|' + size;
   if (imgCache[key] !== undefined) return imgCache[key];
   imgCache[key] = null;
   if (commonName) imgCache[key] = await fetchWikiImg(commonName, size);
@@ -510,51 +1184,62 @@ async function getImg(commonName, sciName, size=400) {
   return imgCache[key];
 }
 
-/* ── DATA LOADING ───────────────────────────────── */
+/* ── CSV loader ───────────────────────────────────── */
 function loadData() {
-  /* Safety timeout — if nothing happens in 20 s, show an actionable error */
   const deadline = setTimeout(() => {
-    showErr('<b>Loading timed out.</b><br/>Could not reach the crop database within 20 seconds.<br/><small>Check your internet connection, then try a hard refresh (Ctrl+Shift+R / Cmd+Shift+R).</small>');
-  }, 20000);
+    showErr('<b>Loading timed out.</b><br/>Could not reach the crop database within 25 seconds.<br/><small>Check your connection, then hard-refresh (Ctrl+Shift+R / Cmd+Shift+R).</small>');
+  }, 25000);
 
   Papa.parse(CSV, {
-    download: true, header: true, delimiter: ';', skipEmptyLines: true,
+    download:true, header:true, delimiter:';', skipEmptyLines:true,
     complete(res) {
       clearTimeout(deadline);
       try {
-        ALL = res.data.map((row, i) => parseCrop(row, i)).filter(Boolean);
-        if (!ALL.length) { showErr('CSV parsed but no rows found. The data source may be temporarily unavailable.'); return; }
+        ALL = res.data.map(parseCrop).filter(Boolean);
+        if (!ALL.length) { showErr('CSV parsed but no rows. The data source may be unavailable.'); return; }
         init();
       } catch (e) {
-        showErr('<b>Error initialising the app.</b><br/><small>' + (e && e.message ? e.message : String(e)) + '</small>');
-        console.error('init error:', e);
+        console.error(e);
+        showErr('<b>Initialisation error.</b><br/><small>' + (e && e.message ? e.message : String(e)) + '</small>');
       }
     },
     error(err) {
       clearTimeout(deadline);
-      showErr('<b>Could not fetch the crop database.</b><br/>Check your internet connection or try again in a moment.<br/><small>' + ((err && err.message) || err) + '</small>');
+      showErr('<b>Could not fetch the database.</b><br/><small>' + ((err && err.message) || err) + '</small>');
     }
   });
 }
 
 function parseCrop(row, i) {
+  if (!row || !row.id) return null;
   return {
-    _key:    String(row.id||i),
+    _key:    String(row.id || i),
     name:    clean(row.common_name_crop) || clean(row.species_name) || '—',
     sci:     clean(row.species_name_taxonstand_) || clean(row.species_name) || '—',
-    genus:   clean(row.genus), sps: clean(row.sps),
-    family:  clean(row.family), order: clean(row.order),
+    genus:   clean(row.genus),
+    sps:     clean(row.sps),
+    family:  clean(row.family),
+    order:   clean(row.order),
     gf:      clean(row.gf),
     prog:    clean(row.wild_progenitor),
     tCult:   pn(row.minimum_time_cultivation),
     tDom:    pn(row.minimum_time_domestication),
-    food:    row.use_food==='1', feed: row.use_animal_feed==='1',
-    use:     clean(row.use_primary), useType: clean(row.use),
-    realm:   (row.biogeografic_realm||'').trim(),
+    food:    row.use_food === '1',
+    feed:    row.use_animal_feed === '1',
+    use:     clean(row.use_primary),
+    useType: clean(row.use),
+    realm:   (row.biogeografic_realm || '').trim(),
     eco:     clean(row.mode_ecoreg_name),
     lon:     pn(row.mode_ecoreg_centroid_lon),
     lat:     pn(row.mode_ecoreg_centroid_lat),
     gbif:    pn(row.number_gbif_records),
+    /* Climate (BIO1 stored ×10 °C in WorldClim convention) */
+    bio1:    pn(row.median_BIO1),
+    bio12:   pn(row.median_BIO12),
+    bio4:    pn(row.median_BIO4),
+    bio5:    pn(row.median_BIO5),
+    bio6:    pn(row.median_BIO6),
+    bio15:   pn(row.median_BIO15),
   };
 }
 
@@ -562,418 +1247,436 @@ function showErr(html) {
   document.getElementById('load-msg').style.display = 'none';
   document.querySelector('.spin').style.display = 'none';
   const e = document.getElementById('load-err');
-  e.style.display = 'block'; e.innerHTML = html;
+  e.style.display = 'block';
+  e.innerHTML = html;
 }
 
-/* ── INIT ───────────────────────────────────────── */
+/* ── Init ─────────────────────────────────────────── */
 function init() {
   ALL.forEach(c => { _cropMap[c._key] = c; });
+
   populateFilters();
-  applyFilters();
+  populateAqFilters();
   buildLegend();
-  initMap();
+  buildAgeLegend();
+  fillKpis();
+
+  applyFilters();      // also draws current view
+  applyAqFilters();    // antiquity views
+
+  // Initialize maps after the layout is settled
+  initAtlasMap();
+  initAqMap();
+  // First-paint of static-once views
+  drawTimeline();
+  drawTree();
+  drawClimate();
+  drawStats();
+  drawAqTimeline();
+  drawAqCompare();
+
+  setupScrollSpy();
+
   const loader = document.getElementById('loading');
   loader.classList.add('hide');
   setTimeout(() => loader.style.display = 'none', 600);
 }
 
-/* ── FILTERS ────────────────────────────────────── */
-function uniq(arr){ return [...new Set(arr.filter(Boolean))].sort(); }
-function populateFilters() {
-  fillSel('s-family', uniq(ALL.map(d=>d.family)));
-  fillSel('s-use',    uniq(ALL.map(d=>d.use)));
-  fillSel('s-realm',  uniq(ALL.map(d=>d.realm)), rl);
-  fillSel('s-gf',     uniq(ALL.map(d=>d.gf)));
+function fillKpis() {
+  const fams = new Set(ALL.map(c => c.family).filter(Boolean));
+  const realms = new Set(ALL.map(c => c.realm).filter(r => r && r !== 'NA'));
+  const aq = ALL.filter(c => c.tDom != null && c.tDom > 0);
+  document.getElementById('kpi-crops').textContent = ALL.length.toLocaleString();
+  document.getElementById('kpi-aq').textContent = aq.length.toLocaleString();
+  document.getElementById('kpi-fam').textContent = fams.size;
+  document.getElementById('kpi-realm').textContent = realms.size;
+  document.getElementById('aq-oldest').textContent = (d3.max(aq, d=>d.tDom)||0).toLocaleString();
+  document.getElementById('aq-newest').textContent = (d3.min(aq, d=>d.tDom)||0).toLocaleString();
 }
+
+/* ── Filters ──────────────────────────────────────── */
+function uniq(arr){ return [...new Set(arr.filter(v => v && v !== 'NA'))].sort(); }
 function fillSel(id, items, labelFn) {
   const s = document.getElementById(id);
   items.forEach(v => {
     const o = document.createElement('option');
-    o.value = v; o.textContent = labelFn ? labelFn(v) : v;
+    o.value = v;
+    o.textContent = labelFn ? labelFn(v) : v;
     s.appendChild(o);
   });
 }
+function populateFilters() {
+  fillSel('s-family', uniq(ALL.map(d => d.family)));
+  fillSel('s-use',    uniq(ALL.map(d => d.use)));
+  fillSel('s-realm',  uniq(ALL.map(d => d.realm)), rl);
+  fillSel('s-gf',     uniq(ALL.map(d => d.gf)));
+}
+function populateAqFilters() {
+  const aq = ALL.filter(c => c.tDom != null && c.tDom > 0);
+  fillSel('s-aq-family', uniq(aq.map(d => d.family)));
+  fillSel('s-aq-realm',  uniq(aq.map(d => d.realm)), rl);
+}
+
 function getF() {
   return {
-    q:      document.getElementById('s-search').value.toLowerCase().trim(),
+    q:      (document.getElementById('s-search').value || '').toLowerCase().trim(),
     family: document.getElementById('s-family').value,
     use:    document.getElementById('s-use').value,
     realm:  document.getElementById('s-realm').value,
     gf:     document.getElementById('s-gf').value,
+  };
+}
+function getAqF() {
+  return {
+    family: document.getElementById('s-aq-family').value,
+    realm:  document.getElementById('s-aq-realm').value,
     amin:   +document.getElementById('r-min').value,
     amax:   +document.getElementById('r-max').value,
   };
 }
+
 function applyFilters() {
   const f = getF();
   DATA = ALL.filter(d => {
-    if (f.q && !d.name.toLowerCase().includes(f.q) &&
-               !d.sci.toLowerCase().includes(f.q) &&
-               !d.family.toLowerCase().includes(f.q)) return false;
+    if (f.q && !d.name.toLowerCase().includes(f.q)
+            && !d.sci.toLowerCase().includes(f.q)
+            && !d.family.toLowerCase().includes(f.q)) return false;
     if (f.family && d.family !== f.family) return false;
     if (f.use    && d.use    !== f.use)    return false;
     if (f.realm  && d.realm  !== f.realm)  return false;
     if (f.gf     && d.gf     !== f.gf)     return false;
-    const domActive = f.amin > 0 || f.amax < 11500;
-    if (domActive && (d.tDom == null || d.tDom < f.amin || d.tDom > f.amax)) return false;
     return true;
   });
-  document.getElementById('cnt').textContent = DATA.length;
-  refreshView();
-}
-function refreshView() {
-  if (_curView==='map')      updateMap();
-  if (_curView==='timeline') drawTimeline();
-  if (_curView==='tree')     drawTree();
-  if (_curView==='stats')    drawStats();
-  if (_curView==='antiquity') drawTimeline(document.getElementById('aq-tl-wrap'));
+  document.getElementById('cnt').textContent = DATA.length.toLocaleString();
+  document.getElementById('atlas-badge').textContent = DATA.filter(d=>d.lat!=null&&d.lon!=null).length + ' on map';
+  document.getElementById('tl-badge').textContent = DATA.filter(d=>d.tDom!=null&&d.tDom>0).length + ' dated';
+  document.getElementById('tree-badge').textContent = DATA.length + ' species';
+  document.getElementById('cl-badge').textContent = DATA.filter(d=>d.bio1!=null&&d.bio12!=null).length + ' with climate';
+
+  // Re-render
+  updateAtlas();
+  drawTimeline();
+  drawTree();
+  drawClimate();
+  drawStats();
 }
 
-/* ── SEARCH & PINPOINT ──────────────────────────── */
-function searchAndPinpoint() {
-  applyFilters();
-  const q = document.getElementById('s-search').value.trim();
-  if (!q) return;
-  gotoView('map');
-  setTimeout(() => {
-    const hits = DATA.filter(d => d.lat != null && d.lon != null);
-    if (!hits.length) return;
-    if (hits.length === 1) {
-      const c = hits[0];
-      _leafMap.setView([c.lat, c.lon], 6, { animate: true });
-      setTimeout(() => {
-        _mLayer.eachLayer(m => { if (m._popupKey === c._key) m.openPopup(); });
-        openModal(c);
-      }, 600);
-    } else {
-      const bounds = L.latLngBounds(hits.map(d => [d.lat, d.lon]));
-      _leafMap.fitBounds(bounds.pad(0.2), { maxZoom: 7, animate: true });
-    }
-  }, 120);
+function applyAqFilters() {
+  const f = getAqF();
+  document.getElementById('rmin-lbl').textContent = f.amin.toLocaleString();
+  document.getElementById('rmax-lbl').textContent = f.amax.toLocaleString();
+  DATA_AQ = ALL.filter(d => {
+    if (d.tDom == null || d.tDom <= 0) return false;
+    if (d.tDom < f.amin || d.tDom > f.amax) return false;
+    if (f.family && d.family !== f.family) return false;
+    if (f.realm  && d.realm  !== f.realm)  return false;
+    return true;
+  });
+  document.getElementById('cnt-aq').textContent = DATA_AQ.length.toLocaleString();
+  document.getElementById('aq-map-badge').textContent = DATA_AQ.filter(d=>d.lat!=null&&d.lon!=null).length + ' shown';
+  document.getElementById('aq-tl-badge').textContent = DATA_AQ.length + ' dots';
+  updateAqMap();
+  drawAqTimeline();
+  drawAqCompare();
 }
 
-/* ── FILTER EVENTS ──────────────────────────────── */
-const si = document.getElementById('s-search');
-si.addEventListener('keydown', e => { if (e.key==='Enter') searchAndPinpoint(); });
-document.getElementById('btn-search').addEventListener('click', searchAndPinpoint);
-['s-family','s-use','s-realm','s-gf'].forEach(id =>
-  document.getElementById(id).addEventListener('change', applyFilters)
-);
-['r-min','r-max'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => {
-    document.getElementById('rmin-lbl').textContent = (+document.getElementById('r-min').value).toLocaleString();
-    document.getElementById('rmax-lbl').textContent = (+document.getElementById('r-max').value).toLocaleString();
+/* ── Filter event wiring ──────────────────────────── */
+function wireFilterEvents() {
+  const si = document.getElementById('s-search');
+  si.addEventListener('input', () => {
+    document.getElementById('hdr-search-wrap').classList.toggle('has-q', !!si.value);
     applyFilters();
   });
-});
-document.getElementById('btn-reset').addEventListener('click', () => {
-  document.getElementById('s-search').value = '';
-  ['s-family','s-use','s-realm','s-gf'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('r-min').value = 0;
-  document.getElementById('r-max').value = 11500;
-  document.getElementById('rmin-lbl').textContent = '0';
-  document.getElementById('rmax-lbl').textContent = '11 500';
-  applyFilters();
-});
+  si.addEventListener('keydown', e => { if (e.key === 'Enter') searchAndPinpoint(); });
+  document.getElementById('s-clear').addEventListener('click', () => {
+    si.value = '';
+    document.getElementById('hdr-search-wrap').classList.remove('has-q');
+    applyFilters();
+    si.focus();
+  });
 
-/* ── VIEW SWITCHING ─────────────────────────────── */
-function gotoView(v) {
-  document.querySelectorAll('.nbtn').forEach(b => b.classList.toggle('active', b.dataset.v===v));
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  _curView = v;
-  setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(refreshView)), 80);
+  ['s-family','s-use','s-realm','s-gf'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyFilters)
+  );
+  ['s-aq-family','s-aq-realm'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyAqFilters)
+  );
+  ['r-min','r-max'].forEach(id =>
+    document.getElementById(id).addEventListener('input', applyAqFilters)
+  );
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('s-search').value = '';
+    document.getElementById('hdr-search-wrap').classList.remove('has-q');
+    ['s-family','s-use','s-realm','s-gf'].forEach(id => document.getElementById(id).value = '');
+    applyFilters();
+  });
+  document.getElementById('btn-reset-aq').addEventListener('click', () => {
+    ['s-aq-family','s-aq-realm'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('r-min').value = 0;
+    document.getElementById('r-max').value = 11500;
+    applyAqFilters();
+  });
+
+  document.getElementById('btn-export').addEventListener('click', exportCSV);
+
+  // Atlas controls
+  document.getElementById('atlas-fit').addEventListener('click', () => {
+    const m = DATA.filter(d => d.lat != null && d.lon != null);
+    if (!m.length || !_atlasMap) return;
+    _atlasMap.fitBounds(L.latLngBounds(m.map(d => [d.lat,d.lon])).pad(0.1), { animate:true, maxZoom:7 });
+  });
+  document.getElementById('atlas-reset').addEventListener('click', () => {
+    if (_atlasMap) _atlasMap.setView([20, 10], 2, { animate:true });
+  });
+
+  // Climate biome bands toggle
+  document.getElementById('cl-biomes').addEventListener('click', e => {
+    e.target.classList.toggle('on');
+    drawClimate();
+  });
+
+  // PNG exports
+  document.getElementById('tl-png').addEventListener('click', () => exportSvg('tl-wrap', 'crop-origins-timeline.png'));
+  document.getElementById('tree-png').addEventListener('click', () => exportSvg('tree-wrap', 'crop-origins-tree.png'));
+  document.getElementById('cl-png').addEventListener('click', () => exportSvg('cl-wrap', 'crop-origins-climate.png'));
+  document.getElementById('aq-tl-png').addEventListener('click', () => exportSvg('aq-tl-wrap', 'crop-origins-antiquity.png'));
+
+  // Info modal
+  document.querySelectorAll('.ibtn').forEach(b =>
+    b.addEventListener('click', () => openInfo(b.dataset.info))
+  );
+  document.getElementById('ibtn-close').addEventListener('click', closeInfo);
+  document.getElementById('ioverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('ioverlay')) closeInfo();
+  });
+
+  // Crop detail close
+  document.getElementById('mbtn-close').addEventListener('click', closeModal);
+  document.getElementById('moverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('moverlay')) closeModal();
+  });
+
+  // Global keys
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeInfo(); }
+    if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+      e.preventDefault();
+      document.getElementById('s-search').focus();
+    }
+  });
+
+  // Pop-detail clicks delegated
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.pop-btn');
+    if (btn) openModal(_cropMap[btn.dataset.key]);
+  });
 }
- 
-document.querySelectorAll('.nbtn').forEach(btn =>
-  btn.addEventListener('click', () => gotoView(btn.dataset.v))
-);
 
-/* ── LEGEND ─────────────────────────────────────── */
+/* ── Search & pinpoint ────────────────────────────── */
+function searchAndPinpoint() {
+  applyFilters();
+  if (!DATA.length) return;
+  const target = document.getElementById('atlas');
+  target.scrollIntoView({ behavior:'smooth', block:'start' });
+  setTimeout(() => {
+    const hits = DATA.filter(d => d.lat != null && d.lon != null);
+    if (!hits.length || !_atlasMap) return;
+    if (hits.length === 1) {
+      const c = hits[0];
+      _atlasMap.setView([c.lat, c.lon], 6, { animate:true });
+      setTimeout(() => openModal(c), 700);
+    } else {
+      _atlasMap.fitBounds(L.latLngBounds(hits.map(d => [d.lat,d.lon])).pad(0.15), { maxZoom:7, animate:true });
+    }
+  }, 600);
+}
+
+/* ── Legends ──────────────────────────────────────── */
 function buildLegend() {
-  const c = document.getElementById('legend');
+  const c = document.getElementById('legend-list');
   uniq(ALL.map(d => d.realm)).forEach(r => {
     const d = document.createElement('div');
     d.className = 'litem';
-    d.innerHTML = `<span class="ldot" style="background:${rc(r)}"></span><span>${rl(r)}</span>`;
+    d.innerHTML = '<span class="ldot" style="background:' + rc(r) + '"></span><span>' + rl(r) + '</span>';
     c.appendChild(d);
   });
 }
+function buildAgeLegend() {
+  const wrap = document.getElementById('aq-color-legend');
+  wrap.innerHTML = AGE_CLASSES.map(a =>
+    '<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:' + a.color + '"></span>' + esc(a.label) + '</span>'
+  ).join('');
+}
 
-/* ── MAP ────────────────────────────────────────── */
-function initMap() {
-  _leafMap = L.map('map', { preferCanvas: false }).setView([20, 10], 2);
+/* ── ATLAS MAP ────────────────────────────────────── */
+function initAtlasMap() {
+  _atlasMap = L.map('atlas-map', { preferCanvas:false, scrollWheelZoom:false }).setView([20, 10], 2);
+  _atlasMap.on('click focus', () => _atlasMap.scrollWheelZoom.enable());
+  _atlasMap.on('mouseout', () => _atlasMap.scrollWheelZoom.disable());
 
-  /* CartoDB Positron — clean light base map with English labels */
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  }).addTo(_leafMap);
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:'abcd', maxZoom:19,
+  }).addTo(_atlasMap);
 
-  _mLayer = L.markerClusterGroup({
-    maxClusterRadius: 60,
-    showCoverageOnHover: false,
-    spiderfyOnMaxZoom: false,
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 7,
+  _atlasLayer = L.markerClusterGroup({
+    maxClusterRadius:55, showCoverageOnHover:false,
+    spiderfyOnMaxZoom:false, zoomToBoundsOnClick:true,
+    disableClusteringAtZoom:7,
   });
-  _leafMap.addLayer(_mLayer);
+  _atlasMap.addLayer(_atlasLayer);
 
-  /* Map note about geographic uncertainty */
-  const noteCtrl = L.control({ position: 'bottomleft' });
-  noteCtrl.onAdd = function() {
+  const note = L.control({ position:'bottomleft' });
+  note.onAdd = function() {
     const d = L.DomUtil.create('div', 'map-note');
-    d.innerHTML = '⚠ Each crop is placed at the ecoregion with the most GBIF records for its wild progenitor. This may not reflect the actual domestication site. Gradient markers indicate geographic uncertainty.';
+    d.innerHTML = '⚠ Each crop is placed at the ecoregion centroid with the most GBIF records for its wild progenitor — an indicator of <b>origin region</b>, not the precise domestication site.';
     return d;
   };
-  noteCtrl.addTo(_leafMap);
+  note.addTo(_atlasMap);
 
-  updateMap();
+  updateAtlas();
 }
 
 let _hoverCrop = null;
-function updateMap() {
-  if (!_leafMap) return;
-  _mLayer.clearLayers();
-  const mapped = DATA.filter(d => d.lat != null && d.lon != null);
-  mapped.forEach(crop => {
-    const col = rc(crop.realm);
-    const kn  = crop._key.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
-    const jLat = crop.lat + ((kn % 20) - 10) * 0.007;
-    const jLon = crop.lon + ((kn % 17) - 8)  * 0.008;
-
-    /* Gradient marker — strong centre, fading edges (geographic uncertainty) */
-    const c1 = hexRgba(col, 0.92);
-    const c2 = hexRgba(col, 0.45);
-    const c3 = hexRgba(col, 0.12);
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,${c1} 0%,${c2} 45%,${c3} 72%,transparent 100%);pointer-events:none"></div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13],
-    });
-
-    const marker = L.marker([jLat, jLon], { icon });
-    marker._popupKey = crop._key;
-    marker.bindPopup(`
-      <div class="cpop">
-        <h3>${esc(crop.name)}</h3>
-        <div class="cs">${esc(crop.sci)}</div>
-        <table>
-          <tr><td>Family</td><td>${esc(crop.family)}</td></tr>
-          <tr><td>Primary use</td><td>${esc(crop.use)||'—'}</td></tr>
-          <tr><td>Domesticated</td><td>${fage(crop.tDom)}</td></tr>
-          <tr><td>Realm</td><td>${rl(crop.realm)}</td></tr>
-          <tr><td>Ecoregion</td><td>${esc(crop.eco)}</td></tr>
-        </table>
-        <button class="pop-btn" data-key="${esc(crop._key)}">Full details →</button>
-      </div>`, { maxWidth: 240 });
-
-    marker.on('mouseover', function(e) {
-      _hoverCrop = crop._key;
-      const tt = document.getElementById('tt');
-      tt.innerHTML = `<b>${esc(crop.name)}</b><em style="display:block;font-size:11px;color:var(--muted)">${esc(crop.sci)}</em><span style="color:var(--accent)">${rl(crop.realm)}</span>`;
-      tt.classList.add('show');
-      positionTT(e.originalEvent);
-      getImg(crop.name, crop.sci, 200).then(url => {
-        if (_hoverCrop !== crop._key || !url) return;
-        const imgEl = document.createElement('img');
-        imgEl.className = 'tt-img'; imgEl.src = url; imgEl.alt = crop.name;
-        tt.insertBefore(imgEl, tt.firstChild);
-      });
-    });
-    marker.on('mouseout',  () => { _hoverCrop = null; document.getElementById('tt').classList.remove('show'); });
-    marker.on('mousemove', e => positionTT(e.originalEvent));
-    _mLayer.addLayer(marker);
+function makeMarker(crop, color) {
+  const c1 = hexRgba(color, 0.92);
+  const c2 = hexRgba(color, 0.45);
+  const c3 = hexRgba(color, 0.12);
+  const kn = crop._key.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const jLat = crop.lat + ((kn % 20) - 10) * 0.007;
+  const jLon = crop.lon + ((kn % 17) - 8)  * 0.008;
+  const icon = L.divIcon({
+    className:'',
+    html:'<div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,' + c1 + ' 0%,' + c2 + ' 45%,' + c3 + ' 72%,transparent 100%);pointer-events:none"></div>',
+    iconSize:[26,26], iconAnchor:[13,13],
   });
+  const m = L.marker([jLat, jLon], { icon });
+  m._popupKey = crop._key;
+  m.bindPopup(
+    '<div class="cpop">' +
+      '<h3>' + esc(crop.name) + '</h3>' +
+      '<div class="cs">' + esc(crop.sci) + '</div>' +
+      '<table>' +
+        '<tr><td>Family</td><td>' + esc(crop.family) + '</td></tr>' +
+        '<tr><td>Primary use</td><td>' + (esc(crop.use) || '—') + '</td></tr>' +
+        '<tr><td>Domesticated</td><td>' + fage(crop.tDom) + '</td></tr>' +
+        '<tr><td>Realm</td><td>' + esc(rl(crop.realm)) + '</td></tr>' +
+        '<tr><td>Ecoregion</td><td>' + esc(crop.eco) + '</td></tr>' +
+      '</table>' +
+      '<button class="pop-btn" data-key="' + esc(crop._key) + '">Full details →</button>' +
+    '</div>', { maxWidth:240 }
+  );
+  m.on('mouseover', function(e) {
+    _hoverCrop = crop._key;
+    const tt = document.getElementById('tt');
+    tt.innerHTML = '<b>' + esc(crop.name) + '</b><em>' + esc(crop.sci) + '</em><span class="tt-meta">' + esc(rl(crop.realm)) + (crop.tDom!=null?' · '+crop.tDom.toLocaleString()+' yr BP':'') + '</span>';
+    tt.classList.add('show');
+    positionTT(e.originalEvent);
+    getImg(crop.name, crop.sci, 200).then(url => {
+      if (_hoverCrop !== crop._key || !url) return;
+      const i = document.createElement('img');
+      i.className = 'tt-img'; i.src = url; i.alt = crop.name;
+      tt.insertBefore(i, tt.firstChild);
+    });
+  });
+  m.on('mouseout',  () => { _hoverCrop = null; document.getElementById('tt').classList.remove('show'); });
+  m.on('mousemove', e => positionTT(e.originalEvent));
+  return m;
+}
 
+function updateAtlas() {
+  if (!_atlasMap) return;
+  _atlasLayer.clearLayers();
+  const mapped = DATA.filter(d => d.lat != null && d.lon != null);
+  mapped.forEach(crop => _atlasLayer.addLayer(makeMarker(crop, rc(crop.realm))));
   if (mapped.length > 0 && mapped.length < ALL.length * 0.85) {
-    const bounds = L.latLngBounds(mapped.map(d => [d.lat, d.lon]));
-    _leafMap.fitBounds(bounds.pad(0.15), { maxZoom: 7, animate: true });
+    _atlasMap.fitBounds(L.latLngBounds(mapped.map(d => [d.lat,d.lon])).pad(0.15), { maxZoom:7, animate:true });
   }
 }
 
 function positionTT(ev) {
   const tt = document.getElementById('tt');
-  tt.style.left = (ev.clientX + 14) + 'px';
-  tt.style.top  = (ev.clientY - 20) + 'px';
+  const x = ev.clientX + 14, y = ev.clientY - 30;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
 }
 
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.pop-btn');
-  if (btn) openModal(_cropMap[btn.dataset.key]);
-});
+/* ── ANTIQUITY MAP ─────────────────────────────── */
+function initAqMap() {
+  _aqMap = L.map('aq-leaflet', { preferCanvas:false, scrollWheelZoom:false }).setView([20, 10], 2);
+  _aqMap.on('click focus', () => _aqMap.scrollWheelZoom.enable());
+  _aqMap.on('mouseout', () => _aqMap.scrollWheelZoom.disable());
 
-/* ── CROP DETAIL MODAL ──────────────────────────── */
-function openModal(crop) {
-  if (!crop) return;
-  const col = rc(crop.realm);
-  const imgEl = document.getElementById('modal-img');
-  const phEl  = document.getElementById('modal-img-placeholder');
-  imgEl.style.opacity = '0'; imgEl.src = '';
-  phEl.style.display = 'flex';
-  document.getElementById('modal-img-credit').textContent = '';
-  const emojis = {'grain':'🌾','fruit_flower':'🍅','tuber_root':'🥔','leaf_shoot':'🥬','seed':'🌰','drink':'☕','nut':'🌰'};
-  const useKey = Object.keys(emojis).find(k => crop.useType.toLowerCase().includes(k));
-  phEl.textContent = emojis[useKey] || '🌱';
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:'&copy; OSM &copy; CARTO',
+    subdomains:'abcd', maxZoom:19,
+  }).addTo(_aqMap);
 
-  document.getElementById('modal-body').innerHTML = `
-    <div class="mcn">${esc(crop.name)}</div>
-    <div class="msci">${esc(crop.sci)}</div>
-    <span class="mbadge" style="background:${col}">${rl(crop.realm)}</span>
-    <div class="mgrid">
-      <div class="mf"><div class="mfl">Family</div><div class="mfv">${esc(crop.family)||'—'}</div></div>
-      <div class="mf"><div class="mfl">Order</div><div class="mfv">${esc(crop.order)||'—'}</div></div>
-      <div class="mf"><div class="mfl">Genus</div><div class="mfv"><em>${esc(crop.genus)||'—'}</em></div></div>
-      <div class="mf"><div class="mfl">Growth Form</div><div class="mfv">${esc(crop.gf)||'—'}</div></div>
-      <div class="mf"><div class="mfl">First Cultivated</div><div class="mfv hi">${fage(crop.tCult)}</div></div>
-      <div class="mf"><div class="mfl">First Domesticated</div><div class="mfv hi">${fage(crop.tDom)}</div></div>
-      <div class="mf"><div class="mfl">Primary Use</div><div class="mfv">${esc(crop.use)||'—'}</div></div>
-      <div class="mf"><div class="mfl">Use Category</div><div class="mfv">${esc(crop.useType)||'—'}</div></div>
-      <div class="mf"><div class="mfl">Food Crop</div><div class="mfv">${crop.food?'✅ Yes':'—'}</div></div>
-      <div class="mf"><div class="mfl">Animal Feed</div><div class="mfv">${crop.feed?'✅ Yes':'—'}</div></div>
-      <div class="mf"><div class="mfl">Ecoregion</div><div class="mfv">${esc(crop.eco)||'—'}</div></div>
-      <div class="mf"><div class="mfl">GBIF Records</div><div class="mfv">${crop.gbif!=null?crop.gbif.toLocaleString():'—'}</div></div>
-    </div>
-    ${crop.prog ? `<div class="msect">Wild Progenitor</div><div class="progbox">${esc(crop.prog)}</div>` : ''}
-  `;
-  document.getElementById('moverlay').classList.add('open');
-  getImg(crop.name, crop.sci, 800).then(url => {
-    if (!url) return;
-    imgEl.onload = () => {
-      imgEl.style.opacity = '1';
-      phEl.style.display = 'none';
-      document.getElementById('modal-img-credit').textContent = 'Photo: Wikimedia Commons';
-    };
-    imgEl.src = url;
-    imgEl.style.position = 'absolute'; imgEl.style.inset = '0';
+  _aqLayer = L.markerClusterGroup({
+    maxClusterRadius:55, showCoverageOnHover:false,
+    spiderfyOnMaxZoom:false, zoomToBoundsOnClick:true,
+    disableClusteringAtZoom:7,
   });
+  _aqMap.addLayer(_aqLayer);
+
+  const note = L.control({ position:'bottomleft' });
+  note.onAdd = function() {
+    const d = L.DomUtil.create('div', 'map-note');
+    d.innerHTML = '⚠ Markers coloured by <b>age class</b>. Position = ecoregion centroid of the wild progenitor (a regional indicator, not a precise site).';
+    return d;
+  };
+  note.addTo(_aqMap);
+
+  updateAqMap();
 }
-
-document.getElementById('mbtn-close').addEventListener('click', closeModal);
-document.getElementById('moverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('moverlay')) closeModal();
-});
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeInfo(); } });
-function closeModal() { document.getElementById('moverlay').classList.remove('open'); }
-
-/* ── INFO MODAL CONTENT ─────────────────────────── */
-const INFO = {
-  about: {
-    title: 'About Crop Origins Explorer',
-    html: `
-      <h3>What is Crop Origins?</h3>
-      <p>Crop Origins is a comprehensive checklist of crop species cultivated for food. It includes species-level data on diverse continuous and categorical descriptors of antiquity of cultivation, organ harvested for primary use, growth form, and identities, distribution and climate at sites of origin of crops' wild progenitors.</p>
-      <h3>What is Phylo Food?</h3>
-      <p>Phylo Food is a time-calibrated and fully resolved phylogenetic tree of the species in Crop Origins, enabling evolutionary and comparative analyses across the full breadth of food crops.</p>
-      <p>Both Crop Origins and Phylo Food are freely available at: <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank">github.com/rubenmilla/Crop_Origins_Phylo</a></p>
-      <h3>What is the Crop Origins Explorer?</h3>
-      <p>The Crop Origins Explorer is an interactive web application developed by <a href="mailto:mikesase270598@gmail.com">Samson Solomon</a> to make the Crop Origins scientific dataset accessible and explorable to a wide audience — researchers, students, educators, and anyone curious about the origins of our food. It allows users to search, filter, and visualise crop data across four interactive views: a world map, a domestication timeline, a taxonomic tree, and a statistics dashboard.</p>
-      <p>The dataset was compiled by <strong><a href="https://servicios.urjc.es/pdi/ver/ruben.milla" target="_blank">Prof. Rubén Milla</a></strong></p>
-    `
-  },
-  howto: {
-    title: 'How to Use the Explorer',
-    html: `
-      <h3>Searching for a crop</h3>
-      <p>Use the search box in the left sidebar to find any crop by its <strong>common name</strong> (e.g. "Wheat", "Rice", "Tomato") or by its <strong>scientific name</strong> (e.g. "Triticum aestivum"). Press <strong>Enter</strong> or click <strong>Go</strong>. The map will automatically zoom to the matching crop's origin region and open its detail panel.</p>
-      <h3>Filters</h3>
-      <ul>
-        <li><strong>Family</strong> — the plant family (e.g. Poaceae, Solanaceae).</li>
-        <li><strong>Growth Form</strong> — the plant's physical form (e.g. herb, shrub, tree).</li>
-        <li><strong>Primary Use</strong> — the crop organ most relevant or most frequently harvested for human consumption: fruit or flowers, roots, seeds, or vegetative shoots. Crops harvested primarily as animal feed are classified separately as forage.</li>
-        <li><strong>Biogeographic Realm</strong> — the biogeographic realm where the crop's wild ancestor is most abundant, which may not be the same as the region where the crop was domesticated. Likewise, on the map, each crop is placed in the ecoregion (based on the Olson et al. classification, BioScience 51:933–938) that has the highest number of recorded occurrences of its wild progenitor which may or may not match the crop's actual domestication area.</li>
-        <li><strong>Domestication Antiquity</strong> — filter crops by how long ago they were first domesticated (in years before present). Domestication and cultivation antiquity are estimates of earliest dates found in written records. However, the literature on antiquity of domestication is of mixed quality, ranging from single records in the grey literature to long-standing results from multiple genomic and archaeological projects. This provides strong support for antiquity data on some crops, while others are backed only weakly. <strong>Important:</strong> only <strong>210 out of 867 crops</strong> in the dataset have domestication antiquity records. When you move either slider from its default position, the filter activates and crops without antiquity records are excluded from all views.</li>
-      </ul>
-      <h3>The Map</h3>
-      <p>Each crop is shown as a <strong>gradient dot</strong> — strong colour in the centre, fading toward the edges to communicate geographic uncertainty. The location shown is the ecoregion with the most GBIF records for that crop's wild progenitor, not necessarily the domestication site. Click any dot for a summary popup, then click <strong>"Full details →"</strong> to open the complete record including a Wikipedia photo.</p>
-      <h3>Timeline, Phylo Tree &amp; Stats</h3>
-      <p>The <strong>Timeline</strong> displays crops as dots along a time axis, grouped by biogeographic realm. The <strong>Phylo Tree</strong> shows the taxonomic hierarchy from Order to Species click any species for its full record. The <strong>Stats</strong> view shows charts of families, realms, growth forms, and domestication age distribution for whatever filters are currently applied.</p>
-    `
-  },
-  terms: {
-    title: 'Terms of Use & Disclaimer',
-    html: `
-      <div class="warn-box">⚠ Crop Origins is a work in progress. Please do not hesitate to submit feedback or alerts on new literature to the author: <a href="mailto:ruben.milla@gmail.com">ruben.milla@urjc.es</a></div>
-      <h3>Terms of Use</h3>
-      <p>The resources in the Crop Origins Explorer can be freely used by any interested person or party, provided that the source is properly cited in publications. See the <strong>Citations</strong> section for the appropriate references.</p>
-      <h3>Disclaimer</h3>
-      <p>All efforts were made to provide resources of the highest quality, including formal and informal reviews by peers. However, the compilers of Crop Origins cannot guarantee full accuracy of the information, and the user utilises the repository at her/his own consideration.</p>
-      <h3>Photo Credits</h3>
-      <p>Crop images displayed in the Explorer are retrieved from <strong>Wikimedia Commons</strong> via the Wikipedia REST API and are subject to their respective licences. No images are stored by this application.</p>
-    `
-  },
-  citations: {
-    title: 'Citations',
-    html: `
-      <h3>Crop Origins &amp; Phylo Food databases</h3>
-      <div class="cite-block">
-        Milla, R (2020) Crop Origins and Phylo Food: a database and a phylogenetic tree to stimulate comparative analyses on the origins of food crops. <em>Global Ecology and Biogeography</em> 29: 606–614. <a href="https://doi.org/10.1111/geb.13057" target="_blank">https://doi.org/10.1111/geb.13057</a>
-      </div>
-      <div class="cite-block">
-        Milla, R (2021) Crop Origins and Phylo Food. GitHub repository. <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank">https://github.com/rubenmilla/Crop_Origins_Phylo</a>
-      </div>
-      <h3>Crop Origins Explorer</h3>
-      <div class="cite-block">
-        Solomon, S (2026) Crop Origins Explorer: a user-friendly interactive app for exploring the Crop Origins database. <a href="https://samson-globe.github.io/crop-origins-explorer/" target="_blank">https://samson-globe.github.io/crop-origins-explorer/</a>
-      </div>
-      <h3>Ecoregional classification</h3>
-      <div class="cite-block">
-        Olson, DM et al. (2001) Terrestrial Ecoregions of the World: A New Map of Life on Earth. <em>BioScience</em> 51(11): 933–938.
-      </div>
-    `
+function updateAqMap() {
+  if (!_aqMap) return;
+  _aqLayer.clearLayers();
+  const m = DATA_AQ.filter(d => d.lat != null && d.lon != null);
+  m.forEach(crop => _aqLayer.addLayer(makeMarker(crop, ageClass(crop.tDom).color)));
+  if (m.length > 0) {
+    _aqMap.fitBounds(L.latLngBounds(m.map(d => [d.lat,d.lon])).pad(0.15), { maxZoom:6, animate:true });
   }
-};
-
-function openInfo(key) {
-  const content = INFO[key];
-  if (!content) return;
-  document.getElementById('imodal-title').textContent = content.title;
-  document.getElementById('imodal-body').innerHTML = content.html;
-  document.getElementById('ioverlay').classList.add('open');
 }
-function closeInfo() { document.getElementById('ioverlay').classList.remove('open'); }
 
-document.getElementById('ibtn-close').addEventListener('click', closeInfo);
-document.getElementById('ioverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('ioverlay')) closeInfo();
-});
-
-/* ── TIMELINE ───────────────────────────────────── */
-function drawTimeline(wrapEl) {
-  const wrap = wrapEl || document.getElementById('tl-wrap');
+/* ── TIMELINE (global, by realm) ──────────────────── */
+function drawTimeline() {
+  const wrap = document.getElementById('tl-wrap');
+  if (!wrap) return;
   wrap.innerHTML = '';
   const pts = DATA.filter(d => d.tDom != null && d.tDom > 0);
-  if (!pts.length) { wrap.innerHTML = '<p style="color:var(--muted);padding:24px 0">No crops with domestication antiquity data match your filters.</p>'; return; }
-  const realms = [...new Set(pts.map(d => d.realm||'Unknown'))].sort();
-  const rowH = 54;
-  const rect = wrap.getBoundingClientRect();
-  const W  = Math.max(rect.width - 44, 580);
+  if (!pts.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);padding:24px">No crops with antiquity data match the current filters.</p>';
+    return;
+  }
+  const realms = [...new Set(pts.map(d => d.realm || 'Unknown'))].sort();
+  const rowH = 52;
+  const W  = Math.max(wrap.getBoundingClientRect().width || 800, 580);
   const mg = { t:24, r:24, b:46, l:130 };
   const iW = W - mg.l - mg.r, iH = realms.length * rowH, H = iH + mg.t + mg.b;
 
-  const svg = d3.select(wrap).append('svg').attr('width',W).attr('height',H)
-    .style('overflow','visible').style('display','block');
-  const g = svg.append('g').attr('transform',`translate(${mg.l},${mg.t})`);
+  const svg = d3.select(wrap).append('svg').attr('width',W).attr('height',H).style('display','block');
+  const g = svg.append('g').attr('transform','translate(' + mg.l + ',' + mg.t + ')');
 
-  const maxAge = d3.max(pts, d => d.tDom);
+  const maxAge = d3.max(pts, d => d.tDom) || 11500;
   const xSc = d3.scaleLinear().domain([0, maxAge * 1.04]).range([iW, 0]);
 
   realms.forEach((r,i) => {
     g.append('rect').attr('x',0).attr('y',i*rowH).attr('width',iW).attr('height',rowH)
-     .attr('fill', i%2===0 ? 'rgba(58,122,30,.05)' : 'rgba(58,122,30,.02)');
+     .attr('fill', i%2===0 ? 'rgba(47,106,24,.05)' : 'rgba(47,106,24,.02)');
   });
 
-  const gridG = g.append('g').attr('transform',`translate(0,${iH})`);
+  const gridG = g.append('g').attr('transform','translate(0,' + iH + ')');
   gridG.call(d3.axisBottom(xSc).ticks(8).tickSize(-iH).tickFormat(''));
   gridG.selectAll('line').attr('stroke','#c4dbb8').attr('stroke-dasharray','3,5');
   gridG.select('.domain').remove();
 
-  const xAxis = g.append('g').attr('transform',`translate(0,${iH})`)
+  const xAxis = g.append('g').attr('transform','translate(0,' + iH + ')')
     .call(d3.axisBottom(xSc).ticks(8).tickFormat(d => d===0 ? 'Today' : d.toLocaleString()+' yr'));
   xAxis.selectAll('text').attr('fill','#5a7a4a').attr('font-size','11px');
   xAxis.selectAll('line,path').attr('stroke','#c4dbb8');
+
   g.append('text').attr('x',iW/2).attr('y',iH+40)
    .attr('text-anchor','middle').attr('fill','#5a7a4a').attr('font-size','11px')
    .text('← Years before present');
@@ -988,8 +1691,8 @@ function drawTimeline(wrapEl) {
   g.selectAll('.tdot').data(pts).join('circle').attr('class','tdot')
    .attr('cx', d => xSc(d.tDom))
    .attr('cy', d => {
-     const ri = realms.indexOf(d.realm||'Unknown');
-     const mid = ri * rowH + rowH / 2;
+     const ri = realms.indexOf(d.realm || 'Unknown');
+     const mid = ri * rowH + rowH/2;
      const hash = Array.from(d.name).reduce((a,c) => a + c.charCodeAt(0), 0);
      return mid + (((hash*7)%100)/100 - 0.5) * 2 * rowH * 0.38;
    })
@@ -997,20 +1700,122 @@ function drawTimeline(wrapEl) {
    .attr('stroke', d => rc(d.realm)).attr('stroke-width','0.5').style('cursor','pointer')
    .on('mousemove', function(ev,d) {
      tt.classed('show',true)
-       .html(`<b>${esc(d.name)}</b><em style="color:var(--muted);font-size:11px;display:block">${esc(d.sci)}</em><span style="color:var(--accent)">~${d.tDom.toLocaleString()} yrs ago</span><br/>${esc(d.family)} · ${rl(d.realm)}`)
+       .html('<b>' + esc(d.name) + '</b><em>' + esc(d.sci) + '</em><span class="tt-meta">~' + d.tDom.toLocaleString() + ' yr BP · ' + esc(d.family) + '</span>')
        .style('left',(ev.clientX+14)+'px').style('top',(ev.clientY-30)+'px');
    })
    .on('mouseleave', () => tt.classed('show',false))
    .on('click', (_,d) => { tt.classed('show',false); openModal(d); });
 }
 
-/* ── TAXONOMIC TREE ─────────────────────────────── */
+/* ── ANTIQUITY TIMELINE (by realm, age-class colours) ── */
+function drawAqTimeline() {
+  const wrap = document.getElementById('aq-tl-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const pts = DATA_AQ.slice();
+  if (!pts.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);padding:24px">No species match the current antiquity filters.</p>';
+    return;
+  }
+  const realms = [...new Set(pts.map(d => d.realm || 'Unknown'))].sort();
+  const rowH = 56;
+  const W  = Math.max(wrap.getBoundingClientRect().width || 800, 580);
+  const mg = { t:24, r:24, b:54, l:130 };
+  const iW = W - mg.l - mg.r, iH = realms.length * rowH, H = iH + mg.t + mg.b;
+
+  const svg = d3.select(wrap).append('svg').attr('width',W).attr('height',H).style('display','block');
+  const g = svg.append('g').attr('transform','translate(' + mg.l + ',' + mg.t + ')');
+
+  const maxAge = Math.max(d3.max(pts, d => d.tDom) || 11500, 11500);
+  const xSc = d3.scaleLinear().domain([0, maxAge * 1.04]).range([iW, 0]);
+
+  // Age-class shaded backgrounds
+  AGE_CLASSES.forEach(a => {
+    const x0 = xSc(Math.min(a.max, maxAge*1.04));
+    const x1 = xSc(a.min);
+    g.append('rect')
+      .attr('x', Math.min(x0,x1)).attr('y',0)
+      .attr('width', Math.abs(x1-x0)).attr('height', iH)
+      .attr('fill', a.color).attr('opacity', .04);
+  });
+
+  realms.forEach((r,i) => {
+    if (i%2===0) {
+      g.append('rect').attr('x',0).attr('y',i*rowH).attr('width',iW).attr('height',rowH)
+       .attr('fill','rgba(0,0,0,.02)');
+    }
+  });
+
+  const gridG = g.append('g').attr('transform','translate(0,' + iH + ')');
+  gridG.call(d3.axisBottom(xSc).ticks(8).tickSize(-iH).tickFormat(''));
+  gridG.selectAll('line').attr('stroke','#d0c0a0').attr('stroke-dasharray','2,4');
+  gridG.select('.domain').remove();
+
+  const xAxis = g.append('g').attr('transform','translate(0,' + iH + ')')
+    .call(d3.axisBottom(xSc).ticks(8).tickFormat(d => d===0 ? 'Today' : d.toLocaleString()));
+  xAxis.selectAll('text').attr('fill','#7a5520').attr('font-size','11px');
+  xAxis.selectAll('line,path').attr('stroke','#d0c0a0');
+
+  g.append('text').attr('x',iW/2).attr('y',iH+44)
+   .attr('text-anchor','middle').attr('fill','#7a5520').attr('font-size','11px')
+   .text('← Years before present');
+
+  realms.forEach((r,i) => {
+    g.append('text').attr('x',-10).attr('y',i*rowH+rowH/2+4)
+     .attr('text-anchor','end').attr('fill',rc(r)).attr('font-size','11px').attr('font-weight','700')
+     .text(rl(r));
+  });
+
+  const tt = d3.select('#tt');
+  g.selectAll('.adot').data(pts).join('circle').attr('class','adot')
+   .attr('cx', d => xSc(d.tDom))
+   .attr('cy', d => {
+     const ri = realms.indexOf(d.realm || 'Unknown');
+     const mid = ri * rowH + rowH/2;
+     const hash = Array.from(d.name).reduce((a,c) => a + c.charCodeAt(0), 0);
+     return mid + (((hash*7)%100)/100 - 0.5) * 2 * rowH * 0.4;
+   })
+   .attr('r', 5).attr('fill', d => ageClass(d.tDom).color).attr('fill-opacity', .85)
+   .attr('stroke', '#fff').attr('stroke-width','0.6').style('cursor','pointer')
+   .on('mousemove', function(ev,d) {
+     tt.classed('show',true)
+       .html('<b>' + esc(d.name) + '</b><em>' + esc(d.sci) + '</em><span class="tt-meta">' + d.tDom.toLocaleString() + ' yr BP · ' + esc(ageClass(d.tDom).label) + '</span>')
+       .style('left',(ev.clientX+14)+'px').style('top',(ev.clientY-30)+'px');
+   })
+   .on('mouseleave', () => tt.classed('show',false))
+   .on('click', (_,d) => { tt.classed('show',false); openModal(d); });
+}
+
+/* ── ANTIQUITY COMPARE (oldest vs newest) ─────── */
+function drawAqCompare() {
+  const sorted = DATA_AQ.slice().sort((a,b) => b.tDom - a.tDom);
+  const oldest = sorted.slice(0, 20);
+  const newest = sorted.slice(-20).reverse();
+  document.getElementById('cmp-old').innerHTML = oldest.map((d,i) => compareRow(d, i+1)).join('');
+  document.getElementById('cmp-new').innerHTML = newest.map((d,i) => compareRow(d, i+1)).join('');
+  document.querySelectorAll('.compare-item').forEach(el =>
+    el.addEventListener('click', () => openModal(_cropMap[el.dataset.key]))
+  );
+}
+function compareRow(d, rank) {
+  return '<div class="compare-item" data-key="' + esc(d._key) + '">' +
+    '<div class="compare-rank">' + rank + '</div>' +
+    '<div class="info">' +
+      '<div class="nm">' + esc(d.name) + '</div>' +
+      '<div class="sc">' + esc(d.sci) + ' · ' + esc(rl(d.realm)) + '</div>' +
+    '</div>' +
+    '<div class="ag">' + d.tDom.toLocaleString() + '<br/><span style="opacity:.7;font-size:10px">yr BP</span></div>' +
+  '</div>';
+}
+
+/* ── PHYLO TREE ───────────────────────────────────── */
 function drawTree() {
   const wrap = document.getElementById('tree-wrap');
+  if (!wrap) return;
   wrap.innerHTML = '';
   const tdata = buildTreeData(DATA);
   if (!tdata.children.length) {
-    wrap.innerHTML = '<p style="color:var(--muted);padding:24px 0">No data matches your filters.</p>';
+    wrap.innerHTML = '<p style="color:var(--muted);padding:24px">No data matches the current filters.</p>';
     return;
   }
   const nodeH = 22;
@@ -1025,15 +1830,14 @@ function drawTree() {
   const minY = d3.min(root.descendants(), d => d.x);
   root.descendants().forEach(d => d.x -= minY - 30);
 
-  const svg = d3.select(wrap).append('svg').attr('width',svgW).attr('height',svgH)
-    .style('font','12px Inter, sans-serif');
+  const svg = d3.select(wrap).append('svg').attr('width',svgW).attr('height',svgH).style('font','12px Inter, sans-serif');
 
   svg.append('g').attr('fill','none').attr('stroke','var(--border)').attr('stroke-width',1.2)
     .selectAll('path').data(root.links()).join('path')
     .attr('d', d3.linkHorizontal().x(d => d.y+20).y(d => d.x));
 
   const nodeGrp = svg.append('g').selectAll('g').data(root.descendants()).join('g')
-    .attr('transform', d => `translate(${d.y+20},${d.x})`)
+    .attr('transform', d => 'translate(' + (d.y+20) + ',' + d.x + ')')
     .style('cursor', d => d.data.crop ? 'pointer' : 'default');
 
   nodeGrp.append('circle')
@@ -1048,11 +1852,10 @@ function drawTree() {
     .attr('font-size', d => d.depth===0 ? 13 : (d.data.crop ? 11 : 12))
     .attr('font-weight', d => d.depth<=1 ? 600 : 400)
     .attr('fill', d => d.data.crop ? 'var(--accent)' : (d.depth===0 ? 'var(--primary)' : 'var(--text)'))
-    .text(d => { const l=d.data.name||'—'; return l.length>26 ? l.slice(0,24)+'…' : l; });
+    .text(d => { const l = d.data.name || '—'; return l.length > 26 ? l.slice(0,24) + '…' : l; });
 
-  nodeGrp.on('click', (ev,d) => { if (d.data.crop) openModal(d.data.crop); });
+  nodeGrp.on('click', (_,d) => { if (d.data.crop) openModal(d.data.crop); });
 }
-
 function cntLeaves(node) {
   if (!node.children || !node.children.length) return 1;
   return node.children.reduce((s,c) => s + cntLeaves(c), 0);
@@ -1066,65 +1869,443 @@ function buildTreeData(crops) {
     if (!orderMap[ord]) { orderMap[ord]={}; root.children.push({ name:ord, children:[] }); }
     if (!orderMap[ord][fam]) {
       orderMap[ord][fam] = true;
-      root.children.find(x=>x.name===ord).children.push({ name:fam, children:[] });
+      root.children.find(x => x.name===ord).children.push({ name:fam, children:[] });
     }
-    const famNode = root.children.find(x=>x.name===ord).children.find(x=>x.name===fam);
+    const famNode = root.children.find(x => x.name===ord).children.find(x => x.name===fam);
     famNode.children.push({ name:c.name, crop:c });
   });
   return root;
 }
 
-/* ── STATS ──────────────────────────────────────── */
+/* ── CLIMATE ENVELOPE (Whittaker-style) ──────────── */
+function drawClimate() {
+  const wrap = document.getElementById('cl-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const pts = DATA.filter(d => d.bio1 != null && d.bio12 != null);
+  if (!pts.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);padding:24px">No species with climate data match the current filters.</p>';
+    return;
+  }
+  const W  = Math.max(wrap.getBoundingClientRect().width || 800, 560);
+  const H  = 480;
+  const mg = { t:24, r:24, b:54, l:62 };
+  const iW = W - mg.l - mg.r, iH = H - mg.t - mg.b;
+
+  // BIO1 in WorldClim is x10 °C → divide
+  const xs = pts.map(d => d.bio1 / 10);
+  const ys = pts.map(d => d.bio12);
+  const xExtent = [Math.min(-5, d3.min(xs) - 2), Math.max(32, d3.max(xs) + 2)];
+  const yExtent = [0, Math.max(5500, d3.max(ys) * 1.05)];
+
+  const xSc = d3.scaleLinear().domain(xExtent).range([0, iW]);
+  const ySc = d3.scaleLinear().domain(yExtent).range([iH, 0]);
+
+  const svg = d3.select(wrap).append('svg').attr('width',W).attr('height',H).style('display','block');
+  const g = svg.append('g').attr('transform','translate(' + mg.l + ',' + mg.t + ')');
+
+  // Optional Whittaker biome bands (very rough)
+  if (document.getElementById('cl-biomes').classList.contains('on')) {
+    const biomes = [
+      { name:'Tundra',                t:[-15,-2], p:[0,1500],   c:'#cfe6f4' },
+      { name:'Boreal forest',         t:[-2,5],   p:[200,2500], c:'#b8d6c0' },
+      { name:'Temperate grassland',   t:[5,18],   p:[150,800],  c:'#e8e1bd' },
+      { name:'Temperate forest',      t:[5,18],   p:[800,2500], c:'#a8c98c' },
+      { name:'Mediterranean',         t:[10,22],  p:[200,900],  c:'#f0d28a' },
+      { name:'Tropical savanna',      t:[18,30],  p:[300,1800], c:'#e8b87a' },
+      { name:'Tropical rainforest',   t:[20,30],  p:[1800,5500],c:'#86b576' },
+      { name:'Hot desert',            t:[15,32],  p:[0,250],    c:'#f3d9b1' },
+    ];
+    biomes.forEach(b => {
+      g.append('rect')
+        .attr('x', xSc(b.t[0])).attr('y', ySc(b.p[1]))
+        .attr('width',  Math.max(0, xSc(b.t[1]) - xSc(b.t[0])))
+        .attr('height', Math.max(0, ySc(b.p[0]) - ySc(b.p[1])))
+        .attr('fill', b.c).attr('opacity', .35);
+      g.append('text').attr('x', xSc((b.t[0]+b.t[1])/2)).attr('y', ySc((b.p[0]+b.p[1])/2))
+        .attr('text-anchor','middle').attr('font-size','9.5px').attr('fill','#6a6a4a').attr('opacity',.7)
+        .text(b.name);
+    });
+  }
+
+  // Axes
+  g.append('g').attr('transform','translate(0,' + iH + ')')
+    .call(d3.axisBottom(xSc).ticks(8).tickFormat(d => d + '°'))
+    .selectAll('text').attr('fill','#5a7a4a').attr('font-size','11px');
+  g.append('g')
+    .call(d3.axisLeft(ySc).ticks(6).tickFormat(d => d + ' mm'))
+    .selectAll('text').attr('fill','#5a7a4a').attr('font-size','11px');
+
+  // Axis titles
+  g.append('text').attr('x',iW/2).attr('y',iH+42).attr('text-anchor','middle')
+    .attr('fill','#5a7a4a').attr('font-size','12px').attr('font-weight',600)
+    .text('Mean annual temperature (°C) · BIO1');
+  g.append('text').attr('transform','rotate(-90)').attr('x',-iH/2).attr('y',-46).attr('text-anchor','middle')
+    .attr('fill','#5a7a4a').attr('font-size','12px').attr('font-weight',600)
+    .text('Annual precipitation (mm) · BIO12');
+
+  const tt = d3.select('#tt');
+  g.selectAll('.cdot').data(pts).join('circle').attr('class','cdot')
+    .attr('cx', d => xSc(d.bio1/10))
+    .attr('cy', d => ySc(d.bio12))
+    .attr('r', 4.2)
+    .attr('fill', d => rc(d.realm))
+    .attr('fill-opacity', .72)
+    .attr('stroke', '#fff').attr('stroke-width', .5)
+    .style('cursor','pointer')
+    .on('mousemove', function(ev,d) {
+      tt.classed('show',true)
+        .html('<b>' + esc(d.name) + '</b><em>' + esc(d.sci) + '</em><span class="tt-meta">' + (d.bio1/10).toFixed(1) + '°C · ' + Math.round(d.bio12) + ' mm</span>')
+        .style('left',(ev.clientX+14)+'px').style('top',(ev.clientY-30)+'px');
+    })
+    .on('mouseleave', () => tt.classed('show',false))
+    .on('click', (_,d) => { tt.classed('show',false); openModal(d); });
+}
+
+/* ── STATS ────────────────────────────────────────── */
 function drawStats() {
   const wrap = document.getElementById('stats-wrap');
   if (!wrap) return;
   wrap.innerHTML = '';
   const crops = DATA;
-  if (!crops.length) { wrap.innerHTML = '<p style="color:var(--muted);padding:16px">No data.</p>'; return; }
-  const W = Math.max(wrap.getBoundingClientRect().width - 48, 300);
-  drawBars(wrap, 'Top Plant Families',    topN(countBy(crops, d=>d.family||'Unknown'), 14), W, 'var(--primary)');
-  drawBars(wrap, 'Biogeographic Realms',  topN(countBy(crops, d=>d.realm||'Unknown'),  10), W, 'var(--accent)');
-  drawBars(wrap, 'Growth Forms',          topN(countBy(crops, d=>d.gf||'Unknown'),     10), W, '#4a9e6b');
-  drawAgeHist(wrap, 'Domestication Antiquity Distribution (years ago)',
-    crops.map(d=>d.tDom).filter(v=>v>0&&v<15000), W);
+  if (!crops.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);padding:16px">No data.</p>';
+    return;
+  }
+  const W = Math.max(wrap.getBoundingClientRect().width - 20, 560);
+  drawBars(wrap, 'Top Plant Families',     topN(countBy(crops, d => d.family || 'Unknown'), 14), W, 'var(--primary)');
+  drawBars(wrap, 'Biogeographic Realms',   topN(countBy(crops, d => d.realm || 'Unknown'),  10), W, 'var(--accent)');
+  drawBars(wrap, 'Growth Forms',           topN(countBy(crops, d => d.gf || 'Unknown'),     10), W, '#4a9e6b');
+  drawBars(wrap, 'Primary Use',            topN(countBy(crops, d => d.use || 'Unknown'),    10), W, '#8856b8');
+  drawAgeHist(wrap, 'Domestication Antiquity Distribution (years BP)', crops.map(d => d.tDom).filter(v => v > 0 && v < 15000), W);
 }
 function countBy(arr, fn) {
-  const m={};
-  arr.forEach(d=>{ const k=fn(d); m[k]=(m[k]||0)+1; });
-  return Object.entries(m).map(([k,v])=>({label:k,value:v}));
+  const m = {};
+  arr.forEach(d => { const k = fn(d); m[k] = (m[k]||0) + 1; });
+  return Object.entries(m).map(([k,v]) => ({ label:k, value:v }));
 }
-function topN(arr, n) { return arr.sort((a,b)=>b.value-a.value).slice(0,n); }
+function topN(arr, n) { return arr.sort((a,b) => b.value - a.value).slice(0,n); }
 function drawBars(container, title, data, W, color) {
-  const H=200, mg={top:30,right:16,bottom:70,left:44};
-  const iW=W-mg.left-mg.right, iH=H-mg.top-mg.bottom;
-  const div=document.createElement('div'); div.style.cssText='margin-bottom:28px;'; container.appendChild(div);
-  const svg=d3.select(div).append('svg').attr('width',W).attr('height',H);
-  const g=svg.append('g').attr('transform',`translate(${mg.left},${mg.top})`);
+  const H = 220, mg = { top:30, right:16, bottom:90, left:48 };
+  const iW = W - mg.left - mg.right, iH = H - mg.top - mg.bottom;
+  const div = document.createElement('div');
+  div.className = 'viz';
+  div.style.cssText = 'margin-bottom:18px;padding:14px;';
+  container.appendChild(div);
+  const svg = d3.select(div).append('svg').attr('width',W).attr('height',H);
+  const g = svg.append('g').attr('transform','translate(' + mg.left + ',' + mg.top + ')');
   svg.append('text').attr('x',mg.left).attr('y',18).attr('font-size',13).attr('font-weight',600).attr('fill','var(--text)').text(title);
-  const x=d3.scaleBand().domain(data.map(d=>d.label)).range([0,iW]).padding(0.22);
-  const y=d3.scaleLinear().domain([0,d3.max(data,d=>d.value)]).nice().range([iH,0]);
-  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW)).call(ax=>ax.selectAll('.domain').remove()).call(ax=>ax.selectAll('.tick line').attr('stroke','var(--border-lt)')).call(ax=>ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
-  g.append('g').attr('transform',`translate(0,${iH})`).call(d3.axisBottom(x).tickSize(0)).call(ax=>ax.selectAll('.domain').attr('stroke','var(--border)')).call(ax=>ax.selectAll('text').attr('fill','var(--text)').attr('font-size',10).attr('transform','rotate(-38)').style('text-anchor','end'));
-  g.selectAll('rect').data(data).join('rect').attr('x',d=>x(d.label)).attr('y',d=>y(d.value)).attr('width',x.bandwidth()).attr('height',d=>iH-y(d.value)).attr('fill',color).attr('rx',3).attr('opacity',0.85);
-  g.selectAll('.vl').data(data).join('text').attr('class','vl').attr('x',d=>x(d.label)+x.bandwidth()/2).attr('y',d=>y(d.value)-4).attr('text-anchor','middle').attr('font-size',9).attr('fill','var(--muted)').text(d=>d.value);
+  const x = d3.scaleBand().domain(data.map(d => d.label)).range([0,iW]).padding(0.22);
+  const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([iH,0]);
+  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW))
+    .call(ax => ax.selectAll('.domain').remove())
+    .call(ax => ax.selectAll('.tick line').attr('stroke','var(--border-lt)'))
+    .call(ax => ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
+  g.append('g').attr('transform','translate(0,' + iH + ')').call(d3.axisBottom(x).tickSize(0))
+    .call(ax => ax.selectAll('.domain').attr('stroke','var(--border)'))
+    .call(ax => ax.selectAll('text').attr('fill','var(--text)').attr('font-size',10).attr('transform','rotate(-38)').style('text-anchor','end'));
+  g.selectAll('rect.bar').data(data).join('rect').attr('class','bar')
+    .attr('x', d => x(d.label)).attr('y', d => y(d.value))
+    .attr('width', x.bandwidth()).attr('height', d => iH - y(d.value))
+    .attr('fill', color).attr('rx', 3).attr('opacity', .85);
+  g.selectAll('text.vl').data(data).join('text').attr('class','vl')
+    .attr('x', d => x(d.label) + x.bandwidth()/2).attr('y', d => y(d.value) - 4)
+    .attr('text-anchor','middle').attr('font-size',9).attr('fill','var(--muted)').text(d => d.value);
 }
 function drawAgeHist(container, title, ages, W) {
-  const H=200, mg={top:30,right:16,bottom:40,left:50};
-  const iW=W-mg.left-mg.right, iH=H-mg.top-mg.bottom;
-  const div=document.createElement('div'); div.style.cssText='margin-bottom:28px;'; container.appendChild(div);
-  const svg=d3.select(div).append('svg').attr('width',W).attr('height',H);
-  const g=svg.append('g').attr('transform',`translate(${mg.left},${mg.top})`);
+  if (!ages.length) return;
+  const H = 220, mg = { top:30, right:16, bottom:50, left:54 };
+  const iW = W - mg.left - mg.right, iH = H - mg.top - mg.bottom;
+  const div = document.createElement('div');
+  div.className = 'viz';
+  div.style.cssText = 'margin-bottom:18px;padding:14px;';
+  container.appendChild(div);
+  const svg = d3.select(div).append('svg').attr('width',W).attr('height',H);
+  const g = svg.append('g').attr('transform','translate(' + mg.left + ',' + mg.top + ')');
   svg.append('text').attr('x',mg.left).attr('y',18).attr('font-size',13).attr('font-weight',600).attr('fill','var(--text)').text(title);
-  const x=d3.scaleLinear().domain([0,d3.max(ages)]).nice().range([0,iW]);
-  const bins=d3.bin().domain(x.domain()).thresholds(20)(ages);
-  const y=d3.scaleLinear().domain([0,d3.max(bins,d=>d.length)]).nice().range([iH,0]);
-  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW)).call(ax=>ax.selectAll('.domain').remove()).call(ax=>ax.selectAll('.tick line').attr('stroke','var(--border-lt)')).call(ax=>ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
-  g.append('g').attr('transform',`translate(0,${iH})`).call(d3.axisBottom(x).ticks(6).tickFormat(d=>d.toLocaleString())).call(ax=>ax.selectAll('.domain').attr('stroke','var(--border)')).call(ax=>ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
-  g.selectAll('rect').data(bins).join('rect').attr('x',d=>x(d.x0)+1).attr('y',d=>y(d.length)).attr('width',d=>Math.max(0,x(d.x1)-x(d.x0)-2)).attr('height',d=>iH-y(d.length)).attr('fill','var(--primary)').attr('rx',2).attr('opacity',0.82);
+  const x = d3.scaleLinear().domain([0, d3.max(ages)]).nice().range([0,iW]);
+  const bins = d3.bin().domain(x.domain()).thresholds(20)(ages);
+  const y = d3.scaleLinear().domain([0, d3.max(bins, d => d.length)]).nice().range([iH,0]);
+  g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-iW))
+    .call(ax => ax.selectAll('.domain').remove())
+    .call(ax => ax.selectAll('.tick line').attr('stroke','var(--border-lt)'))
+    .call(ax => ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
+  g.append('g').attr('transform','translate(0,' + iH + ')').call(d3.axisBottom(x).ticks(6).tickFormat(d => d.toLocaleString()))
+    .call(ax => ax.selectAll('.domain').attr('stroke','var(--border)'))
+    .call(ax => ax.selectAll('text').attr('fill','var(--muted)').attr('font-size',10));
+  g.selectAll('rect').data(bins).join('rect')
+    .attr('x', d => x(d.x0)+1).attr('y', d => y(d.length))
+    .attr('width', d => Math.max(0, x(d.x1)-x(d.x0)-2)).attr('height', d => iH - y(d.length))
+    .attr('fill', 'var(--primary)').attr('rx', 2).attr('opacity', .82);
 }
 
-/* ── BOOT ────────────────────────────────────────── */
+/* ── CROP DETAIL MODAL ────────────────────────── */
+function openModal(crop) {
+  if (!crop) return;
+  const col = rc(crop.realm);
+  const imgEl = document.getElementById('modal-img');
+  const phEl  = document.getElementById('modal-img-placeholder');
+  imgEl.style.opacity = '0'; imgEl.src = '';
+  phEl.style.display = 'flex';
+  document.getElementById('modal-img-credit').textContent = '';
+  const emojis = { 'grain':'🌾','fruit_flower':'🍅','tuber_root':'🥔','leaf_shoot':'🥬','seed':'🌰','drink':'☕','nut':'🌰' };
+  const useKey = Object.keys(emojis).find(k => (crop.useType || '').toLowerCase().includes(k));
+  phEl.textContent = emojis[useKey] || '🌱';
+
+  const climate = (crop.bio1 != null || crop.bio12 != null) ? (
+    '<div class="msect">Wild progenitor climate (median)</div>' +
+    '<div class="bioclim">' +
+      '<div><span>Mean annual temp · BIO1</span><span>' + (crop.bio1 != null ? (crop.bio1/10).toFixed(1) + ' °C' : '—') + '</span></div>' +
+      '<div><span>Annual precip · BIO12</span><span>' + (crop.bio12 != null ? Math.round(crop.bio12) + ' mm' : '—') + '</span></div>' +
+      '<div><span>Max temp warmest · BIO5</span><span>' + (crop.bio5 != null ? (crop.bio5/10).toFixed(1) + ' °C' : '—') + '</span></div>' +
+      '<div><span>Min temp coldest · BIO6</span><span>' + (crop.bio6 != null ? (crop.bio6/10).toFixed(1) + ' °C' : '—') + '</span></div>' +
+      '<div><span>Temp seasonality · BIO4</span><span>' + (crop.bio4 != null ? Math.round(crop.bio4) : '—') + '</span></div>' +
+      '<div><span>Precip seasonality · BIO15</span><span>' + (crop.bio15 != null ? Math.round(crop.bio15) : '—') + '</span></div>' +
+    '</div>'
+  ) : '';
+
+  document.getElementById('modal-body').innerHTML =
+    '<div class="mcn">' + esc(crop.name) + '</div>' +
+    '<div class="msci">' + esc(crop.sci) + '</div>' +
+    '<span class="mbadge" style="background:' + col + '">' + esc(rl(crop.realm)) + '</span>' +
+    '<div class="mgrid">' +
+      '<div class="mf"><div class="mfl">Family</div><div class="mfv">' + (esc(crop.family) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Order</div><div class="mfv">' + (esc(crop.order) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Genus</div><div class="mfv"><em>' + (esc(crop.genus) || '—') + '</em></div></div>' +
+      '<div class="mf"><div class="mfl">Growth form</div><div class="mfv">' + (esc(crop.gf) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">First cultivated</div><div class="mfv hi">' + fage(crop.tCult) + '</div></div>' +
+      '<div class="mf"><div class="mfl">First domesticated</div><div class="mfv hi">' + fage(crop.tDom) + '</div></div>' +
+      '<div class="mf"><div class="mfl">Primary use</div><div class="mfv">' + (esc(crop.use) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Use category</div><div class="mfv">' + (esc(crop.useType) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Food crop</div><div class="mfv">' + (crop.food ? '✅ Yes' : '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Animal feed</div><div class="mfv">' + (crop.feed ? '✅ Yes' : '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">Ecoregion</div><div class="mfv">' + (esc(crop.eco) || '—') + '</div></div>' +
+      '<div class="mf"><div class="mfl">GBIF records</div><div class="mfv">' + (crop.gbif != null ? crop.gbif.toLocaleString() : '—') + '</div></div>' +
+    '</div>' +
+    (crop.prog ? '<div class="msect">Wild progenitor</div><div class="progbox">' + esc(crop.prog) + '</div>' : '') +
+    climate;
+
+  document.getElementById('moverlay').classList.add('open');
+  getImg(crop.name, crop.sci, 800).then(url => {
+    if (!url) return;
+    imgEl.onload = () => {
+      imgEl.style.opacity = '1';
+      phEl.style.display = 'none';
+      document.getElementById('modal-img-credit').textContent = 'Photo: Wikimedia Commons';
+    };
+    imgEl.src = url;
+    imgEl.style.position = 'absolute'; imgEl.style.inset = '0';
+  });
+}
+function closeModal() { document.getElementById('moverlay').classList.remove('open'); }
+
+/* ── INFO MODAL ───────────────────────────────────── */
+const INFO = {
+  about: {
+    title:'About Crop Origins Explorer',
+    html:
+      '<h3>What is this?</h3>' +
+      '<p>The <b>Crop Origins Explorer</b> is an interactive web app for the <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Crop Origins &amp; Phylo Food</a> database compiled by <b><a href="https://servicios.urjc.es/pdi/ver/ruben.milla" target="_blank" rel="noopener">Prof. Rubén Milla</a></b> (Universidad Rey Juan Carlos). It transforms the static CSV into a navigable atlas of 867 crops — their wild progenitors, biogeographic origins, climate envelopes, and (for 211 species) domestication antiquity.</p>' +
+      '<h3>Who built it?</h3>' +
+      '<p>Built by <b><a href="mailto:s.solomon.2025@alumnos.urjc.es">Samson Solomon</a></b> as a teaching and research aid. Source code on <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>, deployed via Vercel.</p>' +
+      '<h3>What\'s new in this version?</h3>' +
+      '<ul>' +
+        '<li>Scroll-spy navigation — sections are stacked vertically and the left rail tracks your position (chefaoui.github.io style).</li>' +
+        '<li>The <b>Antiquity Atlas</b> is now a separate chapter with its own filters, restricted to the 211 species with published domestication dates.</li>' +
+        '<li>New <b>Climate Envelope</b> chapter — Whittaker-style scatter of mean annual temperature × precipitation.</li>' +
+        '<li>Filtered-subset CSV export and PNG export for each visualization.</li>' +
+      '</ul>'
+  },
+  howto: {
+    title:'How to Use the Explorer',
+    html:
+      '<h3>Two independent filtering universes</h3>' +
+      '<div class="note-box"><b>Important:</b> The sidebar contains two filter blocks that work independently of each other. The <b>Global filters</b> (green) apply to the Origin Atlas, Time Axis, Phylogenetic Tree, Climate Envelope and Stats chapters. The <b>Antiquity filters</b> (orange) apply only to the Antiquity Atlas chapters. Changing one set never affects the other.</div>' +
+      '<h3>Search</h3>' +
+      '<p>Use the search box in the top header (or press <span class="kbd">/</span> to focus it) to find a crop by common name, scientific name, or family. Press Enter to scroll to the Atlas and zoom to the match.</p>' +
+      '<h3>Global filters</h3>' +
+      '<ul>' +
+        '<li><b>Family</b> — plant family (e.g. Poaceae, Solanaceae).</li>' +
+        '<li><b>Primary Use</b> — the crop organ most relevant for human consumption: fruit/flower, root, seed, vegetative shoot. Forage crops are classified separately.</li>' +
+        '<li><b>Biogeographic Realm</b> — the realm where the wild ancestor is most abundant (per GBIF). This may differ from the actual domestication region.</li>' +
+        '<li><b>Growth Form</b> — herb, shrub, tree, etc.</li>' +
+      '</ul>' +
+      '<h3>The Antiquity Atlas chapter (211 spp.)</h3>' +
+      '<p>Only <b>211 of the 867 crops</b> in the database carry a published estimate for <em>minimum_time_domestication</em>. This is why the Antiquity Atlas is a separate chapter with a max count of <b>211 crops shown</b> — there simply is no antiquity data for the other 656 species. Inside this chapter you can:</p>' +
+      '<ul>' +
+        '<li>Slide the time range (years before present, 0–11,500).</li>' +
+        '<li>Filter the subset further by family or biogeographic realm.</li>' +
+        '<li>View the origin map (markers coloured by age class), a horizontal beeswarm of every dated species along the time axis, and a side-by-side ranking of the 20 oldest vs. 20 most recently domesticated crops.</li>' +
+      '</ul>' +
+      '<h3>The Map</h3>' +
+      '<p>Each crop is shown as a <b>gradient dot</b> — strong colour at the centre, fading toward the edges to communicate that the location is an indicator of origin <em>region</em>, not a precise domestication site. The plotted location is the centroid of the ecoregion (Olson et al. 2001) with the most GBIF records for that crop\'s wild progenitor. Click any dot for a popup, then "Full details →" to open the complete record.</p>' +
+      '<h3>Climate Envelope</h3>' +
+      '<p>A Whittaker-style scatter of each progenitor\'s median climate. X = BIO1 (mean annual temperature, °C); Y = BIO12 (annual precipitation, mm). Toggle <em>Show biome bands</em> to overlay rough biome regions. Hover for species, click to open the full record.</p>' +
+      '<h3>Phylo Tree &amp; Stats</h3>' +
+      '<p>The <b>Phylo Tree</b> renders the taxonomic hierarchy from Order → Family → Species for the filtered set. The <b>Stats</b> chapter shows live bar charts of families, realms, growth forms, primary uses, and the antiquity histogram.</p>' +
+      '<h3>Keyboard</h3>' +
+      '<p><span class="kbd">/</span> focus search · <span class="kbd">Esc</span> close any panel · <span class="kbd">⬇ CSV</span> in the sidebar exports the currently filtered subset.</p>'
+  },
+  methods: {
+    title:'Methods & Data Sources',
+    html:
+      '<h3>Source dataset</h3>' +
+      '<p>All records come from the <b>crop_origins_live_db.csv</b> file in the <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">Crop_Origins_Phylo</a> repository (Milla 2020, 2021). The CSV is fetched live from GitHub at page load — no data is stored locally — so the explorer always shows the latest version of the database.</p>' +
+      '<h3>Geographic placement</h3>' +
+      '<p>Each species is plotted at the longitude/latitude centroid of the WWF terrestrial ecoregion (Olson et al. 2001) that contains the highest number of GBIF occurrence records for its wild progenitor. The slight scatter of nearby markers is a small deterministic jitter applied in the client to prevent overplot of co-occurring species in the same ecoregion.</p>' +
+      '<h3>Antiquity classes</h3>' +
+      '<p>For the Antiquity Atlas map, dates are binned into five archaeological age classes:</p>' +
+      '<ul>' +
+        '<li><b>Holocene early</b> — &gt;9,000 yr BP (Neolithic founder crops)</li>' +
+        '<li><b>Holocene mid</b> — 5,000–9,000 yr BP</li>' +
+        '<li><b>Bronze–Iron Age</b> — 2,000–5,000 yr BP</li>' +
+        '<li><b>Classical–Medieval</b> — 500–2,000 yr BP</li>' +
+        '<li><b>Modern</b> — &lt;500 yr BP</li>' +
+      '</ul>' +
+      '<h3>Climate variables</h3>' +
+      '<p>The Climate Envelope plots <b>median_BIO1</b> against <b>median_BIO12</b>. These are WorldClim bioclim variables computed across the wild-progenitor\'s GBIF records: BIO1 (annual mean temperature, stored in tenths of °C — divided by 10 in the display) and BIO12 (annual precipitation, mm). The detail modal additionally exposes BIO4, BIO5, BIO6 and BIO15.</p>' +
+      '<h3>Imagery</h3>' +
+      '<p>Crop photographs are fetched on-demand from the <b>Wikipedia REST summary API</b> using common name first, scientific name as fallback. Images remain on Wikimedia\'s servers and are subject to their respective licences.</p>'
+  },
+  terms: {
+    title:'Terms of Use & Disclaimer',
+    html:
+      '<div class="warn-box">⚠ Crop Origins is a work in progress. Please send feedback or alerts on new literature directly to the database compiler: <a href="mailto:ruben.milla@urjc.es">ruben.milla@urjc.es</a>.</div>' +
+      '<h3>Terms of Use</h3>' +
+      '<p>The Crop Origins Explorer can be freely used by any interested person or party, provided that the source is properly cited in publications. See the <b>Cite</b> section for the appropriate references.</p>' +
+      '<h3>Disclaimer</h3>' +
+      '<p>All efforts were made to compile resources of the highest quality, including formal and informal review by peers. However, the compilers of the underlying data cannot guarantee full accuracy of the information, and the user utilises the repository at her/his own consideration.</p>' +
+      '<h3>Photo Credits</h3>' +
+      '<p>Crop images shown in the detail modal are retrieved from <b>Wikimedia Commons</b> via the Wikipedia REST API and are subject to their respective licences. No images are stored by this application.</p>'
+  },
+  citations: {
+    title:'Citations',
+    html:
+      '<h3>Crop Origins &amp; Phylo Food databases</h3>' +
+      '<div class="cite-block">Milla, R (2020) Crop Origins and Phylo Food: a database and a phylogenetic tree to stimulate comparative analyses on the origins of food crops. <em>Global Ecology and Biogeography</em> 29: 606–614. <a href="https://doi.org/10.1111/geb.13057" target="_blank" rel="noopener">https://doi.org/10.1111/geb.13057</a></div>' +
+      '<div class="cite-block">Milla, R (2021) Crop Origins and Phylo Food. GitHub repository. <a href="https://github.com/rubenmilla/Crop_Origins_Phylo" target="_blank" rel="noopener">github.com/rubenmilla/Crop_Origins_Phylo</a></div>' +
+      '<h3>Ecoregional classification</h3>' +
+      '<div class="cite-block">Olson, DM et al. (2001) Terrestrial Ecoregions of the World: A New Map of Life on Earth. <em>BioScience</em> 51(11): 933–938.</div>' +
+      '<h3>Climate variables</h3>' +
+      '<div class="cite-block">Fick, SE &amp; Hijmans, RJ (2017) WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas. <em>International Journal of Climatology</em> 37: 4302–4315.</div>' +
+      '<h3>This explorer</h3>' +
+      '<div class="cite-block">Solomon, S (2026) Crop Origins Explorer: a user-friendly interactive web atlas for the Milla 2020 Crop Origins &amp; Phylo Food database.</div>'
+  }
+};
+function openInfo(key) {
+  const c = INFO[key];
+  if (!c) return;
+  document.getElementById('imodal-title').textContent = c.title;
+  document.getElementById('imodal-body').innerHTML = c.html;
+  document.getElementById('ioverlay').classList.add('open');
+}
+function closeInfo() { document.getElementById('ioverlay').classList.remove('open'); }
+
+/* ── SCROLL-SPY ───────────────────────────────────── */
+function setupScrollSpy() {
+  const items = document.querySelectorAll('#scroll-nav .nav-item');
+  const map = {};
+  items.forEach(a => { map[a.getAttribute('href').slice(1)] = a; });
+
+  const sections = document.querySelectorAll('.chapter');
+  const aqIds = new Set(['aq-intro','aq-map','aq-timeline','aq-compare']);
+
+  function setActive(id) {
+    items.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    // Show appropriate filter block
+    const inAq = aqIds.has(id);
+    document.getElementById('global-filters-block').style.display = inAq ? 'none' : '';
+    document.getElementById('aq-filters-block').style.display = inAq ? '' : 'none';
+  }
+
+  // IntersectionObserver — pick the section whose header is just below the sticky nav
+  const obs = new IntersectionObserver(entries => {
+    let bestId = null, bestRatio = 0;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > bestRatio) {
+        bestRatio = e.intersectionRatio;
+        bestId = e.target.id;
+      }
+    });
+    if (bestId) setActive(bestId);
+  }, {
+    rootMargin: '-72px 0px -55% 0px',
+    threshold: [0.1, 0.25, 0.5, 0.75]
+  });
+  sections.forEach(s => obs.observe(s));
+
+  // Click → smooth scroll handled by browser via anchor href + scroll-margin-top
+  // But we also set active immediately for snappier UX
+  items.forEach(a => a.addEventListener('click', () => {
+    const id = a.getAttribute('href').slice(1);
+    setActive(id);
+  }));
+}
+
+/* ── EXPORTS ──────────────────────────────────────── */
+function exportCSV() {
+  if (!DATA.length) return;
+  const cols = ['name','sci','family','order','genus','gf','realm','eco','use','useType','tCult','tDom','lat','lon','gbif','bio1','bio12'];
+  const head = ['common_name','scientific_name','family','order','genus','growth_form','realm','ecoregion','primary_use','use_category','min_yr_cultivation','min_yr_domestication','lat','lon','gbif_records','median_BIO1_x10','median_BIO12_mm'];
+  const rows = [head.join(',')];
+  DATA.forEach(d => {
+    rows.push(cols.map(c => {
+      let v = d[c];
+      if (v == null) return '';
+      v = String(v).replace(/"/g,'""');
+      return /[",\n]/.test(v) ? '"' + v + '"' : v;
+    }).join(','));
+  });
+  const blob = new Blob([rows.join('\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'crop_origins_filtered_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportSvg(wrapId, filename) {
+  const wrap = document.getElementById(wrapId);
+  const svg = wrap.querySelector('svg');
+  if (!svg) return;
+  const xml = new XMLSerializer().serializeToString(svg);
+  const w = svg.viewBox.baseVal.width || svg.width.baseVal.value;
+  const h = svg.viewBox.baseVal.height || svg.height.baseVal.value;
+  const img = new Image();
+  const b64 = btoa(unescape(encodeURIComponent(xml)));
+  img.onload = function() {
+    const c = document.createElement('canvas');
+    c.width = w * 2; c.height = h * 2;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.scale(2,2);
+    ctx.drawImage(img, 0, 0);
+    c.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  };
+  img.src = 'data:image/svg+xml;base64,' + b64;
+}
+
+/* ── BOOT ─────────────────────────────────────────── */
+wireFilterEvents();
 loadData();
+
+// Re-render scrollable views on resize (debounced)
+let _rTO;
+window.addEventListener('resize', () => {
+  clearTimeout(_rTO);
+  _rTO = setTimeout(() => {
+    drawTimeline(); drawTree(); drawClimate(); drawStats();
+    drawAqTimeline();
+  }, 200);
+});
 </script>
 </body>
 </html>
