@@ -301,25 +301,7 @@
       <div class="flabel">Growth Form</div>
       <select id="s-gf"><option value="">All growth forms</option></select>
     </div>
-    <hr class="sdiv" />
-    <div class="fsection">
-      <div class="flabel">Domestication Antiquity (years ago)</div>
-      <div class="range-labels">
-        <span>Min: <b id="rmin-lbl">0</b></span>
-        <span>Max: <b id="rmax-lbl">11 500</b></span>
-      </div>
-      <input type="range" id="r-min" min="0" max="11500" step="100" value="0" />
-      <input type="range" id="r-max" min="0" max="11500" step="100" value="11500" />
-      <div class="search-hint" style="margin-top:5px">Only <b style="color:var(--accent)">210</b> of 867 crops have antiquity data. Moving these sliders excludes crops without records.</div>
-    </div>
-    <hr class="sdiv" />
-    <div id="count-wrap"><b id="cnt">—</b> crops shown</div>
-    <button id="btn-reset">↺ Reset all filters</button>
-    <hr class="sdiv" />
-    <div class="fsection">
-      <div class="flabel">Realm colour key</div>
-      <div class="legend" id="legend"></div>
-    </div>
+    
   </aside>
 
   <!-- MAIN VIEWS -->
@@ -343,8 +325,15 @@
 <div id="view-antiquity" class="view">
   <div class="vhdr">
     <h2>Domestication Antiquity</h2>
-    <p>When were our food crops first domesticated? Explore the data, understand its scope, and compare across regions.</p>
-  </div>
+    327      <p>When were our food crops first domesticated? Explore the data, understand its scope, and compare across regions.</p>
+328      <div style="display:flex;align-items:center;gap:20px;margin-top:10px;flex-wrap:wrap;">
+329        <div style="flex:1;min-width:220px;max-width:380px;">
+330          <div class="range-labels"><span>Min: <b id="rmin-lbl">0</b></span><span>Max: <b id="rmax-lbl">11 500</b></span></div>
+331          <input type="range" id="r-min" min="0" max="11500" step="100" value="0" />
+332          <input type="range" id="r-max" min="0" max="11500" step="100" value="11500" />
+333        </div>
+334        <div style="font-size:11px;color:var(--muted);max-width:260px;">Only <b style="color:var(--accent)">210</b> of 867 crops have antiquity data. Moving the sliders filters all views.</div>
+335      </div>
   <div class="vscroll" style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;padding:24px;">
 
     <!-- Left: explanation card -->
@@ -637,6 +626,7 @@ function refreshView() {
   if (_curView==='timeline') drawTimeline();
   if (_curView==='tree')     drawTree();
   if (_curView==='stats')    drawStats();
+  if (_curView==='antiquity') drawTimeline(document.getElementById('aq-tl-wrap'));
 }
 
 /* ── SEARCH & PINPOINT ──────────────────────────── */
@@ -694,19 +684,7 @@ function gotoView(v) {
   _curView = v;
   setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(refreshView)), 80);
 }
-  if (v === 'antiquity') {
-    // reuse the timeline draw function but target the antiquity wrap
-    const origWrap = document.getElementById('tl-wrap');
-    const aqWrap   = document.getElementById('aq-tl-wrap');
-    aqWrap.innerHTML = '';
-    // temporarily redirect drawTimeline to aq-tl-wrap
-    const saved = origWrap.id;
-    origWrap.id = '__hidden';
-    aqWrap.id   = 'tl-wrap';
-    drawTimeline();
-    aqWrap.id   = 'aq-tl-wrap';
-    origWrap.id = saved;
-  }
+ 
 document.querySelectorAll('.nbtn').forEach(btn =>
   btn.addEventListener('click', () => gotoView(btn.dataset.v))
 );
@@ -963,8 +941,8 @@ document.getElementById('ioverlay').addEventListener('click', e => {
 });
 
 /* ── TIMELINE ───────────────────────────────────── */
-function drawTimeline() {
-  const wrap = document.getElementById('tl-wrap');
+function drawTimeline(wrapEl) {
+  const wrap = wrapEl || document.getElementById('tl-wrap');
   wrap.innerHTML = '';
   const pts = DATA.filter(d => d.tDom != null && d.tDom > 0);
   if (!pts.length) { wrap.innerHTML = '<p style="color:var(--muted);padding:24px 0">No crops with domestication antiquity data match your filters.</p>'; return; }
