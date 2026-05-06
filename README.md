@@ -2,15 +2,6 @@
 
 Interactive web atlas of the [Crop Origins & Phylo Food](https://github.com/rubenmilla/Crop_Origins_Phylo) database (Milla 2020) — 867 food crops, their wild progenitors, biogeographic origins, climate envelopes, and (for 211 species) domestication antiquity.
 
-## Deploy on Vercel via GitHub
-
-1. Create a new GitHub repository (e.g. `crop-origins-explorer-v2`).
-2. Drop `index.html` into the repository root and commit.
-3. Go to [vercel.com/new](https://vercel.com/new), import the repository.
-4. **Framework preset:** *Other*. **Build command:** *(leave empty)*. **Output directory:** *(leave empty)*. Click **Deploy**.
-
-That's it — the file is fully self-contained: it pulls Leaflet, MarkerCluster, PapaParse, D3, fonts and the live CSV from CDNs at runtime.
-
 ## Run locally
 
 ```
